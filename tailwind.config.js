@@ -5,6 +5,7 @@ module.exports = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: 'class',
   theme: {
     screens: {
       'xs': '475px',
@@ -44,6 +45,31 @@ module.exports = {
         warning: '#f59e0b',
         error: '#ef4444',
         info: '#3b82f6',
+        dark: {
+          primary: {
+            light: '#93c5fd',
+            DEFAULT: '#3b82f6',
+            dark: '#2563eb',
+          },
+          secondary: {
+            light: '#c4b5fd',
+            DEFAULT: '#8b5cf6',
+            dark: '#7c3aed',
+          },
+          neutral: {
+            white: '#0f172a',
+            light: '#1e293b',
+            muted: '#64748b',
+            medium: '#94a3b8',
+            dark: '#e2e8f0',
+            darker: '#f1f5f9',
+            black: '#ffffff',
+          },
+          bg: {
+            primary: '#0f172a',
+            secondary: '#1e293b',
+          },
+        },
       },
     },
   },

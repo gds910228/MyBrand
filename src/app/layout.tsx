@@ -1,6 +1,8 @@
+"use client";
+
 import '../styles/globals.css';
 import { Inter, Montserrat, Fira_Code } from 'next/font/google';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -35,9 +37,26 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  // 在客户端挂载时初始化主题
+  useEffect(() => {
+    setMounted(true);
+    
+    // 从localStorage获取主题设置或使用系统偏好
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
   return (
     <html lang="en" className={`${inter.variable} ${montserrat.variable} ${firaCode.variable}`}>
-      <body className="min-h-screen flex flex-col antialiased text-neutral-dark bg-white">
+      <body className="min-h-screen flex flex-col antialiased text-neutral-dark dark:text-dark-neutral-dark bg-white dark:bg-dark-bg-primary transition-colors duration-200">
         <Navbar />
         <main className="flex-grow pt-20">{children}</main>
         <Footer />

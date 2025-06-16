@@ -14,7 +14,7 @@ interface SectionHeadingProps {
 const SectionHeading: React.FC<SectionHeadingProps> = ({
   title,
   subtitle,
-  centered = false,
+  centered = true,
   className = '',
   size = 'md',
   subtitleClassName = '',
@@ -35,11 +35,11 @@ const SectionHeading: React.FC<SectionHeadingProps> = ({
 
   return (
     <div className={`${marginClasses[size]} ${centered ? 'text-center' : ''} ${className}`}>
-      <h2 className={`${titleSizeClasses[size]} font-heading text-neutral-darker`}>
+      <h2 className="text-3xl md:text-4xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
         {title}
       </h2>
       {subtitle && (
-        <p className={`mt-3 sm:mt-4 text-base sm:text-lg text-neutral-dark max-w-3xl ${centered ? 'mx-auto' : ''} ${subtitleClassName}`}>
+        <p className="text-lg text-neutral-dark dark:text-dark-neutral-dark max-w-3xl mx-auto">
           {subtitle}
         </p>
       )}

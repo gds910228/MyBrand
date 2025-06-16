@@ -24,91 +24,108 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-neutral-darker text-neutral-light">
+    <footer className="bg-neutral-light dark:bg-dark-bg-secondary py-12">
       <Container>
-        <div className="py-8 sm:py-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Brand */}
-            <div className="col-span-1 sm:col-span-2 lg:col-span-1">
-              <Link href="/" className="text-xl sm:text-2xl font-bold font-heading text-white">
-                <span className="text-primary-light">Brand</span>Site
-              </Link>
-              <p className="mt-3 sm:mt-4 text-sm sm:text-base text-neutral-muted">
-                A professional portfolio and blog website showcasing my work and thoughts.
-              </p>
-              
-              {/* Social Links */}
-              <div className="mt-4 sm:mt-6 flex space-x-4">
-                {socialLinks.map((social) => (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-neutral-muted hover:text-white transition-colors"
-                    aria-label={social.name}
-                  >
-                    <FontAwesomeIcon icon={social.icon} className="h-5 w-5 sm:h-6 sm:w-6" />
-                  </a>
-                ))}
-              </div>
-            </div>
-            
-            {/* Navigation */}
-            <div className="col-span-1">
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Navigation</h3>
-              <ul className="space-y-2">
-                {footerLinks.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-sm sm:text-base text-neutral-muted hover:text-white transition-colors"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            {/* Quick Links */}
-            <div className="col-span-1 hidden sm:block">
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Resources</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/blog" className="text-sm sm:text-base text-neutral-muted hover:text-white transition-colors">
-                    Latest Articles
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/projects" className="text-sm sm:text-base text-neutral-muted hover:text-white transition-colors">
-                    Featured Projects
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="text-sm sm:text-base text-neutral-muted hover:text-white transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
-            
-            {/* Contact */}
-            <div className="col-span-1">
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Contact</h3>
-              <p className="text-sm sm:text-base text-neutral-muted">
-                Feel free to reach out if you have any questions or would like to collaborate.
-              </p>
-              <p className="mt-2 text-primary-light text-sm sm:text-base">
-                hello@example.com
-              </p>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Brand */}
+          <div className="col-span-1 md:col-span-1">
+            <Link href="/" className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker">
+              <span className="text-primary dark:text-dark-primary">Brand</span>Site
+            </Link>
+            <p className="mt-4 text-neutral-dark dark:text-dark-neutral-dark">
+              Professional portfolio and blog website showcasing my work and thoughts.
+            </p>
+          </div>
+
+          {/* Quick Links */}
+          <div className="col-span-1">
+            <h3 className="text-lg font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
+              Quick Links
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/" className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link href="/projects" className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors">
+                  Projects
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div className="col-span-1">
+            <h3 className="text-lg font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
+              Contact
+            </h3>
+            <p className="text-neutral-dark dark:text-dark-neutral-dark">
+              Email: <a href="mailto:hello@example.com" className="hover:text-primary dark:hover:text-dark-primary transition-colors">hello@example.com</a>
+            </p>
+            <p className="text-neutral-dark dark:text-dark-neutral-dark mt-2">
+              Location: San Francisco, CA
+            </p>
+          </div>
+
+          {/* Social */}
+          <div className="col-span-1">
+            <h3 className="text-lg font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
+              Follow Me
+            </h3>
+            <div className="flex space-x-4">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors"
+                aria-label="GitHub"
+              >
+                <FontAwesomeIcon icon={faGithub} className="h-6 w-6" />
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors"
+                aria-label="LinkedIn"
+              >
+                <FontAwesomeIcon icon={faLinkedin} className="h-6 w-6" />
+              </a>
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors"
+                aria-label="Twitter"
+              >
+                <FontAwesomeIcon icon={faTwitter} className="h-6 w-6" />
+              </a>
             </div>
           </div>
-          
-          {/* Copyright */}
-          <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-neutral-dark text-center text-xs sm:text-sm text-neutral-muted">
-            <p>© {currentYear} BrandSite. All rights reserved.</p>
-          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-12 pt-6 border-t border-neutral-muted/20 dark:border-dark-neutral-muted/20 text-center">
+          <p className="text-neutral-dark dark:text-dark-neutral-dark">
+            &copy; {currentYear} BrandSite. All rights reserved.
+          </p>
         </div>
       </Container>
     </footer>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Container from './Container';
+import ThemeToggle from './ThemeToggle';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -39,41 +40,51 @@ const Navbar: React.FC = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-3' : 'bg-transparent py-5'
+        isScrolled 
+          ? 'bg-white dark:bg-dark-bg-primary shadow-md dark:shadow-neutral-black/30 py-3' 
+          : 'bg-transparent py-5'
       }`}
     >
       <Container>
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold font-heading text-neutral-darker">
-            <span className="text-primary">Brand</span>Site
+          <Link href="/" className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker">
+            <span className="text-primary dark:text-dark-primary">Brand</span>Site
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={`text-base font-medium transition-colors hover:text-primary ${
-                  pathname === link.href
-                    ? 'text-primary'
-                    : 'text-neutral-dark'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-          </nav>
+          <div className="hidden md:flex items-center space-x-8">
+            <nav className="flex space-x-8">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`text-base font-medium transition-colors hover:text-primary dark:hover:text-dark-primary ${
+                    pathname === link.href
+                      ? 'text-primary dark:text-dark-primary'
+                      : 'text-neutral-dark dark:text-dark-neutral-dark'
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </nav>
+            
+            {/* Theme Toggle */}
+            <ThemeToggle />
+          </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 rounded-md text-neutral-dark hover:text-primary hover:bg-neutral-light"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-          >
-            <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} className="h-6 w-6" />
-          </button>
+          {/* Mobile Menu Button and Theme Toggle */}
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
+            <button
+              className="p-2 rounded-md text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary hover:bg-neutral-light dark:hover:bg-dark-neutral-light"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            >
+              <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} className="h-6 w-6" />
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -84,10 +95,10 @@ const Navbar: React.FC = () => {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-base font-medium transition-colors hover:text-primary px-2 py-1 rounded-md ${
+                  className={`text-base font-medium transition-colors hover:text-primary dark:hover:text-dark-primary px-2 py-1 rounded-md ${
                     pathname === link.href
-                      ? 'text-primary bg-neutral-light'
-                      : 'text-neutral-dark'
+                      ? 'text-primary dark:text-dark-primary bg-neutral-light dark:bg-dark-neutral-light'
+                      : 'text-neutral-dark dark:text-dark-neutral-dark'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
