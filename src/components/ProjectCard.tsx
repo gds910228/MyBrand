@@ -3,65 +3,80 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Project } from '@/data/projects';
 
-interface ProjectCardProps {
+export interface ProjectCardProps {
   title: string;
   description: string;
   imageSrc: string;
-  imageAlt: string;
-  href: string;
-  technologies?: string[];
+  tags: string[];
+  slug: string;
+  className?: string;
+  imageAlt?: string;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
   title,
   description,
   imageSrc,
-  imageAlt,
-  href,
-  technologies = [],
+  tags,
+  slug,
+  className = '',
+  imageAlt = '',
 }) => {
+  const linkHref = `/projects/${slug}`;
+  
   return (
-    <Link href={href} className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 h-full">
-      <div className="relative h-40 xs:h-48 sm:h-56 md:h-64 overflow-hidden">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+      className={`bg-white dark:bg-dark-bg-secondary rounded-xl shadow-md overflow-hidden ${className}`}
+    >
+      <div className="relative h-48 sm:h-56 w-full overflow-hidden">
         <Image
           src={imageSrc}
-          alt={imageAlt}
+          alt={imageAlt || title}
           fill
-          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="object-cover transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
-          placeholder="blur"
-          blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQ3NSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiLz4="
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
-      <div className="p-4 sm:p-6 bg-white flex flex-col h-full">
-        <h3 className="text-lg sm:text-xl font-semibold font-heading text-neutral-darker group-hover:text-primary transition-colors">
+      
+      <div className="p-6">
+        <h3 className="text-xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-2">
           {title}
         </h3>
-        <p className="mt-2 text-sm sm:text-base text-neutral-dark line-clamp-3 flex-grow">
+        <p className="text-neutral-dark dark:text-dark-neutral-dark mb-4">
           {description}
         </p>
         
-        {technologies.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {technologies.slice(0, 3).map((tech) => (
-              <span 
-                key={tech} 
-                className="inline-block px-2 py-1 text-xs rounded-md bg-neutral-light text-neutral-dark"
-              >
-                {tech}
-              </span>
-            ))}
-            {technologies.length > 3 && (
-              <span className="inline-block px-2 py-1 text-xs rounded-md bg-neutral-light text-neutral-dark">
-                +{technologies.length - 3}
-              </span>
-            )}
-          </div>
-        )}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {tags.slice(0, 3).map((tag) => (
+            <span 
+              key={tag} 
+              className="inline-block py-1 px-2 text-xs font-medium rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark"
+            >
+              {tag}
+            </span>
+          ))}
+          {tags.length > 3 && (
+            <span className="inline-block py-1 px-2 text-xs font-medium rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark">
+              +{tags.length - 3}
+            </span>
+          )}
+        </div>
+        
+        <Link 
+          href={linkHref}
+          className="inline-block text-primary dark:text-dark-primary font-medium hover:underline"
+        >
+          查看详情
+        </Link>
       </div>
-    </Link>
+    </motion.div>
   );
 };
 
