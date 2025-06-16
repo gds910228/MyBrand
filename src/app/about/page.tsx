@@ -10,13 +10,13 @@ export default function AboutPage() {
   return (
     <>
       {/* Hero Section */}
-      <Section id="about-hero" bgColor="bg-neutral-light">
+      <Section id="about-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold font-heading text-neutral-darker mb-6">
+            <h1 className="text-4xl md:text-5xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-6">
               About Me
             </h1>
-            <p className="text-lg text-neutral-dark">
+            <p className="text-lg text-neutral-dark dark:text-dark-neutral-dark">
               Get to know more about my journey, skills, and what drives me as a developer and creator.
             </p>
           </div>
@@ -37,30 +37,30 @@ export default function AboutPage() {
           title="My Story & Philosophy" 
           subtitle="A glimpse into my journey and the principles that guide my work."
         />
-        <div className="prose prose-lg max-w-none">
-          <p>
+        <div className="prose prose-lg dark:prose-invert max-w-none">
+          <p className="text-neutral-dark dark:text-dark-neutral-dark">
             Hello! I'm a passionate full-stack developer with a love for creating clean, user-friendly, and impactful digital experiences. My journey in tech began over 5 years ago when I built my first website out of curiosity. That small project ignited a passion that has only grown stronger with time.
           </p>
-          <p>
+          <p className="text-neutral-dark dark:text-dark-neutral-dark">
             After graduating with a degree in Computer Science, I've worked with startups and established companies alike, helping them build products that users love. Along the way, I've developed a deep appreciation for the intersection of technology, design, and human psychology.
           </p>
-          <p>
+          <p className="text-neutral-dark dark:text-dark-neutral-dark">
             My approach to development is guided by a few core principles:
           </p>
-          <ul>
+          <ul className="text-neutral-dark dark:text-dark-neutral-dark">
             <li><strong>User-Centered Design:</strong> I believe that technology should serve people, not the other way around. Every line of code I write is with the end user in mind.</li>
             <li><strong>Continuous Learning:</strong> The tech landscape evolves rapidly, and I'm committed to growing with it. I dedicate time each week to learning new skills and refining existing ones.</li>
             <li><strong>Quality Over Quantity:</strong> I prefer doing fewer things exceptionally well rather than many things adequately. This philosophy applies to both my code and my projects.</li>
             <li><strong>Collaborative Spirit:</strong> The best products are built by diverse teams working together. I value open communication, constructive feedback, and shared success.</li>
           </ul>
-          <p>
+          <p className="text-neutral-dark dark:text-dark-neutral-dark">
             When I'm not coding, you'll find me hiking in nature, experimenting with new recipes, or diving into a good book. These activities help me maintain perspective and bring fresh ideas to my technical work.
           </p>
         </div>
       </Section>
       
       {/* Skills Section */}
-      <Section id="about-skills" bgColor="bg-neutral-light">
+      <Section id="about-skills" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
         <SectionHeading 
           title="Skills & Expertise" 
           subtitle="A comprehensive overview of my technical skills and proficiency levels."
@@ -69,7 +69,7 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
           {/* Frontend Skills */}
           <div>
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker mb-4">Frontend Development</h3>
+            <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">Frontend Development</h3>
             <div className="space-y-4">
               <SkillBar skill="React.js" level={90} />
               <SkillBar skill="Next.js" level={85} />
@@ -82,7 +82,7 @@ export default function AboutPage() {
           
           {/* Backend Skills */}
           <div>
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker mb-4">Backend Development</h3>
+            <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">Backend Development</h3>
             <div className="space-y-4">
               <SkillBar skill="Node.js" level={85} />
               <SkillBar skill="Express" level={80} />
@@ -95,7 +95,7 @@ export default function AboutPage() {
           
           {/* Tools & Others */}
           <div>
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker mb-4">Tools & Platforms</h3>
+            <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">Tools & Platforms</h3>
             <div className="space-y-4">
               <SkillBar skill="Git & GitHub" level={90} />
               <SkillBar skill="Docker" level={70} />
@@ -108,7 +108,7 @@ export default function AboutPage() {
           
           {/* Soft Skills */}
           <div>
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker mb-4">Soft Skills</h3>
+            <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">Soft Skills</h3>
             <div className="space-y-4">
               <SkillBar skill="Problem Solving" level={95} />
               <SkillBar skill="Communication" level={90} />
@@ -120,7 +120,7 @@ export default function AboutPage() {
           </div>
         </div>
         
-        <div className="mt-12 text-center text-neutral-medium">
+        <div className="mt-12 text-center text-neutral-medium dark:text-dark-neutral-medium">
           <p>* Skill levels are based on relative proficiency and experience</p>
         </div>
       </Section>
@@ -134,7 +134,7 @@ export default function AboutPage() {
         
         <div className="relative">
           {/* Vertical line */}
-          <div className="absolute left-0 md:left-1/2 h-full w-0.5 bg-neutral-light transform -translate-x-1/2"></div>
+          <div className="absolute left-0 md:left-1/2 h-full w-0.5 bg-neutral-light dark:bg-dark-neutral-light transform -translate-x-1/2"></div>
           
           <div className="space-y-12">
             <TimelineItem 
@@ -173,7 +173,7 @@ export default function AboutPage() {
       </Section>
       
       {/* Personal Gallery Section */}
-      <Section id="about-gallery" bgColor="bg-neutral-light">
+      <Section id="about-gallery" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
         <SectionHeading 
           title="Beyond the Code" 
           subtitle="A glimpse into my life outside of programming."
@@ -231,12 +231,12 @@ const SkillBar: React.FC<SkillBarProps> = ({ skill, level }) => {
   return (
     <div>
       <div className="flex justify-between mb-1">
-        <span className="font-medium">{skill}</span>
-        <span className="text-sm text-neutral-medium">{level}%</span>
+        <span className="font-medium text-neutral-darker dark:text-dark-neutral-darker">{skill}</span>
+        <span className="text-sm text-neutral-medium dark:text-dark-neutral-medium">{level}%</span>
       </div>
-      <div className="h-2 bg-neutral-light rounded-full">
+      <div className="h-2 bg-neutral-light dark:bg-dark-neutral-light rounded-full">
         <div 
-          className="h-full bg-primary rounded-full" 
+          className="h-full bg-primary dark:bg-dark-primary rounded-full" 
           style={{ width: `${level}%` }}
         ></div>
       </div>
@@ -257,17 +257,17 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ year, title, company, descr
   return (
     <div className={`relative ${isLeft ? 'md:pr-12' : 'md:pl-12'} md:w-1/2 ${isLeft ? 'md:ml-0 md:mr-auto' : 'md:ml-auto md:mr-0'}`}>
       {/* Dot on the timeline */}
-      <div className="hidden md:block absolute top-5 w-4 h-4 rounded-full bg-primary border-4 border-white" style={{ 
+      <div className="hidden md:block absolute top-5 w-4 h-4 rounded-full bg-primary dark:bg-dark-primary border-4 border-white dark:border-dark-bg-primary" style={{ 
         [isLeft ? 'right' : 'left']: '-8px',
       }}></div>
       
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <span className="inline-block px-3 py-1 mb-4 text-sm font-medium text-primary-dark bg-primary-light/20 rounded-full">
+      <div className="bg-white dark:bg-dark-bg-secondary p-6 rounded-lg shadow-md dark:shadow-neutral-black/20">
+        <span className="inline-block px-3 py-1 mb-4 text-sm font-medium text-primary-dark dark:text-dark-primary-dark bg-primary-light/20 dark:bg-dark-primary-light/20 rounded-full">
           {year}
         </span>
-        <h3 className="text-xl font-semibold font-heading text-neutral-darker">{title}</h3>
-        <p className="text-primary font-medium mt-1">{company}</p>
-        <p className="mt-3 text-neutral-dark">{description}</p>
+        <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker">{title}</h3>
+        <p className="text-primary dark:text-dark-primary font-medium mt-1">{company}</p>
+        <p className="mt-3 text-neutral-dark dark:text-dark-neutral-dark">{description}</p>
       </div>
     </div>
   );
@@ -282,7 +282,7 @@ interface GalleryItemProps {
 
 const GalleryItem: React.FC<GalleryItemProps> = ({ src, alt, caption }) => {
   return (
-    <div className="overflow-hidden rounded-lg shadow-md">
+    <div className="overflow-hidden rounded-lg shadow-md dark:shadow-neutral-black/20">
       <div className="relative h-64">
         <Image
           src={src}
@@ -292,8 +292,8 @@ const GalleryItem: React.FC<GalleryItemProps> = ({ src, alt, caption }) => {
         />
       </div>
       {caption && (
-        <div className="p-4 bg-white">
-          <p className="text-center text-neutral-dark">{caption}</p>
+        <div className="p-4 bg-white dark:bg-dark-bg-secondary">
+          <p className="text-center text-neutral-dark dark:text-dark-neutral-dark">{caption}</p>
         </div>
       )}
     </div>
