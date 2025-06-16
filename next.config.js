@@ -19,11 +19,6 @@ const nextConfig = {
   swcMinify: true,
   // 启用静态页面生成
   output: 'standalone',
-  // 实验性功能
-  experimental: {
-    // 启用代码分割
-    optimizeCss: true,
-  },
 };
 
 module.exports = nextConfig; 
