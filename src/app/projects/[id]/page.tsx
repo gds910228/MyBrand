@@ -152,23 +152,23 @@ const projectsData = [
       
       <p>The biggest challenge was training the AI model to generate content that was not only grammatically correct but also engaging and relevant to specific industries. This required extensive training data curation and model fine-tuning.</p>
     `,
-    thumbnail: 'https://images.unsplash.com/photo-1677442135136-760302cb8e3c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1332&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1673187136588-4a9ccd4c8e7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
     images: [
-      'https://images.unsplash.com/photo-1677442135136-760302cb8e3c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1332&q=80',
+      'https://images.unsplash.com/photo-1673187136588-4a9ccd4c8e7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
       'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
       'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80'
     ],
     technologies: ['Python', 'TensorFlow', 'React', 'FastAPI'],
-    role: 'Machine Learning Engineer',
     responsibilities: [
-      'Developed and trained the NLP model',
+      'Designed and implemented the natural language processing model',
       'Created the content generation algorithms',
-      'Implemented the API for model interaction',
-      'Designed the content refinement tools',
-      'Conducted model performance analysis and optimization'
+      'Developed the API for frontend-backend communication',
+      'Trained and fine-tuned the AI model on industry-specific datasets',
+      'Implemented content quality evaluation metrics'
     ],
+    role: 'Machine Learning Engineer',
     year: '2021',
-    client: 'ContentAI Labs'
+    client: 'MarketingAI Inc.'
   },
   {
     id: 'portfolio-website',
