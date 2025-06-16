@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 
 export interface BlogCardProps {
   title: string;
@@ -12,7 +12,7 @@ export interface BlogCardProps {
   coverImage: string;
   publishedAt: string;
   slug: string;
-  categories: { name: string, label: string }[];
+  categories?: { name: string, label: string }[];
 }
 
 const BlogCard: React.FC<BlogCardProps> = ({
@@ -21,10 +21,19 @@ const BlogCard: React.FC<BlogCardProps> = ({
   coverImage,
   publishedAt,
   slug,
-  categories
+  categories = []
 }) => {
   // 格式化发布日期
-  const formattedDate = format(new Date(publishedAt), 'yyyy-MM-dd');
+  let formattedDate = publishedAt;
+  try {
+    const date = parseISO(publishedAt);
+    if (isValid(date)) {
+      formattedDate = format(date, 'yyyy-MM-dd');
+    }
+  } catch (error) {
+    console.error('Error formatting date:', error);
+  }
+  
   const linkHref = `/blog/${slug}`;
   
   return (
@@ -46,16 +55,18 @@ const BlogCard: React.FC<BlogCardProps> = ({
       </div>
       
       <div className="p-6 flex flex-col flex-grow">
-        <div className="flex flex-wrap gap-2 mb-3">
-          {categories.slice(0, 2).map((cat) => (
-            <span 
-              key={cat.name}
-              className="inline-block py-1 px-2 text-xs font-medium rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark"
-            >
-              {cat.label}
-            </span>
-          ))}
-        </div>
+        {categories.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {categories.slice(0, 2).map((cat) => (
+              <span 
+                key={cat.name}
+                className="inline-block py-1 px-2 text-xs font-medium rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark"
+              >
+                {cat.label}
+              </span>
+            ))}
+          </div>
+        )}
         
         <h3 className="text-xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-2">
           {title}

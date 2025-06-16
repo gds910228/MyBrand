@@ -10,7 +10,7 @@ export interface ProjectCardProps {
   title: string;
   description: string;
   imageSrc: string;
-  tags: string[];
+  tags?: string[];
   slug: string;
   className?: string;
   imageAlt?: string;
@@ -20,7 +20,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   title,
   description,
   imageSrc,
-  tags,
+  tags = [],
   slug,
   className = '',
   imageAlt = '',
@@ -53,21 +53,23 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           {description}
         </p>
         
-        <div className="flex flex-wrap gap-2 mb-6">
-          {tags.slice(0, 3).map((tag) => (
-            <span 
-              key={tag} 
-              className="inline-block py-1 px-2 text-xs font-medium rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark"
-            >
-              {tag}
-            </span>
-          ))}
-          {tags.length > 3 && (
-            <span className="inline-block py-1 px-2 text-xs font-medium rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark">
-              +{tags.length - 3}
-            </span>
-          )}
-        </div>
+        {tags && tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            {tags.slice(0, 3).map((tag) => (
+              <span 
+                key={tag} 
+                className="inline-block py-1 px-2 text-xs font-medium rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark"
+              >
+                {tag}
+              </span>
+            ))}
+            {tags.length > 3 && (
+              <span className="inline-block py-1 px-2 text-xs font-medium rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark">
+                +{tags.length - 3}
+              </span>
+            )}
+          </div>
+        )}
         
         <Link 
           href={linkHref}

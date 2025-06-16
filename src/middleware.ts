@@ -27,6 +27,17 @@ export function middleware(request: NextRequest) {
   const isRedirected = request.headers.get('x-redirected');
   if (isRedirected) return NextResponse.next();
   
+  // 如果是根路径，默认重定向到英文版
+  if (pathname === '/') {
+    const newUrl = request.nextUrl.clone()
+    newUrl.pathname = `/`
+    
+    const response = NextResponse.redirect(newUrl)
+    response.headers.set('x-redirected', '1')
+    
+    return response
+  }
+  
   // 检查请求路径是否已包含支持的语言
   const pathnameIsMissingLocale = locales.every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
@@ -38,12 +49,11 @@ export function middleware(request: NextRequest) {
   }
 
   // 获取用户首选语言，或使用默认语言
-  const preferredLocale = request.headers.get('accept-language')?.split(',')[0]?.split('-')[0] || defaultLocale
-  const locale = locales.includes(preferredLocale) ? preferredLocale : defaultLocale
+  const preferredLocale = request.headers.get('accept-language')?.split(',')[0]?.split('-')[0]
   
   // 仅当用户首选语言为中文时，重定向到/zh路径
   // 否则使用默认路径（不添加/en前缀）
-  if (locale === 'zh' && preferredLocale === 'zh') {
+  if (preferredLocale === 'zh') {
     // 克隆请求URL
     const newUrl = request.nextUrl.clone()
     // 构建新的路径
