@@ -79,4 +79,4 @@ A professional portfolio and blog website built with Next.js and Notion as CMS.
 
 ### Images
 - [Unsplash](https://unsplash.com/)
-- [Pexels](https://www.pexels.com/) 
+- [Pexels](https://www.pexels.com/)
