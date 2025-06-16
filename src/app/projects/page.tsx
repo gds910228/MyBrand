@@ -40,7 +40,7 @@ const projectsData = [
     id: 'ai-content-generator',
     title: 'AI Content Generator',
     description: 'An AI-powered content generation tool that helps marketers create engaging copy for various platforms.',
-    thumbnail: 'https://images.unsplash.com/photo-1673187136588-4a9ccd4c8e7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1965&q=80',
     technologies: ['Python', 'TensorFlow', 'React', 'FastAPI'],
     role: 'Machine Learning Engineer',
     year: '2021'
