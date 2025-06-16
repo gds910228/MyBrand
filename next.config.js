@@ -17,20 +17,10 @@ const nextConfig = {
   },
   // 启用SWC压缩
   swcMinify: true,
-  // 优化导入包
-  optimizePackageImports: [
-    'react-icons',
-    '@fortawesome/fontawesome-svg-core',
-    '@fortawesome/free-brands-svg-icons',
-    '@fortawesome/free-solid-svg-icons',
-    '@fortawesome/react-fontawesome'
-  ],
   // 启用静态页面生成
   output: 'standalone',
-  // 启用Brotli压缩
+  // 实验性功能
   experimental: {
-    // 启用CSS内联
-    inlineCss: true,
     // 启用代码分割
     optimizeCss: true,
   },

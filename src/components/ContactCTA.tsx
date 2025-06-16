@@ -6,7 +6,7 @@ import Button from './Button';
 
 const ContactCTA: React.FC = () => {
   return (
-    <Section id="contact-cta" bgColor="bg-primary" spacing="md">
+    <Section id="contact-cta" bgColor="bg-primary" padding="py-12 md:py-20">
       <div className="text-center text-white px-4 sm:px-6">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading">
           Let's Work Together
