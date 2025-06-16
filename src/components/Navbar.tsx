@@ -19,11 +19,11 @@ const navLinksEn = [
 ];
 
 const navLinksZh = [
-  { name: '首页', href: '/' },
-  { name: '关于', href: '/about' },
-  { name: '项目', href: '/projects' },
-  { name: '博客', href: '/blog' },
-  { name: '联系', href: '/contact' },
+  { name: '首页', href: '/zh' },
+  { name: '关于', href: '/zh/about' },
+  { name: '项目', href: '/zh/projects' },
+  { name: '博客', href: '/zh/blog' },
+  { name: '联系', href: '/zh/contact' },
 ];
 
 const Navbar: React.FC = () => {
@@ -51,6 +51,14 @@ const Navbar: React.FC = () => {
     };
   }, []);
 
+  // 检查链接是否活跃
+  const isActiveLink = (href: string): boolean => {
+    if (href === '/' && pathname === '/') return true;
+    if (href === '/zh' && pathname === '/zh') return true;
+    if (href !== '/' && href !== '/zh' && pathname.startsWith(href)) return true;
+    return false;
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -62,7 +70,7 @@ const Navbar: React.FC = () => {
       <Container>
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker">
+          <Link href={locale === 'zh' ? '/zh' : '/'} className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker">
             <span className="text-primary dark:text-dark-primary">Brand</span>Site
           </Link>
 
@@ -74,7 +82,7 @@ const Navbar: React.FC = () => {
                   key={link.name}
                   href={link.href}
                   className={`text-base font-medium transition-colors hover:text-primary dark:hover:text-dark-primary ${
-                    pathname === link.href || (pathname.includes(link.href) && link.href !== '/')
+                    isActiveLink(link.href)
                       ? 'text-primary dark:text-dark-primary'
                       : 'text-neutral-dark dark:text-dark-neutral-dark'
                   }`}
@@ -114,7 +122,7 @@ const Navbar: React.FC = () => {
                   key={link.name}
                   href={link.href}
                   className={`text-base font-medium transition-colors hover:text-primary dark:hover:text-dark-primary px-2 py-1 rounded-md ${
-                    pathname === link.href || (pathname.includes(link.href) && link.href !== '/')
+                    isActiveLink(link.href)
                       ? 'text-primary dark:text-dark-primary bg-neutral-light dark:bg-dark-neutral-light'
                       : 'text-neutral-dark dark:text-dark-neutral-dark'
                   }`}

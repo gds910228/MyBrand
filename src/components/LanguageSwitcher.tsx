@@ -20,15 +20,29 @@ export default function LanguageSwitcher() {
   const currentLocale = pathname.startsWith('/zh') ? 'zh' : 'en';
 
   const handleLocaleChange = (newLocale: string) => {
-    // 如果是切换到英文且当前路径以/zh开头，则移除/zh
-    if (newLocale === 'en' && pathname.startsWith('/zh')) {
-      router.push(pathname.replace(/^\/zh/, ''));
-    } 
-    // 如果是切换到中文且当前路径不以/zh开头，则添加/zh
-    else if (newLocale === 'zh' && !pathname.startsWith('/zh')) {
-      router.push(`/zh${pathname}`);
+    if (newLocale === currentLocale) {
+      setIsOpen(false);
+      return;
     }
     
+    // 构建新路径
+    let newPath = '';
+    
+    // 英文转换到中文
+    if (newLocale === 'zh' && currentLocale === 'en') {
+      newPath = `/zh${pathname}`;
+      if (pathname === '/') newPath = '/zh';
+    } 
+    // 中文转换到英文
+    else if (newLocale === 'en' && currentLocale === 'zh') {
+      newPath = pathname.replace(/^\/zh/, '');
+      if (newPath === '') newPath = '/';
+    }
+    
+    console.log(`切换语言：${currentLocale} -> ${newLocale}，新路径：${newPath}`);
+    
+    // 导航到新路径
+    router.push(newPath);
     setIsOpen(false);
   };
 
