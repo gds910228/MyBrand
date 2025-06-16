@@ -2,30 +2,50 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useTranslations } from '@/i18n/client';
+import { usePathname } from 'next/navigation';
 import Container from './Container';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const t = useTranslations();
-  const nav = useTranslations('navigation');
-  const footer = useTranslations('footer');
+  const pathname = usePathname();
+  const locale = pathname.startsWith('/zh') ? 'zh' : 'en';
   
-  const footerLinks = [
-    { name: nav('home'), href: '/' },
-    { name: nav('about'), href: '/about' },
-    { name: nav('projects'), href: '/projects' },
-    { name: nav('blog'), href: '/blog' },
-    { name: nav('contact'), href: '/contact' },
+  // 硬编码的导航链接
+  const footerLinksEn = [
+    { name: 'Home', href: '/' },
+    { name: 'About', href: '/about' },
+    { name: 'Projects', href: '/projects' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'Contact', href: '/contact' },
   ];
+  
+  const footerLinksZh = [
+    { name: '首页', href: '/' },
+    { name: '关于', href: '/about' },
+    { name: '项目', href: '/projects' },
+    { name: '博客', href: '/blog' },
+    { name: '联系', href: '/contact' },
+  ];
+  
+  const footerLinks = locale === 'zh' ? footerLinksZh : footerLinksEn;
+  const contactLabel = locale === 'zh' ? '联系' : 'Contact';
   
   const socialLinks = [
     { name: 'GitHub', icon: faGithub, href: 'https://github.com/' },
     { name: 'LinkedIn', icon: faLinkedin, href: 'https://linkedin.com/' },
     { name: 'Twitter', icon: faTwitter, href: 'https://twitter.com/' },
   ];
+  
+  // 页脚版权和制作信息
+  const copyright = locale === 'zh' 
+    ? `© ${currentYear} John Doe. 保留所有权利。` 
+    : `© ${currentYear} John Doe. All rights reserved.`;
+    
+  const madeWith = locale === 'zh'
+    ? '使用 Next.js 和 Tailwind CSS 制作，充满❤️'
+    : 'Made with ❤️ using Next.js and Tailwind CSS';
 
   return (
     <footer className="bg-neutral-light dark:bg-dark-bg-secondary py-12">
@@ -37,14 +57,16 @@ const Footer: React.FC = () => {
               <span className="text-primary dark:text-dark-primary">Brand</span>Site
             </Link>
             <p className="mt-4 text-neutral-dark dark:text-dark-neutral-dark">
-              Professional portfolio and blog website showcasing my work and thoughts.
+              {locale === 'zh' 
+                ? '展示我的作品和想法的个人作品集和博客网站。'
+                : 'Professional portfolio and blog website showcasing my work and thoughts.'}
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="col-span-1">
             <h3 className="text-lg font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
-              Quick Links
+              {locale === 'zh' ? '快速链接' : 'Quick Links'}
             </h3>
             <ul className="space-y-2">
               {footerLinks.map((link) => (
@@ -63,20 +85,20 @@ const Footer: React.FC = () => {
           {/* Contact */}
           <div className="col-span-1">
             <h3 className="text-lg font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
-              {nav('contact')}
+              {contactLabel}
             </h3>
             <p className="text-neutral-dark dark:text-dark-neutral-dark">
               Email: <a href="mailto:hello@example.com" className="hover:text-primary dark:hover:text-dark-primary transition-colors">hello@example.com</a>
             </p>
             <p className="text-neutral-dark dark:text-dark-neutral-dark mt-2">
-              Location: San Francisco, CA
+              {locale === 'zh' ? '地址: ' : 'Location: '} San Francisco, CA
             </p>
           </div>
 
           {/* Social */}
           <div className="col-span-1">
             <h3 className="text-lg font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
-              Follow Me
+              {locale === 'zh' ? '关注我' : 'Follow Me'}
             </h3>
             <div className="flex space-x-4">
               {socialLinks.map((link) => (
@@ -98,10 +120,10 @@ const Footer: React.FC = () => {
         {/* Copyright */}
         <div className="mt-12 pt-6 border-t border-neutral-muted/20 dark:border-dark-neutral-muted/20 text-center">
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            {footer('copyright').replace('{year}', currentYear.toString())}
+            {copyright}
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark mt-2 text-sm">
-            {footer('madeWith')}
+            {madeWith}
           </p>
         </div>
       </Container>

@@ -1,10 +1,11 @@
-const createNextIntlPlugin = require('next-intl/plugin');
-
-const withNextIntl = createNextIntlPlugin('./src/i18n/utils.ts');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  i18n: {
+    locales: ['en', 'zh'],
+    defaultLocale: 'en',
+    localeDetection: true,
+  },
   images: {
     domains: ['images.unsplash.com'],
     // 图片优化配置
@@ -25,4 +26,4 @@ const nextConfig = {
   output: 'standalone',
 };
 
-module.exports = withNextIntl(nextConfig); 
+module.exports = nextConfig; 

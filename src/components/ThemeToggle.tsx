@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useTranslations } from '@/i18n/client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from './ThemeProvider';
+import { usePathname } from 'next/navigation';
 
 const ThemeToggle: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const t = useTranslations('theme');
+  const pathname = usePathname();
+  const locale = pathname.startsWith('/zh') ? 'zh' : 'en';
 
   // 确保组件在客户端渲染后才显示
   useEffect(() => {
@@ -26,7 +27,9 @@ const ThemeToggle: React.FC = () => {
     return <div className="w-8 h-8"></div>;
   }
 
-  const ariaLabel = theme === 'light' ? t('dark') : t('light');
+  const ariaLabel = theme === 'light' 
+    ? (locale === 'zh' ? '深色模式' : 'Dark Mode') 
+    : (locale === 'zh' ? '浅色模式' : 'Light Mode');
 
   return (
     <button

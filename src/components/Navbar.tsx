@@ -3,27 +3,37 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTranslations } from '@/i18n/client';
 import Container from './Container';
 import ThemeToggle from './ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
+// 硬编码的导航链接
+const navLinksEn = [
+  { name: 'Home', href: '/' },
+  { name: 'About', href: '/about' },
+  { name: 'Projects', href: '/projects' },
+  { name: 'Blog', href: '/blog' },
+  { name: 'Contact', href: '/contact' },
+];
+
+const navLinksZh = [
+  { name: '首页', href: '/' },
+  { name: '关于', href: '/about' },
+  { name: '项目', href: '/projects' },
+  { name: '博客', href: '/blog' },
+  { name: '联系', href: '/contact' },
+];
+
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-  const t = useTranslations('navigation');
 
-  // 导航链接
-  const navLinks = [
-    { name: t('home'), href: '/' },
-    { name: t('about'), href: '/about' },
-    { name: t('projects'), href: '/projects' },
-    { name: t('blog'), href: '/blog' },
-    { name: t('contact'), href: '/contact' },
-  ];
+  // 根据路径确定当前语言
+  const locale = pathname.startsWith('/zh') ? 'zh' : 'en';
+  const navLinks = locale === 'zh' ? navLinksZh : navLinksEn;
 
   // Handle scroll event to change navbar style
   useEffect(() => {
@@ -64,7 +74,7 @@ const Navbar: React.FC = () => {
                   key={link.name}
                   href={link.href}
                   className={`text-base font-medium transition-colors hover:text-primary dark:hover:text-dark-primary ${
-                    pathname === link.href
+                    pathname === link.href || (pathname.includes(link.href) && link.href !== '/')
                       ? 'text-primary dark:text-dark-primary'
                       : 'text-neutral-dark dark:text-dark-neutral-dark'
                   }`}
@@ -104,7 +114,7 @@ const Navbar: React.FC = () => {
                   key={link.name}
                   href={link.href}
                   className={`text-base font-medium transition-colors hover:text-primary dark:hover:text-dark-primary px-2 py-1 rounded-md ${
-                    pathname === link.href
+                    pathname === link.href || (pathname.includes(link.href) && link.href !== '/')
                       ? 'text-primary dark:text-dark-primary bg-neutral-light dark:bg-dark-neutral-light'
                       : 'text-neutral-dark dark:text-dark-neutral-dark'
                   }`}

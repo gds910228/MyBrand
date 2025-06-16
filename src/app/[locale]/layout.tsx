@@ -1,9 +1,7 @@
 import { ReactNode } from 'react';
-import { getMessages } from '@/i18n/utils';
-import { Locale, locales } from '@/i18n/locales';
 import { Inter, Montserrat, Fira_Code } from 'next/font/google';
 import { Metadata } from 'next';
-import ClientProviders from './ClientProviders';
+import ThemeProvider from '@/components/ThemeProvider';
 import '@/styles/globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -32,29 +30,30 @@ export const metadata: Metadata = {
   description: 'Personal portfolio and blog of John Doe, a Full Stack Developer and Designer.',
 };
 
+// 支持的语言
+const locales = ['en', 'zh'];
+
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
   params: { locale },
 }: {
   children: ReactNode;
-  params: { locale: Locale };
+  params: { locale: string };
 }) {
-  const messages = await getMessages(locale);
-
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${inter.variable} ${montserrat.variable} ${firaCode.variable} font-sans`}>
-        <ClientProviders locale={locale} messages={messages}>
+        <ThemeProvider>
           <div className="flex flex-col min-h-screen">
             <Navbar />
             <main className="flex-grow">{children}</main>
             <Footer />
           </div>
-        </ClientProviders>
+        </ThemeProvider>
       </body>
     </html>
   );

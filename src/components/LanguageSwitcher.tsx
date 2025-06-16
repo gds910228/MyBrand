@@ -1,22 +1,34 @@
 "use client";
 
-import { useLocale, useTranslations } from '@/i18n/client';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { locales, localeNames, Locale } from '@/i18n/locales';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
+// 语言配置
+const locales = ['en', 'zh'];
+const localeNames = {
+  en: 'English',
+  zh: '中文',
+};
+
 export default function LanguageSwitcher() {
-  const t = useTranslations('language');
-  const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  
+  // 获取当前语言
+  const currentLocale = pathname.startsWith('/zh') ? 'zh' : 'en';
 
-  const handleLocaleChange = (newLocale: Locale) => {
-    // 替换当前URL中的语言部分
-    const newPathname = pathname.replace(`/${locale}`, `/${newLocale}`);
-    router.push(newPathname);
+  const handleLocaleChange = (newLocale: string) => {
+    // 如果是切换到英文且当前路径以/zh开头，则移除/zh
+    if (newLocale === 'en' && pathname.startsWith('/zh')) {
+      router.push(pathname.replace(/^\/zh/, ''));
+    } 
+    // 如果是切换到中文且当前路径不以/zh开头，则添加/zh
+    else if (newLocale === 'zh' && !pathname.startsWith('/zh')) {
+      router.push(`/zh${pathname}`);
+    }
+    
     setIsOpen(false);
   };
 
@@ -26,7 +38,7 @@ export default function LanguageSwitcher() {
         className="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span>{localeNames[locale]}</span>
+        <span>{localeNames[currentLocale as keyof typeof localeNames]}</span>
         <ChevronDownIcon className="w-4 h-4" />
       </button>
 
@@ -37,13 +49,13 @@ export default function LanguageSwitcher() {
               <button
                 key={l}
                 className={`block w-full text-left px-4 py-2 text-sm ${
-                  l === locale
+                  l === currentLocale
                     ? 'bg-gray-100 dark:bg-gray-800 font-medium'
                     : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
                 onClick={() => handleLocaleChange(l)}
               >
-                {localeNames[l]}
+                {localeNames[l as keyof typeof localeNames]}
               </button>
             ))}
           </div>

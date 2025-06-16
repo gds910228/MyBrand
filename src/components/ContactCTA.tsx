@@ -4,9 +4,13 @@ import React from 'react';
 import Section from './Section';
 import Button from './Button';
 
-const ContactCTA: React.FC = () => {
+interface ContactCTAProps {
+  padding?: string;
+}
+
+const ContactCTA: React.FC<ContactCTAProps> = ({ padding = "py-12 md:py-20" }) => {
   return (
-    <Section id="contact-cta" bgColor="bg-primary" padding="py-12 md:py-20">
+    <Section id="contact-cta" bgColor="bg-primary" padding={padding}>
       <div className="text-center text-white px-4 sm:px-6">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading">
           Let's Work Together
