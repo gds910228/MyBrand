@@ -1,10 +1,9 @@
 import { ReactNode } from 'react';
-import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from '@/i18n/utils';
 import { Locale, locales } from '@/i18n/locales';
 import { Inter, Montserrat, Fira_Code } from 'next/font/google';
 import { Metadata } from 'next';
-import ThemeProvider from '@/components/ThemeProvider';
+import ClientProviders from './ClientProviders';
 import '@/styles/globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -49,15 +48,13 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${inter.variable} ${montserrat.variable} ${firaCode.variable} font-sans`}>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <ThemeProvider>
-            <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
-          </ThemeProvider>
-        </NextIntlClientProvider>
+        <ClientProviders locale={locale} messages={messages}>
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+        </ClientProviders>
       </body>
     </html>
   );
