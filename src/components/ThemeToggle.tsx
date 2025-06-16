@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from './ThemeProvider';
@@ -8,6 +9,7 @@ import { useTheme } from './ThemeProvider';
 const ThemeToggle: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const t = useTranslations('theme');
 
   // 确保组件在客户端渲染后才显示
   useEffect(() => {
@@ -24,11 +26,13 @@ const ThemeToggle: React.FC = () => {
     return <div className="w-8 h-8"></div>;
   }
 
+  const ariaLabel = theme === 'light' ? t('dark') : t('light');
+
   return (
     <button
       onClick={toggleTheme}
       className="p-2 rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark hover:bg-neutral-muted/20 dark:hover:bg-dark-neutral-muted/20 transition-colors"
-      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      aria-label={ariaLabel}
     >
       <FontAwesomeIcon 
         icon={theme === 'light' ? faMoon : faSun} 

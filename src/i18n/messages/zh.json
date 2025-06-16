@@ -1,0 +1,96 @@
+{
+  "navigation": {
+    "home": "首页",
+    "about": "关于",
+    "projects": "项目",
+    "blog": "博客",
+    "contact": "联系"
+  },
+  "home": {
+    "hero": {
+      "title": "你好，我是John Doe",
+      "subtitle": "全栈开发者 & 设计师",
+      "description": "我创建美观且功能强大的网站，注重用户体验和现代设计。",
+      "cta": "查看我的作品"
+    },
+    "featuredProjects": {
+      "title": "精选项目",
+      "viewAll": "查看所有项目"
+    },
+    "latestPosts": {
+      "title": "最新文章",
+      "viewAll": "查看所有文章"
+    },
+    "contactCTA": {
+      "title": "让我们一起合作",
+      "description": "有项目想法或只是想聊聊？我随时欢迎新的机会和合作。",
+      "button": "联系我"
+    }
+  },
+  "about": {
+    "title": "关于我",
+    "story": {
+      "title": "我的故事",
+      "content": "我是一名热情的开发者，拥有超过5年创建数字体验的经验。我的网页开发之旅始于大学时期，从那时起，我一直在不断学习和提升自己的技能。"
+    },
+    "skills": {
+      "title": "我的技能",
+      "expert": "精通",
+      "proficient": "熟练",
+      "familiar": "了解"
+    },
+    "experience": {
+      "title": "工作经历",
+      "present": "至今"
+    }
+  },
+  "projects": {
+    "title": "我的项目",
+    "filters": {
+      "all": "全部",
+      "web": "网页开发",
+      "mobile": "移动应用",
+      "design": "UI/UX设计"
+    },
+    "details": {
+      "overview": "项目概览",
+      "role": "我的角色",
+      "technologies": "使用技术",
+      "visit": "访问项目"
+    }
+  },
+  "blog": {
+    "title": "博客",
+    "readMore": "阅读更多",
+    "categories": "分类",
+    "tags": "标签",
+    "publishedOn": "发布于",
+    "updatedOn": "更新于",
+    "readingTime": "{minutes} 分钟阅读",
+    "author": "作者",
+    "tableOfContents": "目录"
+  },
+  "contact": {
+    "title": "联系我",
+    "form": {
+      "name": "您的姓名",
+      "email": "您的邮箱",
+      "subject": "主题",
+      "message": "您的留言",
+      "submit": "发送留言",
+      "success": "您的留言已成功发送。我会尽快回复您！",
+      "error": "哎呀！出了点问题。请稍后再试。"
+    }
+  },
+  "footer": {
+    "copyright": "© {year} John Doe. 保留所有权利。",
+    "madeWith": "使用 Next.js 和 Tailwind CSS 制作，充满❤️"
+  },
+  "theme": {
+    "light": "浅色模式",
+    "dark": "深色模式"
+  },
+  "language": {
+    "switchTo": "切换到{locale}"
+  }
+} 

@@ -2,19 +2,23 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import Container from './Container';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const t = useTranslations();
+  const nav = useTranslations('navigation');
+  const footer = useTranslations('footer');
   
   const footerLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'About', href: '/about' },
-    { name: 'Projects', href: '/projects' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Contact', href: '/contact' },
+    { name: nav('home'), href: '/' },
+    { name: nav('about'), href: '/about' },
+    { name: nav('projects'), href: '/projects' },
+    { name: nav('blog'), href: '/blog' },
+    { name: nav('contact'), href: '/contact' },
   ];
   
   const socialLinks = [
@@ -124,7 +128,10 @@ const Footer: React.FC = () => {
         {/* Copyright */}
         <div className="mt-12 pt-6 border-t border-neutral-muted/20 dark:border-dark-neutral-muted/20 text-center">
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            &copy; {currentYear} BrandSite. All rights reserved.
+            {footer('copyright').replace('{year}', currentYear.toString())}
+          </p>
+          <p className="text-neutral-dark dark:text-dark-neutral-dark mt-2 text-sm">
+            {footer('madeWith')}
           </p>
         </div>
       </Container>

@@ -1,0 +1,96 @@
+{
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "projects": "Projects",
+    "blog": "Blog",
+    "contact": "Contact"
+  },
+  "home": {
+    "hero": {
+      "title": "Hi, I'm John Doe",
+      "subtitle": "Full Stack Developer & Designer",
+      "description": "I create beautiful and functional websites with a focus on user experience and modern design.",
+      "cta": "View My Work"
+    },
+    "featuredProjects": {
+      "title": "Featured Projects",
+      "viewAll": "View All Projects"
+    },
+    "latestPosts": {
+      "title": "Latest Articles",
+      "viewAll": "View All Articles"
+    },
+    "contactCTA": {
+      "title": "Let's Work Together",
+      "description": "Have a project in mind or just want to chat? I'm always open to new opportunities and collaborations.",
+      "button": "Get in Touch"
+    }
+  },
+  "about": {
+    "title": "About Me",
+    "story": {
+      "title": "My Story",
+      "content": "I'm a passionate developer with over 5 years of experience in creating digital experiences. My journey in web development started when I was in college, and since then, I've been constantly learning and improving my skills."
+    },
+    "skills": {
+      "title": "My Skills",
+      "expert": "Expert",
+      "proficient": "Proficient",
+      "familiar": "Familiar"
+    },
+    "experience": {
+      "title": "Work Experience",
+      "present": "Present"
+    }
+  },
+  "projects": {
+    "title": "My Projects",
+    "filters": {
+      "all": "All",
+      "web": "Web Development",
+      "mobile": "Mobile Apps",
+      "design": "UI/UX Design"
+    },
+    "details": {
+      "overview": "Project Overview",
+      "role": "My Role",
+      "technologies": "Technologies Used",
+      "visit": "Visit Project"
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "readMore": "Read More",
+    "categories": "Categories",
+    "tags": "Tags",
+    "publishedOn": "Published on",
+    "updatedOn": "Updated on",
+    "readingTime": "{minutes} min read",
+    "author": "Author",
+    "tableOfContents": "Table of Contents"
+  },
+  "contact": {
+    "title": "Contact Me",
+    "form": {
+      "name": "Your Name",
+      "email": "Your Email",
+      "subject": "Subject",
+      "message": "Your Message",
+      "submit": "Send Message",
+      "success": "Your message has been sent successfully. I'll get back to you soon!",
+      "error": "Oops! Something went wrong. Please try again later."
+    }
+  },
+  "footer": {
+    "copyright": "© {year} John Doe. All rights reserved.",
+    "madeWith": "Made with ❤️ using Next.js and Tailwind CSS"
+  },
+  "theme": {
+    "light": "Light Mode",
+    "dark": "Dark Mode"
+  },
+  "language": {
+    "switchTo": "Switch to {locale}"
+  }
+} 

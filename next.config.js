@@ -1,3 +1,5 @@
+const withNextIntl = require('next-intl/plugin')('./src/i18n/utils.ts');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -21,4 +23,4 @@ const nextConfig = {
   output: 'standalone',
 };
 
-module.exports = nextConfig; 
+module.exports = withNextIntl(nextConfig); 
