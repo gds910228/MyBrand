@@ -17,8 +17,8 @@ export default function HomePage() {
         imageSrc="/images/hero-image.jpg" 
         imageAlt="John Doe, Full Stack Developer" 
       />
-      <FeaturedProjects />
-      <LatestPosts />
+      <FeaturedProjects locale="en" />
+      <LatestPosts locale="en" />
       <ContactCTA 
         padding="py-24"
       />

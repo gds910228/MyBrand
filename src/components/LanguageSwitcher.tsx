@@ -30,13 +30,23 @@ export default function LanguageSwitcher() {
     
     // 英文转换到中文
     if (newLocale === 'zh' && currentLocale === 'en') {
-      newPath = `/zh${pathname}`;
-      if (pathname === '/') newPath = '/zh';
+      // 根路径特殊处理
+      if (pathname === '/') {
+        newPath = '/zh';
+      } else {
+        // 其他路径在前面添加/zh
+        newPath = `/zh${pathname}`;
+      }
     } 
     // 中文转换到英文
     else if (newLocale === 'en' && currentLocale === 'zh') {
-      newPath = pathname.replace(/^\/zh/, '');
-      if (newPath === '') newPath = '/';
+      // 如果是/zh根路径，转为/
+      if (pathname === '/zh') {
+        newPath = '/';
+      } else {
+        // 其他路径移除/zh前缀
+        newPath = pathname.replace(/^\/zh/, '');
+      }
     }
     
     console.log(`切换语言：${currentLocale} -> ${newLocale}，新路径：${newPath}`);

@@ -14,6 +14,7 @@ export interface ProjectCardProps {
   slug: string;
   className?: string;
   imageAlt?: string;
+  locale?: string;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -24,8 +25,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   slug,
   className = '',
   imageAlt = '',
+  locale = 'en',
 }) => {
-  const linkHref = `/projects/${slug}`;
+  const linkHref = locale === 'zh' ? `/zh/projects/${slug}` : `/projects/${slug}`;
   
   return (
     <motion.div 
@@ -75,7 +77,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           href={linkHref}
           className="inline-block text-primary dark:text-dark-primary font-medium hover:underline"
         >
-          查看详情
+          {locale === 'zh' ? '查看详情' : 'View Details'}
         </Link>
       </div>
     </motion.div>

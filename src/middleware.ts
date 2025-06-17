@@ -27,44 +27,17 @@ export function middleware(request: NextRequest) {
   const isRedirected = request.headers.get('x-redirected');
   if (isRedirected) return NextResponse.next();
   
-  // 如果是根路径，默认重定向到英文版
-  if (pathname === '/') {
-    const newUrl = request.nextUrl.clone()
-    newUrl.pathname = `/`
-    
-    const response = NextResponse.redirect(newUrl)
-    response.headers.set('x-redirected', '1')
-    
-    return response
-  }
+  // 检查请求路径是否已包含支持的语言前缀
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
   
-  // 检查请求路径是否已包含支持的语言
-  const pathnameIsMissingLocale = locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  )
-
   // 如果路径已包含语言代码，则不做任何处理
-  if (!pathnameIsMissingLocale) {
+  if (pathnameHasLocale) {
     return NextResponse.next()
   }
-
-  // 获取用户首选语言，或使用默认语言
-  const preferredLocale = request.headers.get('accept-language')?.split(',')[0]?.split('-')[0]
   
-  // 仅当用户首选语言为中文时，重定向到/zh路径
-  // 否则使用默认路径（不添加/en前缀）
-  if (preferredLocale === 'zh') {
-    // 克隆请求URL
-    const newUrl = request.nextUrl.clone()
-    // 构建新的路径
-    newUrl.pathname = `/zh${pathname === '/' ? '' : pathname}`
-    
-    // 添加标记以防止循环重定向
-    const response = NextResponse.redirect(newUrl)
-    response.headers.set('x-redirected', '1')
-    
-    return response
-  }
-
-  return NextResponse.next()
+  // 不再根据用户浏览器语言自动重定向，默认使用英文
+  // 所有页面默认使用英文，只有明确指定/zh才使用中文
+  return NextResponse.next();
 } 

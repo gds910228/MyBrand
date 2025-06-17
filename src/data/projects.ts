@@ -79,7 +79,7 @@ export const projectsData: Project[] = [
     subtitle: "现代社交平台体验设计",
     description: "为社交媒体平台创建的全面UI/UX设计，包括用户流程、交互模式和视觉风格指南。专注于可用性、可访问性和用户参与度。",
     slug: "social-media-design",
-    coverImage: "https://images.unsplash.com/photo-1568217775766-738427634be8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1335&q=80",
+    coverImage: "https://images.unsplash.com/photo-1595776613215-fe04b78de2d0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     technologies: ["Figma", "Adobe XD", "Prototyping", "User Research"],
     category: "design"
   }

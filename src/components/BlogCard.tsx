@@ -13,6 +13,7 @@ export interface BlogCardProps {
   publishedAt: string;
   slug: string;
   categories?: { name: string, label: string }[];
+  locale?: string;
 }
 
 const BlogCard: React.FC<BlogCardProps> = ({
@@ -21,7 +22,8 @@ const BlogCard: React.FC<BlogCardProps> = ({
   coverImage,
   publishedAt,
   slug,
-  categories = []
+  categories = [],
+  locale = 'en'
 }) => {
   // 格式化发布日期
   let formattedDate = publishedAt;
@@ -34,7 +36,8 @@ const BlogCard: React.FC<BlogCardProps> = ({
     console.error('Error formatting date:', error);
   }
   
-  const linkHref = `/blog/${slug}`;
+  // 根据locale决定链接路径
+  const linkHref = locale === 'zh' ? `/zh/blog/${slug}` : `/blog/${slug}`;
   
   return (
     <motion.div 
@@ -85,7 +88,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
             href={linkHref}
             className="inline-block text-primary dark:text-dark-primary font-medium hover:underline"
           >
-            阅读更多
+            {locale === 'zh' ? '阅读更多' : 'Read More'}
           </Link>
         </div>
       </div>

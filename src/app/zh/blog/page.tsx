@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Section from '@/components/Section';
 import SectionHeading from '@/components/SectionHeading';
-import { BlogCard } from '@/components/BlogCard';
+import BlogCard from '@/components/BlogCard';
 import ContactCTA from '@/components/ContactCTA';
 import { blogPosts, categories, BlogPostType } from '@/data/blog';
 
@@ -71,6 +71,7 @@ export default function BlogPageZh() {
                 coverImage={post.coverImage}
                 publishedAt={post.publishedAt}
                 slug={post.slug}
+                locale="zh"
                 categories={post.categories.map(catName => {
                   const category = categories.find(c => c.name === catName);
                   return {

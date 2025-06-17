@@ -6,7 +6,11 @@ import Link from 'next/link';
 import Section from './Section';
 import Button from './Button';
 
-const ContactCTA: React.FC = () => {
+interface ContactCTAProps {
+  padding?: string;
+}
+
+const ContactCTA: React.FC<ContactCTAProps> = ({ padding }) => {
   const pathname = usePathname();
   const isZhPath = pathname.startsWith('/zh');
   
@@ -30,7 +34,7 @@ const ContactCTA: React.FC = () => {
   const { title, description, buttonText, linkPath } = isZhPath ? texts.zh : texts.en;
   
   return (
-    <Section bgColor="bg-primary dark:bg-dark-primary text-white" className="py-16 lg:py-24">
+    <Section bgColor="bg-primary dark:bg-dark-primary text-white" className={padding || "py-16 lg:py-24"}>
       <div className="container mx-auto text-center">
         <h2 className="text-3xl lg:text-4xl font-bold font-heading mb-4">
           {title}
