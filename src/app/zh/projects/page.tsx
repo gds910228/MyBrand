@@ -69,12 +69,12 @@ export default function ProjectsPageZh() {
             {filteredProjects.map((project) => (
               <ProjectCard 
                 key={project.id}
-                id={project.id}
                 title={project.title}
                 description={project.subtitle}
                 imageSrc={project.coverImage}
                 tags={project.technologies}
                 slug={project.slug}
+                locale="zh"
                 className="h-full"
               />
             ))}
