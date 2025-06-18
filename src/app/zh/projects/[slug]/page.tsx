@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { projectsData } from '@/data/projects';
+import { getProjectsByLocale } from '@/data/projects';
 import Section from '@/components/Section';
 import ContactCTA from '@/components/ContactCTA';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,8 +16,16 @@ export default function ProjectDetailPageZh() {
   const { slug } = useParams();
   const projectSlug = Array.isArray(slug) ? slug[0] : slug;
   
+  // 获取中文项目数据
+  const zhProjects = getProjectsByLocale('zh');
+  
   // 查找匹配的项目
-  const project = projectsData.find(project => project.slug === projectSlug);
+  let project = zhProjects.find(project => project.slug === projectSlug);
+  
+  // 如果找不到项目，尝试按id查找
+  if (!project) {
+    project = zhProjects.find(project => project.id === projectSlug);
+  }
   
   // 如果找不到项目，返回404
   if (!project) {
@@ -67,7 +75,7 @@ export default function ProjectDetailPageZh() {
                     className="flex items-center gap-2 py-2 px-4 rounded-lg bg-primary dark:bg-dark-primary text-white font-medium hover:opacity-90 transition"
                   >
                     <FontAwesomeIcon icon={faLink} className="w-4 h-4" />
-                    <span>查看项目</span>
+                    <span>项目链接</span>
                   </a>
                 )}
                 {project.githubUrl && (
@@ -92,7 +100,7 @@ export default function ProjectDetailPageZh() {
         <div className="container mx-auto">
           <div className="prose prose-lg dark:prose-invert max-w-none">
             <h2 className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
-              项目概述
+              项目概览
             </h2>
             <p className="text-neutral-dark dark:text-dark-neutral-dark mb-6">
               {project.description}

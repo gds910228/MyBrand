@@ -5,7 +5,7 @@ import Section from '@/components/Section';
 import SectionHeading from '@/components/SectionHeading';
 import ProjectCard from '@/components/ProjectCard';
 import ContactCTA from '@/components/ContactCTA';
-import { projectsData } from '@/data/projects';
+import { getProjectsByLocale } from '@/data/projects';
 
 // 项目类型定义
 type ProjectCategory = 'all' | 'web' | 'mobile' | 'design';
@@ -13,9 +13,12 @@ type ProjectCategory = 'all' | 'web' | 'mobile' | 'design';
 export default function ProjectsPageZh() {
   const [activeCategory, setActiveCategory] = useState<ProjectCategory>('all');
   
+  // 获取中文项目数据
+  const projectsDataZh = getProjectsByLocale('zh');
+  
   const filteredProjects = activeCategory === 'all' 
-    ? projectsData 
-    : projectsData.filter(project => project.category === activeCategory);
+    ? projectsDataZh 
+    : projectsDataZh.filter(project => project.category === activeCategory);
 
   return (
     <>

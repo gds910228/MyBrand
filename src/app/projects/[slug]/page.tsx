@@ -1,11 +1,11 @@
 "use client";
 
 import React from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { projectsData } from '@/data/projects';
+import { getProjectsByLocale } from '@/data/projects';
 import Section from '@/components/Section';
 import ContactCTA from '@/components/ContactCTA';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,12 +14,25 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 export default function ProjectDetailPage() {
   const { slug } = useParams();
+  const pathname = usePathname();
   const projectSlug = Array.isArray(slug) ? slug[0] : slug;
   
-  // 查找匹配的项目
-  const project = projectsData.find(project => project.slug === projectSlug);
+  // 当前语言环境 - 通过路径确定
+  const isZhLang = pathname?.startsWith('/zh');
+  const currentLocale = isZhLang ? 'zh' : 'en';
   
-  // 如果找不到项目，返回404
+  // 获取当前语言的项目集合
+  const currentProjects = getProjectsByLocale(currentLocale);
+  
+  // 查找匹配的项目
+  let project = currentProjects.find(project => project.slug === projectSlug);
+  
+  // 如果找不到项目，尝试按id查找
+  if (!project) {
+    project = currentProjects.find(project => project.id === projectSlug);
+  }
+  
+  // 如果还是找不到，返回404
   if (!project) {
     notFound();
   }
@@ -67,7 +80,7 @@ export default function ProjectDetailPage() {
                     className="flex items-center gap-2 py-2 px-4 rounded-lg bg-primary dark:bg-dark-primary text-white font-medium hover:opacity-90 transition"
                   >
                     <FontAwesomeIcon icon={faLink} className="w-4 h-4" />
-                    <span>Live Project</span>
+                    <span>{currentLocale === 'zh' ? '项目链接' : 'Live Project'}</span>
                   </a>
                 )}
                 {project.githubUrl && (
@@ -92,7 +105,7 @@ export default function ProjectDetailPage() {
         <div className="container mx-auto">
           <div className="prose prose-lg dark:prose-invert max-w-none">
             <h2 className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
-              Project Overview
+              {currentLocale === 'zh' ? '项目概览' : 'Project Overview'}
             </h2>
             <p className="text-neutral-dark dark:text-dark-neutral-dark mb-6">
               {project.description}
@@ -100,11 +113,11 @@ export default function ProjectDetailPage() {
             
             <div className="my-12">
               <Link 
-                href="/projects" 
+                href={currentLocale === 'zh' ? "/zh/projects" : "/projects"} 
                 className="flex items-center gap-2 text-primary dark:text-dark-primary font-medium hover:underline"
               >
                 <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
-                <span>Back to Projects</span>
+                <span>{currentLocale === 'zh' ? '返回项目列表' : 'Back to Projects'}</span>
               </Link>
             </div>
           </div>

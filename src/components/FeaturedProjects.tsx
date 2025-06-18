@@ -6,13 +6,16 @@ import Section from './Section';
 import SectionHeading from './SectionHeading';
 import ProjectCard from './ProjectCard';
 import Button from './Button';
-import { projectsData } from '@/data/projects';
+import { getProjectsByLocale } from '@/data/projects';
 
 interface FeaturedProjectsProps {
   locale?: string;
 }
 
 const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ locale = 'en' }) => {
+  // 根据传入的locale获取项目数据集
+  const projectsData = getProjectsByLocale(locale);
+  
   // 获取精选项目
   const featuredProjects = projectsData.filter(project => project.featured);
   
