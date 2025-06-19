@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { format, isValid, parseISO } from 'date-fns';
 import { blogPosts, categories } from '@/data/blog';
 import Section from '@/components/Section';
+import CommentSection from '@/components/CommentSection';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
@@ -142,8 +143,15 @@ export default function BlogPostDetailPageZh() {
               </p>
             </div>
           </div>
-        </div>
-      </Section>
-    </>
-  );
+              </div>
+    </Section>
+    
+    {/* Comments Section */}
+    <Section id="comments-section">
+      <div className="container mx-auto max-w-4xl">
+        <CommentSection postId={`post-${post.slug}`} locale="zh" />
+      </div>
+    </Section>
+  </>
+);
 } 

@@ -1,5 +1,20 @@
 import { Client } from '@notionhq/client';
 
+// 评论类型定义
+export interface CommentType {
+  id: string;
+  postId: string;
+  parentId: string | null;
+  author: {
+    name: string;
+    email: string;
+    avatar?: string | null;
+  };
+  content: string;
+  createdAt: string;
+  replies?: CommentType[];
+}
+
 // 初始化Notion客户端
 const notion = new Client({
   auth: process.env.NOTION_API_KEY,
@@ -9,6 +24,63 @@ const notion = new Client({
 const PROJECTS_DATABASE_ID = process.env.NOTION_PROJECTS_DATABASE_ID || '';
 const BLOG_DATABASE_ID = process.env.NOTION_BLOG_DATABASE_ID || '';
 const ABOUT_PAGE_ID = process.env.NOTION_ABOUT_PAGE_ID || '';
+
+// 评论数据库ID - 添加连字符以匹配Notion API期望的格式
+const COMMENTS_DATABASE_ID = process.env.NOTION_COMMENTS_DATABASE_ID 
+  ? process.env.NOTION_COMMENTS_DATABASE_ID.replace(/^(\w{8})(\w{4})(\w{4})(\w{4})(\w{12})$/, '$1-$2-$3-$4-$5')
+  : '';
+
+// Notion评论页面类型
+interface NotionCommentPage {
+  properties: {
+    name: { title: Array<{ plain_text: string }> };
+    email: { email: string };
+    content: { rich_text: Array<{ plain_text: string }> };
+    createdAt: { date: { start: string } | null };
+    postId: { rich_text: Array<{ plain_text: string }> };
+    parentId: { rich_text: Array<{ plain_text: string }> };
+  };
+}
+
+// 本地评论存储
+let localComments: CommentType[] = [
+  {
+    id: 'comment-1',
+    postId: 'post-getting-started-with-nextjs-14',
+    parentId: null,
+    author: {
+      name: 'Alice Johnson',
+      email: 'alice@example.com',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80'
+    },
+    content: 'Great article! I\'ve been trying to learn Next.js and this was very helpful.',
+    createdAt: '2023-10-26T08:30:00Z',
+  },
+  {
+    id: 'comment-2',
+    postId: 'post-getting-started-with-nextjs-14',
+    parentId: 'comment-1',
+    author: {
+      name: 'John Doe',
+      email: 'john@example.com',
+      avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80'
+    },
+    content: 'Thanks Alice! I\'m glad you found it useful. Let me know if you have any questions.',
+    createdAt: '2023-10-26T09:15:00Z',
+  },
+  {
+    id: 'comment-3',
+    postId: 'post-getting-started-with-nextjs-14',
+    parentId: null,
+    author: {
+      name: 'Robert Smith',
+      email: 'robert@example.com',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80'
+    },
+    content: 'I\'m still confused about the App Router. Could you explain more about how it differs from the Pages Router?',
+    createdAt: '2023-10-27T10:45:00Z',
+  }
+];
 
 /**
  * 获取所有项目
@@ -262,4 +334,236 @@ function renderRichText(richText: any[]) {
     
     return content;
   }).join('');
+}
+
+/**
+ * 根据文章ID获取评论
+ * @param postId 文章ID
+ * @returns 评论列表
+ */
+export const getCommentsByPostId = async (postId: string): Promise<CommentType[]> => {
+  try {
+    // 检查是否配置了Notion API密钥和数据库ID
+    if (!process.env.NOTION_API_KEY || !COMMENTS_DATABASE_ID) {
+      console.log('Notion API key or database ID not configured, using local storage');
+      return getLocalCommentsByPostId(postId);
+    }
+
+    const response = await notion.databases.query({
+      database_id: COMMENTS_DATABASE_ID,
+      filter: {
+        property: 'PostId',
+        rich_text: {
+          equals: postId,
+        },
+      },
+    });
+
+    const comments = response.results.map((page) => {
+      // @ts-ignore - Notion API类型定义不完整
+      const { properties } = page as any;
+      
+      return {
+        id: page.id,
+        postId: properties.PostId.rich_text[0]?.plain_text || '',
+        parentId: properties.ParentId.rich_text[0]?.plain_text || null,
+        author: {
+          name: properties.AuthorName.rich_text[0]?.plain_text || '',
+          email: properties.AuthorEmail.email || '',
+          avatar: properties.AuthorAvatar?.url || null,
+        },
+        content: properties.Content.rich_text[0]?.plain_text || '',
+        createdAt: new Date(properties.CreatedAt.date?.start || Date.now()).toISOString(),
+        replies: [],
+      } as CommentType;
+    });
+
+    // 构建评论树
+    const commentMap = new Map<string, CommentType>();
+    const rootComments: CommentType[] = [];
+
+    comments.forEach((comment) => {
+      commentMap.set(comment.id, { ...comment, replies: [] });
+    });
+
+    comments.forEach((comment) => {
+      if (comment.parentId) {
+        const parentComment = commentMap.get(comment.parentId);
+        if (parentComment && parentComment.replies) {
+          parentComment.replies.push(commentMap.get(comment.id) as CommentType);
+        }
+      } else {
+        rootComments.push(commentMap.get(comment.id) as CommentType);
+      }
+    });
+
+    return rootComments;
+  } catch (error) {
+    console.error('Error fetching comments from Notion:', error);
+    // 使用本地存储作为备选方案
+    return getLocalCommentsByPostId(postId);
+  }
+};
+
+/**
+ * 添加评论
+ * @param comment 评论数据
+ * @returns 添加的评论
+ */
+export const addComment = async (comment: Omit<CommentType, 'id' | 'createdAt'>): Promise<CommentType> => {
+  try {
+    // 检查是否配置了Notion API密钥和数据库ID
+    if (!process.env.NOTION_API_KEY || !COMMENTS_DATABASE_ID) {
+      console.log('Notion API key or database ID not configured, using local storage');
+      return addLocalComment(comment);
+    }
+
+    // 准备评论数据
+    const properties: any = {
+      AuthorEmail: {
+        email: comment.author.email,
+      },
+      Content: {
+        rich_text: [
+          {
+            text: {
+              content: comment.content,
+            },
+          },
+        ],
+      },
+      CreatedAt: {
+        date: {
+          start: new Date().toISOString(),
+        },
+      },
+      PostId: {
+        rich_text: [
+          {
+            text: {
+              content: comment.postId,
+            },
+          },
+        ],
+      },
+      ParentId: {
+        rich_text: comment.parentId
+          ? [
+              {
+                text: {
+                  content: comment.parentId,
+                },
+              },
+            ]
+          : [],
+      },
+    };
+
+    // 根据Notion数据库列类型设置作者名称
+    properties.AuthorName = {
+      rich_text: [
+        {
+          text: {
+            content: comment.author.name || '',
+          },
+        },
+      ],
+    };
+
+    // 如果有头像URL，则添加
+    if (comment.author.avatar) {
+      properties.AuthorAvatar = {
+        url: comment.author.avatar,
+      };
+    } else {
+      // 如果没有头像，使用默认头像或null
+      properties.AuthorAvatar = {
+        url: null,
+      };
+    }
+
+    const response = await notion.pages.create({
+      parent: {
+        database_id: COMMENTS_DATABASE_ID,
+      },
+      properties: properties,
+    });
+
+    // 返回添加的评论
+    return {
+      id: response.id,
+      postId: comment.postId,
+      parentId: comment.parentId,
+      author: comment.author,
+      content: comment.content,
+      createdAt: new Date().toISOString(),
+      replies: [],
+    };
+  } catch (error) {
+    console.error('Error adding comment to Notion:', error);
+    // 使用本地存储作为备选方案
+    return addLocalComment(comment);
+  }
+};
+
+/**
+ * 从本地存储获取评论
+ */
+function getLocalCommentsByPostId(postId: string): CommentType[] {
+  const allComments = localComments.filter(comment => comment.postId === postId);
+  return buildCommentTree(allComments);
+}
+
+/**
+ * 添加本地评论
+ */
+function addLocalComment(comment: Omit<CommentType, 'id' | 'createdAt'>): CommentType {
+  const newComment: CommentType = {
+    id: `comment-${Date.now()}`,
+    postId: comment.postId,
+    parentId: comment.parentId,
+    author: {
+      name: comment.author.name,
+      email: comment.author.email,
+      avatar: comment.author.avatar,
+    },
+    content: comment.content,
+    createdAt: new Date().toISOString(),
+    replies: [],
+  };
+
+  localComments.push(newComment);
+  return newComment;
+}
+
+/**
+ * 构建评论树
+ */
+function buildCommentTree(comments: CommentType[]): CommentType[] {
+  const commentTree: CommentType[] = [];
+  const commentMap = new Map<string, CommentType>();
+  
+  // 首先将所有评论放入Map中
+  comments.forEach(comment => {
+    commentMap.set(comment.id, comment);
+  });
+  
+  // 然后构建评论树
+  comments.forEach(comment => {
+    if (!comment.parentId) {
+      // 这是顶级评论
+      commentTree.push(comment);
+    } else {
+      // 这是回复
+      const parentComment = commentMap.get(comment.parentId);
+      if (parentComment) {
+        if (!parentComment.replies) {
+          parentComment.replies = [];
+        }
+        parentComment.replies.push(commentMap.get(comment.id) as CommentType);
+      }
+    }
+  });
+  
+  return commentTree;
 } 
