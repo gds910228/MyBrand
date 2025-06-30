@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faPhone, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { faGithub, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import Image from 'next/image';
 
 export default function ContactPageZh() {
   return (
@@ -15,6 +16,15 @@ export default function ContactPageZh() {
       {/* Hero Section */}
       <Section id="contact-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
         <div className="mx-auto max-w-3xl text-center">
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/images/MisoTech-Logo.png"
+              alt="MisoTech Logo"
+              width={120}
+              height={120}
+              priority
+            />
+          </div>
           <SectionHeading 
             title="联系 MisoTech" 
             subtitle="有技术需求或项目合作？我们随时为您提供帮助！" 
@@ -48,7 +58,7 @@ export default function ContactPageZh() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
             className="bg-white dark:bg-dark-bg-secondary rounded-xl p-6 shadow-md text-center"
           >
             <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-light dark:bg-dark-primary-light text-primary dark:text-dark-primary rounded-full mb-4">
@@ -58,7 +68,7 @@ export default function ContactPageZh() {
               电话
             </h3>
             <p className="text-neutral-dark dark:text-dark-neutral-dark">
-              <a href="tel:+11234567890" className="hover:text-primary dark:hover:text-dark-primary transition-colors">+1 (123) 456-7890</a>
+              <a href="tel:+18001234567" className="hover:text-primary dark:hover:text-dark-primary transition-colors">+1 (800) 123-4567</a>
             </p>
           </motion.div>
           
@@ -66,64 +76,95 @@ export default function ContactPageZh() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
             className="bg-white dark:bg-dark-bg-secondary rounded-xl p-6 shadow-md text-center"
           >
             <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-light dark:bg-dark-primary-light text-primary dark:text-dark-primary rounded-full mb-4">
               <FontAwesomeIcon icon={faMapMarkerAlt} className="h-6 w-6" />
             </div>
             <h3 className="text-lg font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-2">
-              位置
+              地址
             </h3>
             <p className="text-neutral-dark dark:text-dark-neutral-dark">
-              旧金山, 加利福尼亚
+              旧金山，加利福尼亚州
             </p>
           </motion.div>
         </div>
+      </Section>
+      
+      {/* Social Media */}
+      <Section id="social-media" bgColor="bg-white dark:bg-dark-bg-primary">
+        <div className="text-center mb-8">
+          <SectionHeading 
+            title="社交媒体" 
+            subtitle="在社交媒体上与我们联系" 
+            centered
+          />
+        </div>
         
-        {/* Social Media Links */}
-        <div className="mt-12 text-center">
-          <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
-            在社交媒体上关注我
-          </h3>
-          <div className="flex justify-center space-x-6">
-            <a
-              href="https://github.com/example"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors"
-              aria-label="GitHub"
-            >
-              <FontAwesomeIcon icon={faGithub} className="h-8 w-8" />
-            </a>
-            <a
-              href="https://linkedin.com/in/example"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors"
-              aria-label="LinkedIn"
-            >
-              <FontAwesomeIcon icon={faLinkedin} className="h-8 w-8" />
-            </a>
-            <a
-              href="https://twitter.com/example"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary transition-colors"
-              aria-label="Twitter"
-            >
-              <FontAwesomeIcon icon={faTwitter} className="h-8 w-8" />
-            </a>
-          </div>
+        <div className="flex flex-wrap justify-center gap-6">
+          <motion.a
+            href="https://github.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center w-16 h-16 bg-neutral-light dark:bg-dark-bg-secondary rounded-full text-neutral-darker dark:text-dark-neutral-lighter hover:text-primary dark:hover:text-dark-primary transition-colors"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            <FontAwesomeIcon icon={faGithub} className="h-8 w-8" />
+          </motion.a>
+          
+          <motion.a
+            href="https://linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center w-16 h-16 bg-neutral-light dark:bg-dark-bg-secondary rounded-full text-neutral-darker dark:text-dark-neutral-lighter hover:text-primary dark:hover:text-dark-primary transition-colors"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+          >
+            <FontAwesomeIcon icon={faLinkedin} className="h-8 w-8" />
+          </motion.a>
+          
+          <motion.a
+            href="https://twitter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center w-16 h-16 bg-neutral-light dark:bg-dark-bg-secondary rounded-full text-neutral-darker dark:text-dark-neutral-lighter hover:text-primary dark:hover:text-dark-primary transition-colors"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+          >
+            <FontAwesomeIcon icon={faTwitter} className="h-8 w-8" />
+          </motion.a>
         </div>
       </Section>
       
       {/* Contact Form */}
       <Section id="contact-form" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-6 text-center">
-            发送消息
-          </h2>
+          <div className="flex items-center justify-center mb-6">
+            <Image
+              src="/images/MisoTech-Logo.png"
+              alt="MisoTech Logo"
+              width={60}
+              height={60}
+              className="mr-4"
+            />
+            <h2 className="text-2xl sm:text-3xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker">
+              发送消息
+            </h2>
+          </div>
           <p className="text-neutral-dark dark:text-dark-neutral-dark text-center mb-8">
             请填写以下表单，我会尽快回复您。
           </p>

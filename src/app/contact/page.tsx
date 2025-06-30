@@ -1,136 +1,26 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import Section from '@/components/Section';
-import SectionHeading from '@/components/SectionHeading';
 import Container from '@/components/Container';
+import ContactForm from '@/components/ContactForm';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export default function ContactPage() {
-  // 表单状态
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  
-  // 错误状态
-  const [errors, setErrors] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  
-  // 提交状态
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState('');
-  
-  // 处理输入变化
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // 清除对应字段的错误
-    if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-  
-  // 验证表单
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = {
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
-    };
-    
-    // 验证姓名
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-      isValid = false;
-    }
-    
-    // 验证邮箱
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-      isValid = false;
-    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)) {
-      newErrors.email = 'Invalid email address';
-      isValid = false;
-    }
-    
-    // 验证主题
-    if (!formData.subject.trim()) {
-      newErrors.subject = 'Subject is required';
-      isValid = false;
-    }
-    
-    // 验证消息
-    if (!formData.message.trim()) {
-      newErrors.message = 'Message is required';
-      isValid = false;
-    } else if (formData.message.trim().length < 10) {
-      newErrors.message = 'Message must be at least 10 characters';
-      isValid = false;
-    }
-    
-    setErrors(newErrors);
-    return isValid;
-  };
-  
-  // 处理表单提交
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // 验证表单
-    if (!validateForm()) {
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setSubmitError('');
-    
-    try {
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // 成功提交后重置表单
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-      setSubmitSuccess(true);
-      
-      // 5秒后重置成功状态
-      setTimeout(() => {
-        setSubmitSuccess(false);
-      }, 5000);
-    } catch (error) {
-      setSubmitError('Failed to send message. Please try again later.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
   return (
     <>
       {/* Hero Section */}
       <Section id="contact-hero" bgColor="bg-neutral-light">
         <div className="text-center max-w-3xl mx-auto">
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/images/MisoTech-Logo.png"
+              alt="MisoTech Logo"
+              width={120}
+              height={120}
+              priority
+            />
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold font-heading text-neutral-darker mb-6">
             Contact MisoTech
           </h1>
@@ -217,155 +107,71 @@ export default function ContactPage() {
           </div>
           
           {/* Contact Form */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold font-heading text-neutral-darker mb-6">
-              Send Me a Message
-            </h2>
+          <div className="bg-white dark:bg-dark-bg-secondary p-6 rounded-lg shadow-md">
+            <div className="flex items-center mb-6">
+              <Image
+                src="/images/MisoTech-Logo.png"
+                alt="MisoTech Logo"
+                width={40}
+                height={40}
+                className="mr-3"
+              />
+              <h2 className="text-2xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker">
+                Send Me a Message
+              </h2>
+            </div>
             
-            {/* Success Message */}
-            {submitSuccess && (
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md text-green-700">
-                Your message has been sent successfully! I'll get back to you soon.
-              </div>
-            )}
-            
-            {/* Error Message */}
-            {submitError && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
-                {submitError}
-              </div>
-            )}
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name Field */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-neutral-dark mb-1">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none ${errors.name ? 'border-red-500' : 'border-neutral-light'}`}
-                  placeholder="Your name"
-                />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-                )}
-              </div>
-              
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-neutral-dark mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none ${errors.email ? 'border-red-500' : 'border-neutral-light'}`}
-                  placeholder="Your email address"
-                />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-                )}
-              </div>
-              
-              {/* Subject Field */}
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-neutral-dark mb-1">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none ${errors.subject ? 'border-red-500' : 'border-neutral-light'}`}
-                  placeholder="Message subject"
-                />
-                {errors.subject && (
-                  <p className="mt-1 text-sm text-red-600">{errors.subject}</p>
-                )}
-              </div>
-              
-              {/* Message Field */}
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-neutral-dark mb-1">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  rows={5}
-                  className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:outline-none ${errors.message ? 'border-red-500' : 'border-neutral-light'}`}
-                  placeholder="Your message"
-                ></textarea>
-                {errors.message && (
-                  <p className="mt-1 text-sm text-red-600">{errors.message}</p>
-                )}
-              </div>
-              
-              {/* Submit Button */}
-              <div>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={`w-full px-6 py-3 bg-primary text-white font-medium rounded-lg transition-colors ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary-dark'}`}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Sending...
-                    </span>
-                  ) : (
-                    'Send Message'
-                  )}
-                </button>
-              </div>
-            </form>
+            <ContactForm 
+              namePlaceholder="Your Name" 
+              emailPlaceholder="Your Email" 
+              subjectPlaceholder="Subject" 
+              messagePlaceholder="Your Message" 
+              submitText="Send Message"
+              successText="Your message has been sent successfully. I'll get back to you soon!"
+              errorText="Oops! Something went wrong. Please try again later."
+            />
           </div>
         </div>
       </Section>
       
       {/* FAQ Section */}
       <Section id="faq" bgColor="bg-neutral-light">
-        <SectionHeading 
-          title="Frequently Asked Questions" 
-          subtitle="Answers to some common questions you might have."
-        />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker mb-3">What services do you offer?</h3>
-            <p className="text-neutral-dark">I specialize in full-stack web development, UI/UX design, and technical consulting. My expertise includes React, Next.js, Node.js, and various database technologies.</p>
+        <Container>
+          <div className="flex items-center justify-center mb-12">
+            <Image
+              src="/images/MisoTech-Logo.png"
+              alt="MisoTech Logo"
+              width={50}
+              height={50}
+              className="mr-4"
+            />
+            <h2 className="text-3xl font-bold font-heading text-neutral-darker">
+              Frequently Asked Questions
+            </h2>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker mb-3">How do you handle project pricing?</h3>
-            <p className="text-neutral-dark">Each project is unique, so pricing depends on the scope, complexity, and timeline. I offer both hourly rates and fixed-price quotes after understanding your specific requirements.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-dark-bg-secondary p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-3">What services do you offer?</h3>
+              <p className="text-neutral-dark dark:text-dark-neutral-dark">I provide a range of web development services including custom website design, web application development, e-commerce solutions, and technical consulting. Each project is tailored to meet your specific needs and business goals.</p>
+            </div>
+            
+            <div className="bg-white dark:bg-dark-bg-secondary p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-3">How much does a typical project cost?</h3>
+              <p className="text-neutral-dark dark:text-dark-neutral-dark">Project costs vary depending on the scope, complexity, and timeline. I offer competitive rates and work with you to find a solution that fits your budget. Contact me for a free consultation and quote.</p>
+            </div>
+            
+            <div className="bg-white dark:bg-dark-bg-secondary p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-3">How long does it take to complete a project?</h3>
+              <p className="text-neutral-dark dark:text-dark-neutral-dark">Timeline depends on the project scope and complexity. A simple website might take 2-4 weeks, while a complex web application could take several months. I always provide a detailed timeline before starting any project.</p>
+            </div>
+            
+            <div className="bg-white dark:bg-dark-bg-secondary p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-3">Do you offer ongoing maintenance?</h3>
+              <p className="text-neutral-dark dark:text-dark-neutral-dark">Yes, I offer various maintenance packages to keep your website or application running smoothly after launch. These can include regular updates, security checks, and performance optimizations.</p>
+            </div>
           </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker mb-3">What is your typical process for new projects?</h3>
-            <p className="text-neutral-dark">My process typically includes an initial consultation, requirements gathering, proposal and quote, design and development phases, testing, and launch. I maintain clear communication throughout the entire process.</p>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker mb-3">Do you offer ongoing maintenance?</h3>
-            <p className="text-neutral-dark">Yes, I offer various maintenance packages to keep your website or application running smoothly after launch. These can include regular updates, security checks, and performance optimizations.</p>
-          </div>
-        </div>
+        </Container>
       </Section>
     </>
   );

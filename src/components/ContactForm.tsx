@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import Button from './Button';
 import emailjs from '@emailjs/browser';
 
@@ -31,87 +31,73 @@ const ContactForm: React.FC<ContactFormProps> = ({
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [debugInfo, setDebugInfo] = useState<string>('');
   
-  const formRef = useRef<HTMLFormElement>(null);
-
-  // 组件加载时检查环境变量并初始化EmailJS
-  useEffect(() => {
-    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-    
-    console.log('EmailJS环境变量检查:', { 
-      serviceId: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ? `已设置` : '未设置',
-      templateId: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ? `已设置` : '未设置',
-      publicKey: publicKey ? `已设置` : '未设置'
-    });
-    
-    // 初始化EmailJS
-    if (publicKey) {
-      emailjs.init({
-        publicKey: publicKey,
-      });
-      console.log('EmailJS已初始化');
-    }
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setDebugInfo('');
     
-    // Basic form validation
+    // 基本验证
     if (!name || !email || !subject || !message) {
       alert('Please fill in all fields.');
       return;
     }
     
     setIsSubmitting(true);
-    setDebugInfo('开始提交表单...');
     
     try {
-      // 使用EmailJS发送邮件
-      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
       
-      setDebugInfo(prev => prev + `\n环境变量检查: ${serviceId ? '服务ID已设置' : '服务ID未设置'}, ${templateId ? '模板ID已设置' : '模板ID未设置'}`);
-      
-      if (!serviceId || !templateId) {
-        throw new Error('EmailJS配置缺失，请检查环境变量');
+      if (!publicKey) {
+        throw new Error('Missing EmailJS public key');
       }
       
-      if (formRef.current) {
-        setDebugInfo(prev => prev + '\n准备发送邮件...');
-        setDebugInfo(prev => prev + `\n表单数据: name=${name}, email=${email}, subject=${subject}, message=${message.substring(0, 20)}...`);
-        
-        // 使用新版API发送表单
-        const result = await emailjs.sendForm(
-          serviceId,
-          templateId,
-          formRef.current
-        );
-        
-        setDebugInfo(prev => prev + `\n邮件发送成功! 状态: ${result.status}, 文本: ${result.text}`);
+      // 必要的服务ID和模板ID
+      const serviceID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      
+      if (!serviceID || !templateID) {
+        throw new Error('Missing EmailJS service ID or template ID');
       }
       
-      // Reset form
+      // 准备模板参数 - 使用EmailJS推荐的标准字段名
+      const templateParams = {
+        // 这些是EmailJS默认识别的字段
+        from_name: name,
+        reply_to: email,  // 这是关键 - 用于回复的邮箱
+        subject: subject,
+        message: message,
+        // 如果模板中需要自定义收件人
+        to_email: recipientEmail,
+        to_name: "MisoTech" // 收件人名称
+      };
+      
+      // 初始化EmailJS
+      emailjs.init({ publicKey });
+      
+      // 直接发送邮件 - 使用最简单的send方法
+      const result = await emailjs.send(
+        serviceID, 
+        templateID, 
+        templateParams
+      );
+      
+      // 重置表单
       setName('');
       setEmail('');
       setSubject('');
       setMessage('');
       
-      // Show success message
+      // 显示成功信息
       setSubmitStatus('success');
-      setDebugInfo(prev => prev + '\n表单重置完成，显示成功消息');
       
-      // Reset status after 5 seconds
+      // 5秒后重置状态
       setTimeout(() => {
         setSubmitStatus('idle');
       }, 5000);
     } catch (error: any) {
-      console.error('Error submitting form:', error);
-      setDebugInfo(prev => prev + `\n发生错误: ${error.message || '未知错误'}`);
+      console.error('Email sending error:', error);
       setSubmitStatus('error');
       
-      // Reset status after 5 seconds
+      // 5秒后重置状态
       setTimeout(() => {
         setSubmitStatus('idle');
       }, 5000);
@@ -134,10 +120,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
         </div>
       )}
       
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-        {/* 添加一个隐藏字段，用于传递收件人邮箱 */}
-        <input type="hidden" name="to_email" value={recipientEmail} />
-        
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-neutral-dark dark:text-dark-neutral-dark mb-1">
@@ -146,7 +129,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
             <input 
               type="text"
               id="name"
-              name="user_name" // EmailJS表单字段名
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={namePlaceholder}
@@ -161,7 +143,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
             <input 
               type="email"
               id="email"
-              name="user_email" // EmailJS表单字段名
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={emailPlaceholder}
@@ -178,7 +159,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
           <input 
             type="text"
             id="subject"
-            name="subject" // EmailJS表单字段名
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder={subjectPlaceholder}
@@ -193,7 +173,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
           </label>
           <textarea 
             id="message"
-            name="message" // EmailJS表单字段名
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={messagePlaceholder}
@@ -214,14 +193,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
           </Button>
         </div>
       </form>
-      
-      {/* 调试信息区域 */}
-      {debugInfo && (
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-gray-700 dark:text-gray-300">
-          <h4 className="font-semibold mb-2">调试信息:</h4>
-          <pre className="whitespace-pre-wrap text-xs">{debugInfo}</pre>
-        </div>
-      )}
     </div>
   );
 };

@@ -9,9 +9,9 @@
 `.env.local`文件内容示例：
 
 ```
-NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_0awyadg
-NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=template_vn7scif
-NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BvwywpSzR4WiypEws
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_0aw****
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=template_vn7****
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=****wpSzR4Wiy****
 ```
 
 ## Vercel部署环境
