@@ -74,7 +74,7 @@ const Navbar: React.FC = () => {
           <Link href={locale === 'zh' ? '/zh' : '/'} className="flex items-center text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker">
             <div className="w-10 h-10 mr-2 relative">
               <Image 
-                src="/images/logo.svg" 
+                src="/images/MisoTech-Logo.png" 
                 alt="MisoTech Logo" 
                 width={40} 
                 height={40} 
