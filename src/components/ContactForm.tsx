@@ -35,21 +35,21 @@ const ContactForm: React.FC<ContactFormProps> = ({
   
   const formRef = useRef<HTMLFormElement>(null);
 
-  // 组件加载时检查环境变量
+  // 组件加载时检查环境变量并初始化EmailJS
   useEffect(() => {
-    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
     const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
     
     console.log('EmailJS环境变量检查:', { 
-      serviceId: serviceId ? `${serviceId.substring(0, 5)}...` : '未设置',
-      templateId: templateId ? `${templateId.substring(0, 5)}...` : '未设置',
-      publicKey: publicKey ? `${publicKey.substring(0, 5)}...` : '未设置'
+      serviceId: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ? `已设置` : '未设置',
+      templateId: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ? `已设置` : '未设置',
+      publicKey: publicKey ? `已设置` : '未设置'
     });
     
     // 初始化EmailJS
     if (publicKey) {
-      emailjs.init(publicKey);
+      emailjs.init({
+        publicKey: publicKey,
+      });
       console.log('EmailJS已初始化');
     }
   }, []);
@@ -71,11 +71,10 @@ const ContactForm: React.FC<ContactFormProps> = ({
       // 使用EmailJS发送邮件
       const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
       const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
       
-      setDebugInfo(prev => prev + `\n环境变量检查: ${serviceId ? '服务ID已设置' : '服务ID未设置'}, ${templateId ? '模板ID已设置' : '模板ID未设置'}, ${publicKey ? '公钥已设置' : '公钥未设置'}`);
+      setDebugInfo(prev => prev + `\n环境变量检查: ${serviceId ? '服务ID已设置' : '服务ID未设置'}, ${templateId ? '模板ID已设置' : '模板ID未设置'}`);
       
-      if (!serviceId || !templateId || !publicKey) {
+      if (!serviceId || !templateId) {
         throw new Error('EmailJS配置缺失，请检查环境变量');
       }
       
@@ -89,18 +88,14 @@ const ContactForm: React.FC<ContactFormProps> = ({
         
         setDebugInfo(prev => prev + '\n准备发送邮件...');
         
-        // 使用Promise包装emailjs.sendForm以捕获更多信息
-        const result = await new Promise((resolve, reject) => {
-          emailjs.sendForm(serviceId, templateId, formRef.current!, publicKey)
-            .then((response) => {
-              setDebugInfo(prev => prev + `\n邮件发送成功! 状态: ${response.status}, 文本: ${response.text}`);
-              resolve(response);
-            })
-            .catch((error) => {
-              setDebugInfo(prev => prev + `\n邮件发送失败! 错误: ${error.message}`);
-              reject(error);
-            });
-        });
+        // 使用新版API发送表单
+        const result = await emailjs.sendForm(
+          serviceId,
+          templateId,
+          formRef.current
+        );
+        
+        setDebugInfo(prev => prev + `\n邮件发送成功! 状态: ${result.status}, 文本: ${result.text}`);
         
         // 移除临时添加的隐藏输入
         formRef.current.removeChild(hiddenInput);
