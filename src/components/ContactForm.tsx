@@ -79,14 +79,8 @@ const ContactForm: React.FC<ContactFormProps> = ({
       }
       
       if (formRef.current) {
-        // 添加收件人邮箱到表单数据
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'to_email';
-        hiddenInput.value = recipientEmail;
-        formRef.current.appendChild(hiddenInput);
-        
         setDebugInfo(prev => prev + '\n准备发送邮件...');
+        setDebugInfo(prev => prev + `\n表单数据: name=${name}, email=${email}, subject=${subject}, message=${message.substring(0, 20)}...`);
         
         // 使用新版API发送表单
         const result = await emailjs.sendForm(
@@ -96,10 +90,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
         );
         
         setDebugInfo(prev => prev + `\n邮件发送成功! 状态: ${result.status}, 文本: ${result.text}`);
-        
-        // 移除临时添加的隐藏输入
-        formRef.current.removeChild(hiddenInput);
-        setDebugInfo(prev => prev + '\n表单数据已清理');
       }
       
       // Reset form
@@ -145,6 +135,9 @@ const ContactForm: React.FC<ContactFormProps> = ({
       )}
       
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+        {/* 添加一个隐藏字段，用于传递收件人邮箱 */}
+        <input type="hidden" name="to_email" value={recipientEmail} />
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-neutral-dark dark:text-dark-neutral-dark mb-1">
