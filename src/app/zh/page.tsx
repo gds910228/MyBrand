@@ -7,12 +7,12 @@ export default function ZhHomePage() {
   return (
     <>
       <Hero
-        title="你好，我是 John Doe"
-        subtitle="全栈开发工程师 & 设计师"
-        ctaText="查看我的作品"
+        title="MisoTech"
+        subtitle="解码技术栈"
+        ctaText="查看我们的解决方案"
         ctaLink="/zh/projects"
         imageSrc="/images/hero-image.jpg" 
-        imageAlt="John Doe，全栈开发工程师" 
+        imageAlt="MisoTech - 专业技术解决方案" 
       />
       <FeaturedProjects locale="zh" />
       <LatestPosts locale="zh" />

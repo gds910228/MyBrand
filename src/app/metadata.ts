@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Brand Website',
-  description: 'Professional portfolio and blog website',
+  title: 'MisoTech - Decode the Stack',
+  description: 'Professional technology solutions and insights',
 }; 

@@ -132,10 +132,10 @@ export default function ContactPage() {
       <Section id="contact-hero" bgColor="bg-neutral-light">
         <div className="text-center max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold font-heading text-neutral-darker mb-6">
-            Get In Touch
+            Contact MisoTech
           </h1>
           <p className="text-lg text-neutral-dark">
-            Have a project in mind or just want to say hello? Feel free to reach out!
+            Have a project in mind or need technical solutions? We're here to help!
           </p>
         </div>
       </Section>

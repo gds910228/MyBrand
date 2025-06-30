@@ -16,8 +16,8 @@ export default function ContactPageZh() {
       <Section id="contact-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
         <div className="mx-auto max-w-3xl text-center">
           <SectionHeading 
-            title="联系我" 
-            subtitle="让我们讨论您的下一个项目，或者只是打个招呼！" 
+            title="联系 MisoTech" 
+            subtitle="有技术需求或项目合作？我们随时为您提供帮助！" 
             centered
           />
         </div>

@@ -10,12 +10,12 @@ export default function HomePage() {
   return (
     <>
       <Hero
-        title="Hi, I'm John Doe"
-        subtitle="Full Stack Developer & Designer"
-        ctaText="View My Work"
+        title="MisoTech"
+        subtitle="Decode the Stack"
+        ctaText="View Our Solutions"
         ctaLink="/projects"
         imageSrc="/images/hero-image.jpg" 
-        imageAlt="John Doe, Full Stack Developer" 
+        imageAlt="MisoTech - Professional Technology Solutions" 
       />
       <FeaturedProjects locale="en" />
       <LatestPosts locale="en" />

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import Container from './Container';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -40,8 +41,8 @@ const Footer: React.FC = () => {
   
   // 页脚版权和制作信息
   const copyright = locale === 'zh' 
-    ? `© ${currentYear} John Doe. 保留所有权利。` 
-    : `© ${currentYear} John Doe. All rights reserved.`;
+    ? `© ${currentYear} MisoTech. 保留所有权利。` 
+    : `© ${currentYear} MisoTech. All rights reserved.`;
     
   const madeWith = locale === 'zh'
     ? '使用 Next.js 和 Tailwind CSS 制作，充满❤️'
@@ -53,13 +54,25 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
-            <Link href="/" className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker">
-              <span className="text-primary dark:text-dark-primary">Brand</span>Site
+            <Link href={locale === 'zh' ? '/zh' : '/'} className="flex items-center text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker">
+              <div className="w-8 h-8 mr-2 relative">
+                <Image 
+                  src="/images/logo.svg" 
+                  alt="MisoTech Logo" 
+                  width={32} 
+                  height={32} 
+                  className="object-contain"
+                />
+              </div>
+              <span className="text-primary dark:text-dark-primary">Miso</span>Tech
             </Link>
+            <p className="mt-2 text-xs text-neutral-dark dark:text-dark-neutral-dark">
+              Decode the Stack
+            </p>
             <p className="mt-4 text-neutral-dark dark:text-dark-neutral-dark">
               {locale === 'zh' 
-                ? '展示我的作品和想法的个人作品集和博客网站。'
-                : 'Professional portfolio and blog website showcasing my work and thoughts.'}
+                ? '专业技术解决方案和见解，帮助您解码技术栈。'
+                : 'Professional technology solutions and insights to help you decode the stack.'}
             </p>
           </div>
 
@@ -88,7 +101,7 @@ const Footer: React.FC = () => {
               {contactLabel}
             </h3>
             <p className="text-neutral-dark dark:text-dark-neutral-dark">
-              Email: <a href="mailto:hello@example.com" className="hover:text-primary dark:hover:text-dark-primary transition-colors">hello@example.com</a>
+              Email: <a href="mailto:1479333689@qq.com" className="hover:text-primary dark:hover:text-dark-primary transition-colors">1479333689@qq.com</a>
             </p>
             <p className="text-neutral-dark dark:text-dark-neutral-dark mt-2">
               {locale === 'zh' ? '地址: ' : 'Location: '} San Francisco, CA

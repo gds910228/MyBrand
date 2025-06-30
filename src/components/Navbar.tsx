@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import Container from './Container';
 import ThemeToggle from './ThemeToggle';
@@ -70,8 +71,18 @@ const Navbar: React.FC = () => {
       <Container>
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href={locale === 'zh' ? '/zh' : '/'} className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker">
-            <span className="text-primary dark:text-dark-primary">Brand</span>Site
+          <Link href={locale === 'zh' ? '/zh' : '/'} className="flex items-center text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker">
+            <div className="w-10 h-10 mr-2 relative">
+              <Image 
+                src="/images/logo.svg" 
+                alt="MisoTech Logo" 
+                width={40} 
+                height={40} 
+                className="object-contain"
+              />
+            </div>
+            <span className="text-primary dark:text-dark-primary">Miso</span>Tech
+            <span className="text-xs ml-2 text-neutral-dark dark:text-dark-neutral-dark font-normal hidden sm:inline-block">Decode the Stack</span>
           </Link>
 
           {/* Desktop Navigation */}
