@@ -47,11 +47,16 @@ const ContactForm: React.FC<ContactFormProps> = ({
     
     try {
       // 使用EmailJS发送邮件
-      // 由于我们无法直接访问.env.local文件，这里提供一个模板
-      // 实际部署时，请在EmailJS控制台创建服务和模板，并在项目根目录创建.env.local文件
-      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID';
-      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
-      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
+      // 环境变量会在构建时注入，在本地开发时使用.env.local，在Vercel部署时使用环境变量
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+      
+      console.log('EmailJS配置:', { serviceId, templateId, publicKey: publicKey ? '已设置' : '未设置' });
+      
+      if (!serviceId || !templateId || !publicKey) {
+        throw new Error('EmailJS配置缺失，请检查环境变量');
+      }
       
       if (formRef.current) {
         // 添加收件人邮箱到表单数据
