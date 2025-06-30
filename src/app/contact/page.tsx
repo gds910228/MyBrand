@@ -163,7 +163,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="text-lg font-medium text-neutral-darker">Email</h3>
-                <a href="mailto:hello@example.com" className="text-primary hover:underline">hello@example.com</a>
+                <a href="mailto:1479333689@qq.com" className="text-primary hover:underline">1479333689@qq.com</a>
               </div>
             </div>
             

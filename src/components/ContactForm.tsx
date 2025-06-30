@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Button from './Button';
+import emailjs from '@emailjs/browser';
 
 interface ContactFormProps {
   namePlaceholder?: string;
@@ -11,6 +12,7 @@ interface ContactFormProps {
   submitText?: string;
   successText?: string;
   errorText?: string;
+  recipientEmail?: string;
 }
 
 const ContactForm: React.FC<ContactFormProps> = ({
@@ -20,7 +22,8 @@ const ContactForm: React.FC<ContactFormProps> = ({
   messagePlaceholder = "Your Message",
   submitText = "Send Message",
   successText = "Your message has been sent successfully. I'll get back to you soon!",
-  errorText = "Oops! Something went wrong. Please try again later."
+  errorText = "Oops! Something went wrong. Please try again later.",
+  recipientEmail = "1479333689@qq.com"
 }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -28,6 +31,8 @@ const ContactForm: React.FC<ContactFormProps> = ({
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,9 +46,26 @@ const ContactForm: React.FC<ContactFormProps> = ({
     setIsSubmitting(true);
     
     try {
-      // In a real application, you'd send the form data to your backend
-      // For demonstration, we'll simulate a successful API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 使用EmailJS发送邮件
+      // 由于我们无法直接访问.env.local文件，这里提供一个模板
+      // 实际部署时，请在EmailJS控制台创建服务和模板，并在项目根目录创建.env.local文件
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID';
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
+      
+      if (formRef.current) {
+        // 添加收件人邮箱到表单数据
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'to_email';
+        hiddenInput.value = recipientEmail;
+        formRef.current.appendChild(hiddenInput);
+        
+        await emailjs.sendForm(serviceId, templateId, formRef.current, publicKey);
+        
+        // 移除临时添加的隐藏输入
+        formRef.current.removeChild(hiddenInput);
+      }
       
       // Reset form
       setName('');
@@ -85,7 +107,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-neutral-dark dark:text-dark-neutral-dark mb-1">
@@ -94,6 +116,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
             <input 
               type="text"
               id="name"
+              name="user_name" // EmailJS表单字段名
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={namePlaceholder}
@@ -108,6 +131,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
             <input 
               type="email"
               id="email"
+              name="user_email" // EmailJS表单字段名
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={emailPlaceholder}
@@ -124,6 +148,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
           <input 
             type="text"
             id="subject"
+            name="subject" // EmailJS表单字段名
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder={subjectPlaceholder}
@@ -138,6 +163,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
           </label>
           <textarea 
             id="message"
+            name="message" // EmailJS表单字段名
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={messagePlaceholder}

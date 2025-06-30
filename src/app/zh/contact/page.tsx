@@ -40,7 +40,7 @@ export default function ContactPageZh() {
               电子邮件
             </h3>
             <p className="text-neutral-dark dark:text-dark-neutral-dark">
-              <a href="mailto:hello@example.com" className="hover:text-primary dark:hover:text-dark-primary transition-colors">hello@example.com</a>
+              <a href="mailto:1479333689@qq.com" className="hover:text-primary dark:hover:text-dark-primary transition-colors">1479333689@qq.com</a>
             </p>
           </motion.div>
           
