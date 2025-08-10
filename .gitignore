@@ -32,3 +32,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# project-specific ignores
+# AI assistant and rules
+.codebuddy/
+CLAUDE.md
+
+# Dev scripts and debug tools
+start-dev.js
+test-notion-blog.js
+debug-notion.js
+debug-notion-v2.js
+
+# Assets not needed in repo
+Notion\ Integrations.png
