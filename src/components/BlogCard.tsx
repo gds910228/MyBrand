@@ -45,7 +45,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="bg-white dark:bg-dark-bg-secondary rounded-xl shadow-md overflow-hidden h-full flex flex-col"
+      className="glass-surface rounded-xl shadow-md overflow-hidden h-full flex flex-col border border-white/20 dark:border-white/10 neon-hover"
     >
       <div className="relative h-48 w-full overflow-hidden">
         <Image

@@ -10,6 +10,9 @@ import Section from '@/components/Section';
 import CommentSection from '@/components/CommentSection';
 import { getAllBlogPosts, getBlogPostById } from '@/services/notion';
 import NotionRenderer from '@/components/NotionRenderer';
+import ReviewRating from '@/components/ReviewRating';
+import ProsCons from '@/components/ProsCons';
+import ToolInfoBox from '@/components/ToolInfoBox';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
@@ -141,6 +144,24 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
               {fullPost.excerpt}
             </p>
           )}
+
+          {/* 工具信息与评分模块 */}
+          <ToolInfoBox
+            website={(fullPost as any).toolWebsite}
+            pricing={(fullPost as any).toolPricing}
+            locale="zh"
+          />
+          <ReviewRating
+            overall={(fullPost as any).ratingOverall}
+            easeOfUse={(fullPost as any).ratingEase}
+            features={(fullPost as any).ratingFeatures}
+            locale="zh"
+          />
+          <ProsCons
+            pros={(fullPost as any).pros}
+            cons={(fullPost as any).cons}
+            locale="zh"
+          />
           
           <NotionRenderer blocks={fullPost.content} className="prose prose-lg dark:prose-invert max-w-none" />
           

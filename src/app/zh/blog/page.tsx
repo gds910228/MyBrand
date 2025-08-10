@@ -14,7 +14,7 @@ export default async function BlogPageZh() {
   return (
     <>
       {/* Hero Section */}
-      <Section id="blog-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
+      <Section id="blog-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="relative overflow-hidden bg-tech-grid">
         <SectionHeading 
           title="博客" 
           subtitle="分享我对科技、设计和开发的思考"

@@ -18,7 +18,7 @@ export default async function BlogPage() {
   return (
     <>
       {/* Hero Section */}
-      <Section id="blog-hero" bgColor="bg-neutral-light">
+      <Section id="blog-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="relative overflow-hidden bg-tech-grid">
         <div className="text-center max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold font-heading text-neutral-darker mb-6">
             Blog

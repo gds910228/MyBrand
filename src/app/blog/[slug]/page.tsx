@@ -10,6 +10,9 @@ import Section from '@/components/Section';
 import CommentSection from '@/components/CommentSection';
 import { getAllBlogPosts, getBlogPostById } from '@/services/notion';
 import NotionRenderer from '@/components/NotionRenderer';
+import ReviewRating from '@/components/ReviewRating';
+import ProsCons from '@/components/ProsCons';
+import ToolInfoBox from '@/components/ToolInfoBox';
 import { format } from 'date-fns';
 
 // 生成静态参数
@@ -142,7 +145,25 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
               {fullPost.excerpt}
             </p>
           )}
-          
+
+          {/* Tool info and ratings */}
+          <ToolInfoBox
+            website={(fullPost as any).toolWebsite}
+            pricing={(fullPost as any).toolPricing}
+            locale="en"
+          />
+          <ReviewRating
+            overall={(fullPost as any).ratingOverall}
+            easeOfUse={(fullPost as any).ratingEase}
+            features={(fullPost as any).ratingFeatures}
+            locale="en"
+          />
+          <ProsCons
+            pros={(fullPost as any).pros}
+            cons={(fullPost as any).cons}
+            locale="en"
+          />
+
           <NotionRenderer blocks={fullPost.content} className="prose prose-lg dark:prose-invert max-w-none" />
           
           <div className="my-12">
