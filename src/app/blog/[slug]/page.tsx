@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 
 // 生成静态参数
 export async function generateStaticParams() {
-  const posts = await getAllBlogPosts();
+  const posts = await getAllBlogPosts({ language: 'English' });
   return posts.map((post) => ({
     slug: post.slug,
   }));
@@ -22,7 +22,7 @@ export async function generateStaticParams() {
 
 // 生成元数据
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const posts = await getAllBlogPosts();
+  const posts = await getAllBlogPosts({ language: 'English' });
   const post = posts.find(p => p.slug === params.slug);
   
   if (!post) {
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 // 博客文章详情页面
 export default async function BlogPostDetailPage({ params }: { params: { slug: string } }) {
-  const posts = await getAllBlogPosts();
+  const posts = await getAllBlogPosts({ language: 'English' });
   const post = posts.find(p => p.slug === params.slug);
   
   if (!post) {

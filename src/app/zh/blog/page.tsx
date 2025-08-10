@@ -6,7 +6,7 @@ import { getAllBlogPosts } from '@/services/notion';
 
 // 博客列表页面（中文）
 export default async function BlogPageZh() {
-  const blogPosts = await getAllBlogPosts();
+  const blogPosts = await getAllBlogPosts({ language: 'Chinese' });
   
   // 获取所有唯一标签
   const allTags = Array.from(new Set(blogPosts.flatMap(post => post.tags)));

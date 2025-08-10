@@ -15,7 +15,7 @@ import { zhCN } from 'date-fns/locale';
 
 // 生成静态参数
 export async function generateStaticParams() {
-  const posts = await getAllBlogPosts();
+  const posts = await getAllBlogPosts({ language: 'Chinese' });
   return posts.map((post) => ({
     slug: post.slug,
   }));
@@ -23,7 +23,7 @@ export async function generateStaticParams() {
 
 // 生成元数据
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const posts = await getAllBlogPosts();
+  const posts = await getAllBlogPosts({ language: 'Chinese' });
   const post = posts.find(p => p.slug === params.slug);
   
   if (!post) {
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 // 博客文章详情页面（中文）
 export default async function BlogPostDetailPageZh({ params }: { params: { slug: string } }) {
-  const posts = await getAllBlogPosts();
+  const posts = await getAllBlogPosts({ language: 'Chinese' });
   const post = posts.find(p => p.slug === params.slug);
   
   if (!post) {

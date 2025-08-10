@@ -9,7 +9,8 @@ import { format } from 'date-fns';
 
 // 博客列表页面
 export default async function BlogPage() {
-  const blogPosts = await getAllBlogPosts();
+  // 英文站点：只取 English
+  const blogPosts = await getAllBlogPosts({ language: 'English' });
   
   // 获取所有唯一标签
   const allTags = Array.from(new Set(blogPosts.flatMap(post => post.tags ?? [])));

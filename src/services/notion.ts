@@ -152,44 +152,196 @@ export async function getProjectById(id: string) {
 }
 
 /**
- * 获取所有博客文章（从Notion页面获取）
+ * 获取所有博客文章
+ * 优先从 Notion Database 读取；若未配置则回退到父页面子页模式
+ * 可选参数：language 用于过滤 'Chinese' | 'English'
  */
-export async function getAllBlogPosts() {
+export async function getAllBlogPosts(options?: { language?: string }) {
   try {
+    // 如果配置了数据库ID，则从数据库读取
+    if (BLOG_DATABASE_ID) {
+      // 构建过滤器：Status=Published，且（可选）Language=options.language
+      const filters: any[] = [
+        {
+          property: 'Status',
+          select: { equals: 'Published' },
+        },
+      ];
+      if (options?.language) {
+        filters.push({
+          property: 'Language',
+          select: { equals: options.language },
+        });
+      }
+
+      const response = await notion.databases.query({
+        database_id: BLOG_DATABASE_ID,
+        filter: filters.length > 1 ? { and: filters } : filters[0],
+        sorts: [
+          { property: 'PublishDate', direction: 'descending' },
+        ],
+      });
+
+      const posts = await Promise.all(
+        response.results.map(async (page: any) => {
+          try {
+            const pageAny = page as any;
+            const props = pageAny.properties;
+
+            // 标题
+            const title =
+              props.Title?.title?.[0]?.plain_text ||
+              pageAny.child_page?.title ||
+              'Untitled';
+
+            // 摘要：优先 Summary/Excerpt 字段，没有则取首段
+            let excerpt =
+              props.Summary?.rich_text?.[0]?.plain_text ||
+              props.Excerpt?.rich_text?.[0]?.plain_text ||
+              '';
+
+            if (!excerpt) {
+              const headBlocks = await notion.blocks.children.list({
+                block_id: page.id,
+                page_size: 8,
+              });
+              const firstPara: any = headBlocks.results.find(
+                (b: any) => b.type === 'paragraph'
+              );
+              excerpt =
+                firstPara?.paragraph?.rich_text?.[0]?.plain_text || '';
+            }
+
+            // 封面
+            let coverImage = '';
+            if (pageAny.cover) {
+              if (pageAny.cover.type === 'external') {
+                coverImage = pageAny.cover.external.url;
+              } else if (pageAny.cover.type === 'file') {
+                coverImage = pageAny.cover.file.url;
+              }
+            }
+            // 若数据库有 CoverImage 属性则优先
+            if (!coverImage && props.CoverImage?.files?.[0]) {
+              const f = props.CoverImage.files[0];
+              coverImage = f?.file?.url || f?.external?.url || '';
+            }
+
+            // 标签
+            const tags =
+              props.Tags?.multi_select?.map((t: any) => t.name) || [];
+
+            // slug
+            const slug =
+              props.slug?.rich_text?.[0]?.plain_text ||
+              props.Slug?.rich_text?.[0]?.plain_text ||
+              title
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '');
+
+            // 时间
+            const createdTime = new Date(
+              props.PublishDate?.date?.start || pageAny.created_time
+            );
+            const lastEditedTime = new Date(pageAny.last_edited_time);
+
+            // 估算阅读时长（基于摘要）
+            const readTime =
+              Math.max(1, Math.ceil(excerpt.split(/\s+/).length / 200)) +
+              ' min read';
+
+            // 评测字段
+            const ratingOverall = Number(props.Rating_Overall?.number ?? 0);
+            const ratingEase = Number(props.Rating_EaseOfUse?.number ?? 0);
+            const ratingFeatures = Number(props.Rating_Features?.number ?? 0);
+            const prosText =
+              props.Pros?.rich_text?.map((t: any) => t.plain_text).join('') ||
+              '';
+            const consText =
+              props.Cons?.rich_text?.map((t: any) => t.plain_text).join('') ||
+              '';
+            const toolWebsite = props.Tool_Website?.url || '';
+            const toolPricing =
+              props.Tool_Pricing?.rich_text?.[0]?.plain_text || '';
+
+            return {
+              id: page.id,
+              title,
+              excerpt:
+                excerpt.substring(0, 200) +
+                (excerpt.length > 200 ? '...' : ''),
+              coverImage,
+              date: createdTime.toISOString(),
+              author:
+                props.Author?.people?.[0]?.name ||
+                props.AuthorName?.rich_text?.[0]?.plain_text ||
+                'Anonymous',
+              authorImage:
+                props.Author?.people?.[0]?.avatar_url || '',
+              readTime,
+              tags,
+              slug,
+              lastEditedTime: lastEditedTime.toISOString(),
+
+              // 评测字段
+              ratingOverall,
+              ratingEase,
+              ratingFeatures,
+              pros: prosText,
+              cons: consText,
+              toolWebsite,
+              toolPricing,
+
+              // 语言（用于前端可选过滤）
+              language:
+                props.Language?.select?.name || undefined,
+              status: props.Status?.select?.name || undefined,
+            };
+          } catch (e) {
+            console.error('Error mapping blog page:', e);
+            return null;
+          }
+        })
+      );
+
+      return posts.filter((p): p is NonNullable<typeof p> => !!p);
+    }
+
+    // 未配置数据库ID，回退到父页面模式
     if (!BLOG_PARENT_PAGE_ID) {
       console.error('BLOG_PARENT_PAGE_ID not configured');
       return [];
     }
 
-    // 获取父页面下的所有子页面
     const response = await notion.blocks.children.list({
       block_id: BLOG_PARENT_PAGE_ID,
     });
 
-    // 过滤出页面类型的块
-    const pageBlocks = response.results.filter((block: any) => block.type === 'child_page');
-    
-    // 获取每个页面的详细信息
+    const pageBlocks = response.results.filter(
+      (block: any) => block.type === 'child_page'
+    );
+
     const blogPosts = await Promise.all(
       pageBlocks.map(async (block: any) => {
         try {
           const page = await notion.pages.retrieve({ page_id: block.id });
           const pageAny = page as any;
-          
-          // 获取页面属性
+
           const properties = pageAny.properties;
-          
-          // 获取页面内容的前几段作为摘要
-          const blocks = await notion.blocks.children.list({ 
+
+          const blocks = await notion.blocks.children.list({
             block_id: block.id,
-            page_size: 5 // 只获取前5个块作为摘要
+            page_size: 5,
           });
-          
-          const firstParagraph = blocks.results.find((b: any) => b.type === 'paragraph');
+
+          const firstParagraph = blocks.results.find(
+            (b: any) => b.type === 'paragraph'
+          );
           const firstParagraphAny = firstParagraph as any;
-          const excerpt = firstParagraphAny?.paragraph?.rich_text?.[0]?.plain_text || '';
-          
-          // 获取页面封面图片
+          const excerpt =
+            firstParagraphAny?.paragraph?.rich_text?.[0]?.plain_text || '';
+
           let coverImage = '';
           if (pageAny.cover) {
             if (pageAny.cover.type === 'external') {
@@ -198,16 +350,17 @@ export async function getAllBlogPosts() {
               coverImage = pageAny.cover.file.url;
             }
           }
-          
-          // 从页面属性获取元数据
+
           const title = block.child_page?.title || 'Untitled';
           const createdTime = new Date(pageAny.created_time);
           const lastEditedTime = new Date(pageAny.last_edited_time);
-          
+
           return {
             id: page.id,
             title,
-            excerpt: excerpt.substring(0, 200) + (excerpt.length > 200 ? '...' : ''),
+            excerpt:
+              excerpt.substring(0, 200) +
+              (excerpt.length > 200 ? '...' : ''),
             coverImage,
             date: createdTime.toLocaleDateString('en-US', {
               year: 'numeric',
@@ -216,9 +369,15 @@ export async function getAllBlogPosts() {
             }),
             author: properties.Author?.people?.[0]?.name || 'Anonymous',
             authorImage: properties.Author?.people?.[0]?.avatar_url || '',
-            readTime: Math.ceil(excerpt.split(' ').length / 200) + ' min read',
-            tags: properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
-            slug: title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+            readTime:
+              Math.ceil(excerpt.split(' ').length / 200) + ' min read',
+            tags:
+              properties.Tags?.multi_select?.map((tag: any) => tag.name) ||
+              [],
+            slug: title
+              .toLowerCase()
+              .replace(/\s+/g, '-')
+              .replace(/[^a-z0-9-]/g, ''),
             lastEditedTime: lastEditedTime.toISOString(),
           };
         } catch (error) {
@@ -228,10 +387,13 @@ export async function getAllBlogPosts() {
       })
     );
 
-    // 过滤掉null值并按创建时间排序
     return blogPosts
       .filter((post): post is NonNullable<typeof post> => post !== null)
-      .sort((a, b) => new Date(b.lastEditedTime).getTime() - new Date(a.lastEditedTime).getTime());
+      .sort(
+        (a, b) =>
+          new Date(b.lastEditedTime).getTime() -
+          new Date(a.lastEditedTime).getTime()
+      );
   } catch (error) {
     console.error('Error fetching blog posts from Notion:', error);
     return [];
@@ -239,22 +401,34 @@ export async function getAllBlogPosts() {
 }
 
 /**
- * 获取博客文章详情（从Notion页面获取完整内容）
+ * 获取博客文章详情（完整内容块）
  */
 export async function getBlogPostById(id: string) {
   try {
     const page = await notion.pages.retrieve({ page_id: id });
     const pageAny = page as any;
-    
-    // 获取页面的所有内容块
-    const blocks = await notion.blocks.children.list({ block_id: id });
-    
-    // 获取页面标题
-    const title = pageAny.properties?.title?.title?.[0]?.plain_text || 
-                  pageAny.child_page?.title || 
-                  'Untitled';
-    
-    // 获取页面封面
+
+    // 内容块（递归获取所有分页）
+    const blocks: any[] = [];
+    let cursor: string | undefined = undefined;
+    do {
+      const res = await notion.blocks.children.list({
+        block_id: id,
+        start_cursor: cursor,
+        page_size: 100,
+      });
+      blocks.push(...res.results);
+      cursor = (res as any).next_cursor || undefined;
+    } while (cursor);
+
+    // 标题
+    const title =
+      pageAny.properties?.Title?.title?.[0]?.plain_text ||
+      pageAny.properties?.title?.title?.[0]?.plain_text ||
+      pageAny.child_page?.title ||
+      'Untitled';
+
+    // 封面
     let coverImage = '';
     if (pageAny.cover) {
       if (pageAny.cover.type === 'external') {
@@ -263,34 +437,72 @@ export async function getBlogPostById(id: string) {
         coverImage = pageAny.cover.file.url;
       }
     }
-    
-    // 从页面属性获取元数据
-    const properties = pageAny.properties;
-    const createdTime = new Date(pageAny.created_time);
+    if (!coverImage && pageAny.properties?.CoverImage?.files?.[0]) {
+      const f = pageAny.properties.CoverImage.files[0];
+      coverImage = f?.file?.url || f?.external?.url || '';
+    }
+
+    // 元数据
+    const props = pageAny.properties || {};
+    const createdTime = new Date(
+      props.PublishDate?.date?.start || pageAny.created_time
+    );
     const lastEditedTime = new Date(pageAny.last_edited_time);
-    
-    // 获取页面内容的前几段作为摘要
-    const firstParagraph = blocks.results.find((b: any) => b.type === 'paragraph');
-    const firstParagraphAny = firstParagraph as any;
-    const excerpt = firstParagraphAny?.paragraph?.rich_text?.[0]?.plain_text?.substring(0, 200) || '';
-    
+
+    // 摘要
+    let excerpt =
+      props.Summary?.rich_text?.[0]?.plain_text ||
+      props.Excerpt?.rich_text?.[0]?.plain_text ||
+      '';
+    if (!excerpt) {
+      const firstPara: any = blocks.find((b: any) => b.type === 'paragraph');
+      excerpt = firstPara?.paragraph?.rich_text?.[0]?.plain_text || '';
+    }
+
+    // 评测扩展
+    const ratingOverall = Number(props.Rating_Overall?.number ?? 0);
+    const ratingEase = Number(props.Rating_EaseOfUse?.number ?? 0);
+    const ratingFeatures = Number(props.Rating_Features?.number ?? 0);
+    const prosText =
+      props.Pros?.rich_text?.map((t: any) => t.plain_text).join('') || '';
+    const consText =
+      props.Cons?.rich_text?.map((t: any) => t.plain_text).join('') || '';
+    const toolWebsite = props.Tool_Website?.url || '';
+    const toolPricing =
+      props.Tool_Pricing?.rich_text?.[0]?.plain_text || '';
+
     return {
       id: page.id,
       title,
-      excerpt: excerpt + (excerpt.length > 200 ? '...' : ''),
+      excerpt: excerpt.substring(0, 200) + (excerpt.length > 200 ? '...' : ''),
       coverImage,
-      date: createdTime.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-      author: properties.Author?.people?.[0]?.name || 'Anonymous',
-      authorImage: properties.Author?.people?.[0]?.avatar_url || '',
-      readTime: Math.ceil(excerpt.split(' ').length / 200) + ' min read',
-      tags: properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
-      content: blocks.results,
+      date: createdTime.toISOString(),
+      author:
+        props.Author?.people?.[0]?.name ||
+        props.AuthorName?.rich_text?.[0]?.plain_text ||
+        'Anonymous',
+      authorImage: props.Author?.people?.[0]?.avatar_url || '',
+      readTime:
+        Math.max(1, Math.ceil(excerpt.split(/\s+/).length / 200)) + ' min read',
+      tags: props.Tags?.multi_select?.map((tag: any) => tag.name) || [],
+      content: blocks,
       createdTime: createdTime.toISOString(),
       lastEditedTime: lastEditedTime.toISOString(),
+
+      // 扩展字段
+      ratingOverall,
+      ratingEase,
+      ratingFeatures,
+      pros: prosText,
+      cons: consText,
+      toolWebsite,
+      toolPricing,
+      language: props.Language?.select?.name || undefined,
+      status: props.Status?.select?.name || undefined,
+      slug:
+        props.slug?.rich_text?.[0]?.plain_text ||
+        props.Slug?.rich_text?.[0]?.plain_text ||
+        undefined,
     };
   } catch (error) {
     console.error('Error fetching blog post from Notion:', error);
