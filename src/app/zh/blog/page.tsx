@@ -32,7 +32,7 @@ export default async function BlogPageZh() {
         {/* Tags */}
         {allTags.length > 0 && (
           <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-8 mb-12">
-            {allTags.map(tag => (
+            {allTags.map((tag: string) => (
               <Link
                 key={tag}
                 href={`/zh/blog?tag=${encodeURIComponent(tag)}`}
@@ -67,7 +67,7 @@ export default async function BlogPageZh() {
                 publishedAt={post.date}
                 slug={post.slug}
                 locale="zh"
-                categories={post.tags?.map(tag => ({
+                categories={post.tags?.map((tag: string) => ({
                   name: tag,
                   label: tag
                 })) || []}

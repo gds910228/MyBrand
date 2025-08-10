@@ -174,9 +174,10 @@ export async function getAllBlogPosts() {
       pageBlocks.map(async (block: any) => {
         try {
           const page = await notion.pages.retrieve({ page_id: block.id });
+          const pageAny = page as any;
           
           // 获取页面属性
-          const properties = (page as any).properties;
+          const properties = pageAny.properties;
           
           // 获取页面内容的前几段作为摘要
           const blocks = await notion.blocks.children.list({ 
@@ -185,22 +186,23 @@ export async function getAllBlogPosts() {
           });
           
           const firstParagraph = blocks.results.find((b: any) => b.type === 'paragraph');
-          const excerpt = firstParagraph?.paragraph?.rich_text?.[0]?.plain_text || '';
+          const firstParagraphAny = firstParagraph as any;
+          const excerpt = firstParagraphAny?.paragraph?.rich_text?.[0]?.plain_text || '';
           
           // 获取页面封面图片
           let coverImage = '';
-          if (page.cover) {
-            if (page.cover.type === 'external') {
-              coverImage = page.cover.external.url;
-            } else if (page.cover.type === 'file') {
-              coverImage = page.cover.file.url;
+          if (pageAny.cover) {
+            if (pageAny.cover.type === 'external') {
+              coverImage = pageAny.cover.external.url;
+            } else if (pageAny.cover.type === 'file') {
+              coverImage = pageAny.cover.file.url;
             }
           }
           
           // 从页面属性获取元数据
           const title = block.child_page?.title || 'Untitled';
-          const createdTime = new Date(page.created_time);
-          const lastEditedTime = new Date(page.last_edited_time);
+          const createdTime = new Date(pageAny.created_time);
+          const lastEditedTime = new Date(pageAny.last_edited_time);
           
           return {
             id: page.id,
@@ -242,33 +244,35 @@ export async function getAllBlogPosts() {
 export async function getBlogPostById(id: string) {
   try {
     const page = await notion.pages.retrieve({ page_id: id });
+    const pageAny = page as any;
     
     // 获取页面的所有内容块
     const blocks = await notion.blocks.children.list({ block_id: id });
     
     // 获取页面标题
-    const title = (page as any).properties.title?.title?.[0]?.plain_text || 
-                  (page as any).child_page?.title || 
+    const title = pageAny.properties?.title?.title?.[0]?.plain_text || 
+                  pageAny.child_page?.title || 
                   'Untitled';
     
     // 获取页面封面
     let coverImage = '';
-    if (page.cover) {
-      if (page.cover.type === 'external') {
-        coverImage = page.cover.external.url;
-      } else if (page.cover.type === 'file') {
-        coverImage = page.cover.file.url;
+    if (pageAny.cover) {
+      if (pageAny.cover.type === 'external') {
+        coverImage = pageAny.cover.external.url;
+      } else if (pageAny.cover.type === 'file') {
+        coverImage = pageAny.cover.file.url;
       }
     }
     
     // 从页面属性获取元数据
-    const properties = (page as any).properties;
-    const createdTime = new Date(page.created_time);
-    const lastEditedTime = new Date(page.last_edited_time);
+    const properties = pageAny.properties;
+    const createdTime = new Date(pageAny.created_time);
+    const lastEditedTime = new Date(pageAny.last_edited_time);
     
     // 获取页面内容的前几段作为摘要
     const firstParagraph = blocks.results.find((b: any) => b.type === 'paragraph');
-    const excerpt = firstParagraph?.paragraph?.rich_text?.[0]?.plain_text?.substring(0, 200) || '';
+    const firstParagraphAny = firstParagraph as any;
+    const excerpt = firstParagraphAny?.paragraph?.rich_text?.[0]?.plain_text?.substring(0, 200) || '';
     
     return {
       id: page.id,
