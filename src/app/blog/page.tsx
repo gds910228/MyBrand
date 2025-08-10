@@ -12,7 +12,7 @@ export default async function BlogPage() {
   const blogPosts = await getAllBlogPosts();
   
   // 获取所有唯一标签
-  const allTags = Array.from(new Set(blogPosts.flatMap(post => post.tags)));
+  const allTags = Array.from(new Set(blogPosts.flatMap(post => post.tags ?? [])));
   
   return (
     <>
@@ -76,10 +76,10 @@ export default async function BlogPage() {
                   publishedAt={post.date}
                   slug={post.slug}
                   locale="en"
-                  categories={post.tags?.map(tag => ({
+                  categories={(post.tags ?? []).map((tag: string) => ({
                     name: tag,
                     label: tag
-                  })) || []}
+                  }))} 
                 />
               ))}
             </div>
