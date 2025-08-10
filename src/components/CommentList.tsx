@@ -1,8 +1,10 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { CommentType } from '@/services/notion';
+import type { CommentType } from '@/services/notion';
 
 interface CommentListProps {
   comments: CommentType[];

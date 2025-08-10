@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import CommentList from './CommentList';
 import CommentForm from './CommentForm';
-import { CommentType } from '@/services/notion';
+import type { CommentType } from '@/services/notion';
 
 interface CommentSectionProps {
   postId: string;

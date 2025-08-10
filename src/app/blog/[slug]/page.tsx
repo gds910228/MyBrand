@@ -1,48 +1,74 @@
-"use client";
-
-import React from 'react';
-import { useParams } from 'next/navigation';
-import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { format, isValid, parseISO } from 'date-fns';
-import { blogPosts, categories } from '@/data/blog';
+import { notFound } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarAlt, faArrowLeft, faTags, faUser } from '@fortawesome/free-solid-svg-icons';
 import Section from '@/components/Section';
 import CommentSection from '@/components/CommentSection';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { getAllBlogPosts, getBlogPostById } from '@/services/notion';
+import NotionRenderer from '@/components/NotionRenderer';
+import { format } from 'date-fns';
 
-export default function BlogPostDetailPage() {
-  const { slug } = useParams();
-  const postSlug = Array.isArray(slug) ? slug[0] : slug;
+// 生成静态参数
+export async function generateStaticParams() {
+  const posts = await getAllBlogPosts();
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+// 生成元数据
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const posts = await getAllBlogPosts();
+  const post = posts.find(p => p.slug === params.slug);
   
-  // 查找匹配的博客文章
-  const post = blogPosts.find(post => post.slug === postSlug);
+  if (!post) {
+    return {
+      title: 'Post Not Found',
+    };
+  }
   
-  // 如果找不到文章，返回404
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: [post.coverImage],
+      type: 'article',
+      publishedTime: (post as any).createdTime,
+      modifiedTime: (post as any).lastEditedTime,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+      images: [post.coverImage],
+    },
+  };
+}
+
+// 博客文章详情页面
+export default async function BlogPostDetailPage({ params }: { params: { slug: string } }) {
+  const posts = await getAllBlogPosts();
+  const post = posts.find(p => p.slug === params.slug);
+  
   if (!post) {
     notFound();
   }
   
-  // 格式化日期
-  let formattedDate = post.publishedAt;
-  try {
-    const date = parseISO(post.publishedAt);
-    if (isValid(date)) {
-      formattedDate = format(date, 'MMMM d, yyyy');
-    }
-  } catch (error) {
-    console.error('Error formatting date:', error);
+  // 获取完整的博客文章内容
+  const fullPost = await getBlogPostById(post.id);
+  
+  if (!fullPost) {
+    notFound();
   }
   
-  // 获取分类标签
-  const postCategories = post.categories.map(catName => {
-    const category = categories.find(c => c.name === catName);
-    return {
-      name: catName,
-      label: category?.label.en || catName
-    };
-  });
+  // 格式化日期
+  const formattedDate = format(new Date(fullPost.date), 'MMMM d, yyyy');
+  
+  // 渲染Notion内容
   
   return (
     <>
@@ -50,109 +76,119 @@ export default function BlogPostDetailPage() {
       <Section id="blog-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="py-20">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-8">
-            <div className="flex justify-center flex-wrap gap-2 mb-4">
-              {postCategories.map((category) => (
-                <span
-                  key={category.name}
-                  className="inline-block py-1 px-3 rounded-full text-xs font-medium bg-primary-light dark:bg-dark-primary-light text-primary dark:text-dark-primary"
-                >
-                  {category.label}
-                </span>
-              ))}
-            </div>
+            {/* Tags */}
+            {fullPost.tags && fullPost.tags.length > 0 && (
+              <div className="flex justify-center flex-wrap gap-2 mb-4">
+                {fullPost.tags.map((tag: string) => (
+                  <span
+                    key={tag}
+                    className="inline-block py-1 px-3 rounded-full text-xs font-medium bg-primary-light dark:bg-dark-primary-light text-primary dark:text-dark-primary"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            
             <h1 className="text-3xl md:text-4xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
-              {post.title.en}
+              {fullPost.title}
             </h1>
-            <div className="flex items-center justify-center text-neutral-dark dark:text-dark-neutral-dark">
-              <FontAwesomeIcon icon={faCalendarAlt} className="w-4 h-4 mr-2" />
-              <span>{formattedDate}</span>
+            
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-neutral-dark dark:text-dark-neutral-dark">
+              <div className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faCalendarAlt} className="w-4 h-4" />
+                <span>{formattedDate}</span>
+              </div>
+              
+              {fullPost.author && (
+                <div className="flex items-center gap-2">
+                  <FontAwesomeIcon icon={faUser} className="w-4 h-4" />
+                  <span>{fullPost.author}</span>
+                </div>
+              )}
+              
+              {fullPost.readTime && (
+                <div className="flex items-center gap-2">
+                  <FontAwesomeIcon icon={faTags} className="w-4 h-4" />
+                  <span>{fullPost.readTime}</span>
+                </div>
+              )}
             </div>
           </div>
           
-          <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
-            <Image
-              src={post.coverImage}
-              alt={post.title.en}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 800px"
-              priority
-            />
-          </div>
+          {/* Cover Image */}
+          {fullPost.coverImage && (
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
+              <Image
+                src={fullPost.coverImage}
+                alt={fullPost.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 800px"
+                priority
+              />
+            </div>
+          )}
         </div>
       </Section>
       
       {/* Blog Content */}
       <Section id="blog-content">
         <div className="container mx-auto max-w-4xl">
-          <div className="prose prose-lg dark:prose-invert mx-auto">
+          {fullPost.excerpt && (
             <p className="text-lg font-medium text-neutral-dark dark:text-dark-neutral-dark mb-8">
-              {post.excerpt.en}
+              {fullPost.excerpt}
             </p>
-            
-            {post.content ? (
-              <div dangerouslySetInnerHTML={{ __html: post.content.en }} />
-            ) : (
-              <div>
-                <p className="mb-4">
-                  This is a sample blog post content. In a real application, this would be fetched from your CMS or API.
-                </p>
-                <p className="mb-4">
-                  You can use rich text formatting, including headings, links, code blocks, and more.
-                </p>
-                <p className="mb-4">
-                  For demonstration purposes, only the post excerpt is available in this preview.
-                </p>
-              </div>
-            )}
-            
-            <div className="my-12">
-              <Link
-                href="/blog"
-                className="flex items-center gap-2 text-primary dark:text-dark-primary font-medium hover:underline"
-              >
-                <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
-                <span>Back to Blog</span>
-              </Link>
-            </div>
+          )}
+          
+          <NotionRenderer blocks={fullPost.content} className="prose prose-lg dark:prose-invert max-w-none" />
+          
+          <div className="my-12">
+            <Link
+              href="/blog"
+              className="flex items-center gap-2 text-primary dark:text-dark-primary font-medium hover:underline"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
+              <span>Back to Blog</span>
+            </Link>
           </div>
         </div>
       </Section>
       
       {/* Author Card */}
-      <Section id="author-card" bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="py-12">
-        <div className="container mx-auto max-w-4xl">
-          <div className="flex flex-col md:flex-row items-center bg-white dark:bg-dark-neutral-darker rounded-xl shadow-md p-6">
-            <div className="w-24 h-24 relative rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6">
-              <Image
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-                alt="Author"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="text-center md:text-left">
-              <h3 className="text-xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-2">
-                John Doe
-              </h3>
-              <p className="text-neutral-dark dark:text-dark-neutral-dark mb-4">
-                Full-Stack Developer & UI/UX Designer
-              </p>
-              <p className="text-neutral-dark dark:text-dark-neutral-dark">
-                John is a passionate developer with a background in web development and design.
-                He loves to share his knowledge and experience with others.
-              </p>
+      {fullPost.author && (
+        <Section id="author-card" bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="py-12">
+          <div className="container mx-auto max-w-4xl">
+            <div className="flex flex-col md:flex-row items-center bg-white dark:bg-dark-neutral-darker rounded-xl shadow-md p-6">
+              {fullPost.authorImage && (
+                <div className="w-24 h-24 relative rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6">
+                  <Image
+                    src={fullPost.authorImage}
+                    alt={fullPost.author}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div className="text-center md:text-left">
+                <h3 className="text-xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-2">
+                  {fullPost.author}
+                </h3>
+                <p className="text-neutral-dark dark:text-dark-neutral-dark">
+                  {fullPost.author}
+                </p>
+              </div>
             </div>
           </div>
-              </div>
-    </Section>
-    
-    {/* Comments Section */}
-    <Section id="comments-section">
-      <div className="container mx-auto max-w-4xl">
-        <CommentSection postId={`post-${post.slug}`} locale="en" />
-      </div>
-    </Section>
-  </>
-);
-} 
+        </Section>
+      )}
+      
+      {/* Comments Section */}
+      <Section id="comments-section">
+        <div className="container mx-auto max-w-4xl">
+          <CommentSection postId={fullPost.id} locale="en" />
+        </div>
+      </Section>
+    </>
+  );
+}
