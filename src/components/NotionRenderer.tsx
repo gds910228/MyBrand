@@ -76,6 +76,7 @@ const BlockRenderer: React.FC<{ block: any }> = ({ block }) => {
               width={800}
               height={450}
               className="w-full h-auto rounded-lg transition-transform duration-300 hover:scale-105"
+              placeholder="empty"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
             />
           </div>

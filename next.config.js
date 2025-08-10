@@ -23,6 +23,11 @@ const nextConfig = {
         hostname: 'prod-files-secure.s3.us-west-2.amazonaws.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.notion.so',
+        pathname: '/image/**',
+      },
     ],
     // 图片优化配置
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
