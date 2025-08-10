@@ -36,6 +36,13 @@ export const categories: CategoryType[] = [
       zh: '教程'
     }
   },
+  { 
+    name: 'ai', 
+    label: {
+      en: 'Artificial Intelligence',
+      zh: '人工智能'
+    }
+  },
 ];
 
 // 博客文章类型
@@ -78,6 +85,54 @@ export const blogPosts: BlogPostType[] = [
     categories: ['webdev', 'tutorial'],
     slug: 'getting-started-with-nextjs-14',
     featured: true
+  },
+  {
+    id: 'post-7',
+    title: {
+      en: 'Integrating AI Features into Web Applications',
+      zh: '在Web应用中集成AI功能'
+    },
+    excerpt: {
+      en: 'A practical guide to incorporating AI capabilities into your web projects using modern JavaScript frameworks and APIs.',
+      zh: '使用现代JavaScript框架和API将AI功能集成到Web项目中的实用指南。'
+    },
+    coverImage: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1332&q=80',
+    publishedAt: '2024-06-15',
+    categories: ['ai', 'webdev', 'tutorial'],
+    slug: 'integrating-ai-features-into-web-applications',
+    featured: true
+  },
+  {
+    id: 'post-8',
+    title: {
+      en: 'AI-Powered Design Tools for Developers',
+      zh: '面向开发者的AI设计工具'
+    },
+    excerpt: {
+      en: 'Discover how AI design tools are transforming the workflow for developers who need to create visually appealing interfaces.',
+      zh: '探索AI设计工具如何改变需要创建视觉吸引力界面的开发者的工作流程。'
+    },
+    coverImage: 'https://images.unsplash.com/photo-1664575198308-3959904fa430?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
+    publishedAt: '2024-06-10',
+    categories: ['ai', 'design', 'webdev'],
+    slug: 'ai-powered-design-tools-for-developers',
+    featured: false
+  },
+  {
+    id: 'post-9',
+    title: {
+      en: 'The Future of Development: AI Pair Programming',
+      zh: '开发的未来：AI结对编程'
+    },
+    excerpt: {
+      en: 'Exploring how AI pair programming tools are changing the way developers write code and what this means for the future of software development.',
+      zh: '探索AI结对编程工具如何改变开发者编写代码的方式，以及这对软件开发的未来意味着什么。'
+    },
+    coverImage: 'https://images.unsplash.com/photo-1655720828018-edd2daec9349?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1332&q=80',
+    publishedAt: '2024-06-05',
+    categories: ['ai', 'career', 'webdev'],
+    slug: 'future-of-development-ai-pair-programming',
+    featured: false
   },
   {
     id: 'post-2',
@@ -155,5 +210,112 @@ export const blogPosts: BlogPostType[] = [
     publishedAt: '2023-09-15',
     categories: ['webdev', 'career'],
     slug: 'art-of-writing-clean-code'
+  },
+  {
+    id: 'post-test-image-video',
+    title: {
+      en: 'Test Image And Video - Media Rich Content Demo',
+      zh: '测试图片和视频 - 富媒体内容演示'
+    },
+    excerpt: {
+      en: 'A comprehensive demonstration of image and video embedding capabilities in our Next.js blog, showcasing responsive media handling and beautiful typography.',
+      zh: '全面演示Next.js博客中的图片和视频嵌入功能，展示响应式媒体处理和精美排版。'
+    },
+    content: {
+      en: `
+        <h2>Welcome to Media-Rich Content</h2>
+        <p>This is a test article to demonstrate the enhanced media capabilities of our Next.js blog. We've built a powerful content system that supports various media types with beautiful, responsive layouts.</p>
+        
+        <h3>🖼️ Image Gallery</h3>
+        <p>Let's start with some stunning visuals. Notice how images are beautifully styled with rounded corners and hover effects:</p>
+        
+        <figure>
+          <img src="https://images.unsplash.com/photo-1682686581551-867e0b208bd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80" alt="Beautiful landscape with mountains and lake" />
+          <figcaption>A breathtaking landscape showcasing our responsive image handling</figcaption>
+        </figure>
+        
+        <h3>🎥 Video Content</h3>
+        <p>Videos are seamlessly integrated with proper aspect ratios and responsive containers:</p>
+        
+        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
+          <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                  title="Test Video" 
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+          </iframe>
+        </div>
+        
+        <h3>📱 Responsive Design</h3>
+        <p>All media content is fully responsive and looks great on all devices:</p>
+        
+        <ul>
+          <li>Images scale proportionally on different screen sizes</li>
+          <li>Videos maintain 16:9 aspect ratio across devices</li>
+          <li>Touch-friendly controls for mobile users</li>
+          <li>Optimized loading with lazy loading for images</li>
+        </ul>
+        
+        <h3>🎨 Typography and Layout</h3>
+        <p>The content is beautifully formatted with consistent spacing and typography. Blockquotes, code blocks, and lists all have consistent styling that adapts to light and dark modes.</p>
+        
+        <blockquote>
+          "The beauty of this system is that you can focus on creating great content while the platform handles all the technical details."
+        </blockquote>
+        
+        <p>This test article demonstrates how you can create rich, engaging content without worrying about the technical implementation. Simply write in Notion, and everything is automatically converted to a beautiful web experience.</p>
+      `,
+      zh: `
+        <h2>欢迎来到富媒体内容世界</h2>
+        <p>这是一篇测试文章，演示我们Next.js博客的增强媒体功能。我们构建了一个强大的内容系统，支持各种媒体类型，并提供美观、响应式的布局。</p>
+        
+        <h3>🖼️ 图片画廊</h3>
+        <p>让我们从一些令人惊叹的视觉效果开始。注意图片是如何通过圆角和悬停效果进行精美样式化的：</p>
+        
+        <figure>
+          <img src="https://images.unsplash.com/photo-1682686581551-867e0b208bd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80" alt="美丽的山水风景" />
+          <figcaption>展示我们响应式图片处理的壮丽风景</figcaption>
+        </figure>
+        
+        <h3>🎥 视频内容</h3>
+        <p>视频通过适当的宽高比和响应式容器无缝集成：</p>
+        
+        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
+          <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                  title="测试视频" 
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+          </iframe>
+        </div>
+        
+        <h3>📱 响应式设计</h3>
+        <p>所有媒体内容都是完全响应式的，在所有设备上看起来都很棒：</p>
+        
+        <ul>
+          <li>图片在不同屏幕尺寸上按比例缩放</li>
+          <li>视频在所有设备上保持16:9宽高比</li>
+          <li>为移动用户提供触摸友好的控制</li>
+          <li>为图片优化加载，支持延迟加载</li>
+        </ul>
+        
+        <h3>🎨 排版和布局</h3>
+        <p>内容通过一致的间距和排版精美格式化。引用、代码块和列表都具有适应明暗模式的一致样式。</p>
+        
+        <blockquote>
+          "这个系统的美妙之处在于，你可以专注于创造优秀的内容，而平台会处理所有技术细节。"
+        </blockquote>
+        
+        <p>这篇测试文章演示了如何创建丰富、引人入胜的内容，而无需担心技术实现。只需在Notion中编写，所有内容都会自动转换为精美的网络体验。</p>
+      `
+    },
+    coverImage: 'https://images.unsplash.com/photo-1551434678-e076c223a092?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80',
+    publishedAt: '2024-07-21',
+    updatedAt: '2024-07-21',
+    categories: ['tutorial', 'design'],
+    slug: 'test-image-and-video',
+    featured: true
   }
 ]; 

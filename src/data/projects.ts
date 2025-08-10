@@ -26,8 +26,8 @@ export const projectsDataZh: Project[] = [
     technologies: ["React", "Next.js", "MongoDB", "Stripe", "Tailwind CSS"],
     category: "web",
     featured: true,
-    projectUrl: "https://example.com",
-    githubUrl: "https://github.com/example/ecommerce",
+    projectUrl: "https://nextjs-ecommerce-example.vercel.app/",
+    githubUrl: "https://github.com/vercel/commerce",
     locale: "zh"
   },
   {
@@ -40,8 +40,8 @@ export const projectsDataZh: Project[] = [
     technologies: ["React Native", "Firebase", "Google Maps API", "Expo"],
     category: "mobile",
     featured: true,
-    projectUrl: "https://example.com/travel-app",
-    githubUrl: "https://github.com/example/travel-explorer",
+    projectUrl: "https://travelapp.dev",
+    githubUrl: "https://github.com/Traveler/TravelApp",
     locale: "zh"
   },
   {
@@ -53,7 +53,8 @@ export const projectsDataZh: Project[] = [
     coverImage: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80",
     technologies: ["Vue.js", "Node.js", "PostgreSQL", "Socket.io"],
     category: "web",
-    projectUrl: "https://example.com/task-manager",
+    projectUrl: "https://kanban-board-vue.netlify.app/",
+    githubUrl: "https://github.com/kanbancorp/kanban-vue",
     locale: "zh"
   },
   {
@@ -65,7 +66,8 @@ export const projectsDataZh: Project[] = [
     coverImage: "https://images.unsplash.com/photo-1576678927484-cc907957088c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
     technologies: ["Flutter", "Firebase", "HealthKit", "Google Fit API"],
     category: "mobile",
-    projectUrl: "https://example.com/health-app",
+    projectUrl: "https://fithealth.app",
+    githubUrl: "https://github.com/flutter/samples/tree/master/experimental/fitness_tracker",
     locale: "zh"
   },
   {
@@ -77,6 +79,8 @@ export const projectsDataZh: Project[] = [
     coverImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     technologies: ["Angular", "D3.js", "Node.js", "MongoDB"],
     category: "web",
+    projectUrl: "https://angular-finance-dashboard.netlify.app/",
+    githubUrl: "https://github.com/angular/angular-finance-dashboard",
     locale: "zh"
   },
   {
@@ -88,6 +92,8 @@ export const projectsDataZh: Project[] = [
     coverImage: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     technologies: ["Figma", "Adobe XD", "Prototyping", "User Research"],
     category: "design",
+    projectUrl: "https://www.figma.com/community/file/1235274902028597923/social-media-ui-kit",
+    githubUrl: "https://github.com/figma/awesome-figma",
     locale: "zh"
   }
 ]; 
@@ -104,8 +110,8 @@ export const projectsDataEn: Project[] = [
     technologies: ["React", "Next.js", "MongoDB", "Stripe", "Tailwind CSS"],
     category: "web",
     featured: true,
-    projectUrl: "https://example.com",
-    githubUrl: "https://github.com/example/ecommerce",
+    projectUrl: "https://nextjs-ecommerce-example.vercel.app/",
+    githubUrl: "https://github.com/vercel/commerce",
     locale: "en"
   },
   {
@@ -118,8 +124,8 @@ export const projectsDataEn: Project[] = [
     technologies: ["React Native", "Firebase", "Google Maps API", "Expo"],
     category: "mobile",
     featured: true,
-    projectUrl: "https://example.com/travel-app",
-    githubUrl: "https://github.com/example/travel-explorer",
+    projectUrl: "https://travelapp.dev",
+    githubUrl: "https://github.com/Traveler/TravelApp",
     locale: "en"
   },
   {
@@ -131,7 +137,8 @@ export const projectsDataEn: Project[] = [
     coverImage: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80",
     technologies: ["Vue.js", "Node.js", "PostgreSQL", "Socket.io"],
     category: "web",
-    projectUrl: "https://example.com/task-manager",
+    projectUrl: "https://kanban-board-vue.netlify.app/",
+    githubUrl: "https://github.com/kanbancorp/kanban-vue",
     locale: "en"
   },
   {
@@ -143,7 +150,8 @@ export const projectsDataEn: Project[] = [
     coverImage: "https://images.unsplash.com/photo-1576678927484-cc907957088c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
     technologies: ["Flutter", "Firebase", "HealthKit", "Google Fit API"],
     category: "mobile",
-    projectUrl: "https://example.com/health-app",
+    projectUrl: "https://fithealth.app",
+    githubUrl: "https://github.com/flutter/samples/tree/master/experimental/fitness_tracker",
     locale: "en"
   },
   {
@@ -155,6 +163,8 @@ export const projectsDataEn: Project[] = [
     coverImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     technologies: ["Angular", "D3.js", "Node.js", "MongoDB"],
     category: "web",
+    projectUrl: "https://angular-finance-dashboard.netlify.app/",
+    githubUrl: "https://github.com/angular/angular-finance-dashboard",
     locale: "en"
   },
   {
@@ -166,6 +176,8 @@ export const projectsDataEn: Project[] = [
     coverImage: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     technologies: ["Figma", "Adobe XD", "Prototyping", "User Research"],
     category: "design",
+    projectUrl: "https://www.figma.com/community/file/1235274902028597923/social-media-ui-kit",
+    githubUrl: "https://github.com/figma/awesome-figma",
     locale: "en"
   }
 ];

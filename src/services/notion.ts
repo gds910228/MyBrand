@@ -25,6 +25,9 @@ const PROJECTS_DATABASE_ID = process.env.NOTION_PROJECTS_DATABASE_ID || '';
 const BLOG_DATABASE_ID = process.env.NOTION_BLOG_DATABASE_ID || '';
 const ABOUT_PAGE_ID = process.env.NOTION_ABOUT_PAGE_ID || '';
 
+// 博客页面父页面ID（用于获取所有博客页面）
+const BLOG_PARENT_PAGE_ID = process.env.NOTION_BLOG_PARENT_PAGE_ID || '';
+
 // 评论数据库ID - 添加连字符以匹配Notion API期望的格式
 const COMMENTS_DATABASE_ID = process.env.NOTION_COMMENTS_DATABASE_ID 
   ? process.env.NOTION_COMMENTS_DATABASE_ID.replace(/^(\w{8})(\w{4})(\w{4})(\w{4})(\w{12})$/, '$1-$2-$3-$4-$5')
@@ -149,40 +152,84 @@ export async function getProjectById(id: string) {
 }
 
 /**
- * 获取所有博客文章
+ * 获取所有博客文章（从Notion页面获取）
  */
 export async function getAllBlogPosts() {
   try {
-    const response = await notion.databases.query({
-      database_id: BLOG_DATABASE_ID,
-      sorts: [
-        {
-          property: 'Date',
-          direction: 'descending',
-        },
-      ],
+    if (!BLOG_PARENT_PAGE_ID) {
+      console.error('BLOG_PARENT_PAGE_ID not configured');
+      return [];
+    }
+
+    // 获取父页面下的所有子页面
+    const response = await notion.blocks.children.list({
+      block_id: BLOG_PARENT_PAGE_ID,
     });
 
-    return response.results.map((page: any) => {
-      // @ts-ignore - Notion API类型定义不完整
-      const { properties } = page;
-      
-      return {
-        id: page.id,
-        title: properties.Title.title[0]?.plain_text || '',
-        excerpt: properties.Excerpt.rich_text[0]?.plain_text || '',
-        coverImage: properties.CoverImage.files[0]?.file?.url || '',
-        date: new Date(properties.Date.date?.start || '').toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
-        author: properties.Author.select?.name || '',
-        authorImage: properties.AuthorImage.files[0]?.file?.url || '',
-        readTime: properties.ReadTime.rich_text[0]?.plain_text || '',
-        tags: properties.Tags.multi_select.map((tag: any) => tag.name),
-      };
-    });
+    // 过滤出页面类型的块
+    const pageBlocks = response.results.filter((block: any) => block.type === 'child_page');
+    
+    // 获取每个页面的详细信息
+    const blogPosts = await Promise.all(
+      pageBlocks.map(async (block: any) => {
+        try {
+          const page = await notion.pages.retrieve({ page_id: block.id });
+          
+          // 获取页面属性
+          const properties = (page as any).properties;
+          
+          // 获取页面内容的前几段作为摘要
+          const blocks = await notion.blocks.children.list({ 
+            block_id: block.id,
+            page_size: 5 // 只获取前5个块作为摘要
+          });
+          
+          const firstParagraph = blocks.results.find((b: any) => b.type === 'paragraph');
+          const excerpt = firstParagraph?.paragraph?.rich_text?.[0]?.plain_text || '';
+          
+          // 获取页面封面图片
+          let coverImage = '';
+          if (page.cover) {
+            if (page.cover.type === 'external') {
+              coverImage = page.cover.external.url;
+            } else if (page.cover.type === 'file') {
+              coverImage = page.cover.file.url;
+            }
+          }
+          
+          // 从页面属性获取元数据
+          const title = block.child_page?.title || 'Untitled';
+          const createdTime = new Date(page.created_time);
+          const lastEditedTime = new Date(page.last_edited_time);
+          
+          return {
+            id: page.id,
+            title,
+            excerpt: excerpt.substring(0, 200) + (excerpt.length > 200 ? '...' : ''),
+            coverImage,
+            date: createdTime.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            }),
+            author: properties.Author?.people?.[0]?.name || 'Anonymous',
+            authorImage: properties.Author?.people?.[0]?.avatar_url || '',
+            readTime: Math.ceil(excerpt.split(' ').length / 200) + ' min read',
+            tags: properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
+            slug: title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+            lastEditedTime: lastEditedTime.toISOString(),
+          };
+        } catch (error) {
+          console.error(`Error fetching blog post ${block.id}:`, error);
+          return null;
+        }
+      })
+    );
+
+    // 过滤掉null值并按创建时间排序
+    return blogPosts
+      .filter((post): post is NonNullable<typeof post> => post !== null)
+      .sort((a, b) => new Date(b.lastEditedTime).getTime() - new Date(a.lastEditedTime).getTime());
   } catch (error) {
     console.error('Error fetching blog posts from Notion:', error);
     return [];
@@ -190,31 +237,56 @@ export async function getAllBlogPosts() {
 }
 
 /**
- * 获取博客文章详情
+ * 获取博客文章详情（从Notion页面获取完整内容）
  */
 export async function getBlogPostById(id: string) {
   try {
     const page = await notion.pages.retrieve({ page_id: id });
+    
+    // 获取页面的所有内容块
     const blocks = await notion.blocks.children.list({ block_id: id });
     
-    // @ts-ignore - Notion API类型定义不完整
-    const { properties } = page as any;
+    // 获取页面标题
+    const title = (page as any).properties.title?.title?.[0]?.plain_text || 
+                  (page as any).child_page?.title || 
+                  'Untitled';
+    
+    // 获取页面封面
+    let coverImage = '';
+    if (page.cover) {
+      if (page.cover.type === 'external') {
+        coverImage = page.cover.external.url;
+      } else if (page.cover.type === 'file') {
+        coverImage = page.cover.file.url;
+      }
+    }
+    
+    // 从页面属性获取元数据
+    const properties = (page as any).properties;
+    const createdTime = new Date(page.created_time);
+    const lastEditedTime = new Date(page.last_edited_time);
+    
+    // 获取页面内容的前几段作为摘要
+    const firstParagraph = blocks.results.find((b: any) => b.type === 'paragraph');
+    const excerpt = firstParagraph?.paragraph?.rich_text?.[0]?.plain_text?.substring(0, 200) || '';
     
     return {
       id: page.id,
-      title: properties.Title.title[0]?.plain_text || '',
-      excerpt: properties.Excerpt.rich_text[0]?.plain_text || '',
-      coverImage: properties.CoverImage.files[0]?.file?.url || '',
-      date: new Date(properties.Date.date?.start || '').toLocaleDateString('en-US', {
+      title,
+      excerpt: excerpt + (excerpt.length > 200 ? '...' : ''),
+      coverImage,
+      date: createdTime.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
       }),
-      author: properties.Author.select?.name || '',
-      authorImage: properties.AuthorImage.files[0]?.file?.url || '',
-      readTime: properties.ReadTime.rich_text[0]?.plain_text || '',
-      tags: properties.Tags.multi_select.map((tag: any) => tag.name),
+      author: properties.Author?.people?.[0]?.name || 'Anonymous',
+      authorImage: properties.Author?.people?.[0]?.avatar_url || '',
+      readTime: Math.ceil(excerpt.split(' ').length / 200) + ' min read',
+      tags: properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
       content: blocks.results,
+      createdTime: createdTime.toISOString(),
+      lastEditedTime: lastEditedTime.toISOString(),
     };
   } catch (error) {
     console.error('Error fetching blog post from Notion:', error);
@@ -259,7 +331,7 @@ export async function getAboutPageContent() {
 }
 
 /**
- * 将Notion块转换为HTML
+ * 将Notion块转换为HTML，增强媒体支持
  */
 export function renderNotionBlocks(blocks: any[]) {
   let html = '';
@@ -267,38 +339,131 @@ export function renderNotionBlocks(blocks: any[]) {
   for (const block of blocks) {
     switch (block.type) {
       case 'paragraph':
-        html += `<p>${renderRichText(block.paragraph.rich_text)}</p>`;
+        html += `<p class="mb-4 text-neutral-dark dark:text-dark-neutral-dark">${renderRichText(block.paragraph.rich_text)}</p>`;
         break;
       case 'heading_1':
-        html += `<h1>${renderRichText(block.heading_1.rich_text)}</h1>`;
+        html += `<h1 class="text-3xl font-bold mb-4 text-neutral-darker dark:text-dark-neutral-darker">${renderRichText(block.heading_1.rich_text)}</h1>`;
         break;
       case 'heading_2':
-        html += `<h2>${renderRichText(block.heading_2.rich_text)}</h2>`;
+        html += `<h2 class="text-2xl font-semibold mb-3 text-neutral-darker dark:text-dark-neutral-darker">${renderRichText(block.heading_2.rich_text)}</h2>`;
         break;
       case 'heading_3':
-        html += `<h3>${renderRichText(block.heading_3.rich_text)}</h3>`;
+        html += `<h3 class="text-xl font-semibold mb-2 text-neutral-darker dark:text-dark-neutral-darker">${renderRichText(block.heading_3.rich_text)}</h3>`;
         break;
       case 'bulleted_list_item':
-        html += `<ul><li>${renderRichText(block.bulleted_list_item.rich_text)}</li></ul>`;
+        html += `<ul class="list-disc list-inside mb-4 ml-4"><li class="mb-2 text-neutral-dark dark:text-dark-neutral-dark">${renderRichText(block.bulleted_list_item.rich_text)}</li></ul>`;
         break;
       case 'numbered_list_item':
-        html += `<ol><li>${renderRichText(block.numbered_list_item.rich_text)}</li></ol>`;
+        html += `<ol class="list-decimal list-inside mb-4 ml-4"><li class="mb-2 text-neutral-dark dark:text-dark-neutral-dark">${renderRichText(block.numbered_list_item.rich_text)}</li></ol>`;
         break;
       case 'code':
-        html += `<pre><code class="language-${block.code.language}">${renderRichText(block.code.rich_text)}</code></pre>`;
+        html += `<div class="mb-4"><pre class="bg-neutral-light dark:bg-dark-neutral-light p-4 rounded-lg overflow-x-auto"><code class="language-${block.code.language} text-sm">${renderRichText(block.code.rich_text)}</code></pre></div>`;
         break;
       case 'quote':
-        html += `<blockquote>${renderRichText(block.quote.rich_text)}</blockquote>`;
+        html += `<blockquote class="border-l-4 border-primary pl-4 mb-4 italic text-neutral-medium dark:text-dark-neutral-medium">${renderRichText(block.quote.rich_text)}</blockquote>`;
         break;
       case 'image':
         const imageUrl = block.image.type === 'external' ? block.image.external.url : block.image.file.url;
-        html += `<figure><img src="${imageUrl}" alt="${block.image.caption ? renderRichText(block.image.caption) : ''}" />${block.image.caption ? `<figcaption>${renderRichText(block.image.caption)}</figcaption>` : ''}</figure>`;
+        const caption = block.image.caption ? renderRichText(block.image.caption) : '';
+        html += `
+          <figure class="my-6">
+            <div class="relative overflow-hidden rounded-lg">
+              <img 
+                src="${imageUrl}" 
+                alt="${caption}" 
+                class="w-full h-auto rounded-lg transition-transform duration-300 hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+            ${caption ? `<figcaption class="text-center text-sm text-neutral-medium dark:text-dark-neutral-medium mt-2">${caption}</figcaption>` : ''}
+          </figure>
+        `;
         break;
-      // 其他块类型...
+      case 'video':
+        const videoUrl = block.video.type === 'external' ? block.video.external.url : block.video.file.url;
+        const videoCaption = block.video.caption ? renderRichText(block.video.caption) : '';
+        
+        // 处理YouTube嵌入
+        if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+          const embedUrl = convertToEmbedUrl(videoUrl);
+          html += `
+            <figure class="my-6">
+              <div class="relative overflow-hidden rounded-lg" style="padding-bottom: 56.25%;">
+                <iframe 
+                  src="${embedUrl}"
+                  title="${videoCaption || 'Video'}"
+                  class="absolute top-0 left-0 w-full h-full rounded-lg"
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              </div>
+              ${videoCaption ? `<figcaption class="text-center text-sm text-neutral-medium dark:text-dark-neutral-medium mt-2">${videoCaption}</figcaption>` : ''}
+            </figure>
+          `;
+        } else {
+          // 普通视频
+          html += `
+            <figure class="my-6">
+              <div class="relative overflow-hidden rounded-lg" style="padding-bottom: 56.25%;">
+                <video 
+                  controls 
+                  class="absolute top-0 left-0 w-full h-full rounded-lg"
+                  src="${videoUrl}"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              ${videoCaption ? `<figcaption class="text-center text-sm text-neutral-medium dark:text-dark-neutral-medium mt-2">${videoCaption}</figcaption>` : ''}
+            </figure>
+          `;
+        }
+        break;
+      case 'embed':
+        const embedUrl = block.embed.url;
+        html += `
+          <div class="my-6">
+            <div class="relative overflow-hidden rounded-lg" style="padding-bottom: 56.25%;">
+              <iframe 
+                src="${embedUrl}"
+                class="absolute top-0 left-0 w-full h-full rounded-lg"
+                frameborder="0"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+        `;
+        break;
+      case 'divider':
+        html += '<hr class="my-8 border-neutral-light dark:border-dark-neutral-light" />';
+        break;
+      case 'callout':
+        const calloutIcon = block.callout.icon?.emoji || '💡';
+        html += `
+          <div class="my-6 p-4 bg-primary/10 border-l-4 border-primary rounded-r-lg">
+            <div class="flex items-start">
+              <span class="text-xl mr-3">${calloutIcon}</span>
+              <div class="text-neutral-dark dark:text-dark-neutral-dark">${renderRichText(block.callout.rich_text)}</div>
+            </div>
+          </div>
+        `;
+        break;
     }
   }
   
   return html;
+}
+
+/**
+ * 将YouTube URL转换为嵌入URL
+ */
+function convertToEmbedUrl(url: string): string {
+  const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/;
+  const match = url.match(youtubeRegex);
+  if (match) {
+    return `https://www.youtube.com/embed/${match[1]}`;
+  }
+  return url;
 }
 
 /**

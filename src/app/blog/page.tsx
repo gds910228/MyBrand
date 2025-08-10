@@ -1,24 +1,18 @@
-"use client";
-
-import React, { useState } from 'react';
 import Section from '@/components/Section';
 import SectionHeading from '@/components/SectionHeading';
 import Container from '@/components/Container';
 import Image from 'next/image';
 import Link from 'next/link';
 import BlogCard from '@/components/BlogCard';
-import { blogPosts, categories } from '@/data/blog';
+import { getAllBlogPosts } from '@/services/notion';
+import { format } from 'date-fns';
 
-// 获取所有唯一标签
-const allTags = Array.from(new Set(blogPosts.flatMap(post => post.categories)));
-
-export default function BlogPage() {
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+// 博客列表页面
+export default async function BlogPage() {
+  const blogPosts = await getAllBlogPosts();
   
-  // 根据选择的标签过滤文章
-  const filteredPosts = selectedTag 
-    ? blogPosts.filter(post => post.categories.includes(selectedTag))
-    : blogPosts;
+  // 获取所有唯一标签
+  const allTags = Array.from(new Set(blogPosts.flatMap(post => post.tags)));
   
   return (
     <>
@@ -34,69 +28,64 @@ export default function BlogPage() {
         </div>
       </Section>
       
-      {/* Tags Filter */}
-      <Section id="blog-tags" className="py-8">
-        <div className="flex flex-wrap gap-3 justify-center">
-          <button
-            onClick={() => setSelectedTag(null)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              selectedTag === null 
-                ? 'bg-primary text-white' 
-                : 'bg-neutral-light text-neutral-dark hover:bg-neutral-medium/20'
-            }`}
-          >
-            All Posts
-          </button>
-          
-          {allTags.map(tag => {
-            const category = categories.find(c => c.name === tag);
-            return (
-              <button
-                key={tag}
-                onClick={() => setSelectedTag(tag)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  selectedTag === tag 
-                    ? 'bg-primary text-white' 
-                    : 'bg-neutral-light text-neutral-dark hover:bg-neutral-medium/20'
-                }`}
-              >
-                {category ? category.label.en : tag}
-              </button>
-            );
-          })}
+      {/* Stats Section */}
+      <Section id="blog-stats" className="py-8">
+        <div className="text-center">
+          <p className="text-neutral-dark">
+            {blogPosts.length} {blogPosts.length === 1 ? 'article' : 'articles'}
+            {allTags.length > 0 && ` • ${allTags.length} ${allTags.length === 1 ? 'tag' : 'tags'}`}
+          </p>
         </div>
       </Section>
       
+      {/* Tags Section */}
+      {allTags.length > 0 && (
+        <Section id="blog-tags" className="py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-wrap gap-3 justify-center">
+              {allTags.map(tag => (
+                <Link
+                  key={tag}
+                  href={`/blog?tag=${encodeURIComponent(tag)}`}
+                  className="px-4 py-2 rounded-full text-sm font-medium bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+                >
+                  #{tag}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </Section>
+      )}
+      
       {/* Blog Posts List */}
       <Section id="blog-posts">
-        {filteredPosts.length === 0 ? (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-medium text-neutral-dark">No posts found for this tag.</h3>
-            <p className="mt-2 text-neutral-medium">Try selecting a different tag or view all posts.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredPosts.map(post => (
-              <BlogCard
-                key={post.id}
-                title={post.title.en}
-                excerpt={post.excerpt.en}
-                coverImage={post.coverImage}
-                publishedAt={post.publishedAt}
-                slug={post.slug}
-                locale="en"
-                categories={post.categories.map(catName => {
-                  const category = categories.find(c => c.name === catName);
-                  return {
-                    name: catName,
-                    label: category?.label.en || catName
-                  };
-                })}
-              />
-            ))}
-          </div>
-        )}
+        <Container>
+          {blogPosts.length === 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-medium text-neutral-dark">No blog posts yet.</h3>
+              <p className="mt-2 text-neutral-medium">Check back soon for new content!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {blogPosts.map(post => (
+                <BlogCard
+                  key={post.id}
+                  title={post.title}
+                  excerpt={post.excerpt}
+                  coverImage={post.coverImage}
+                  publishedAt={post.date}
+                  slug={post.slug}
+                  locale="en"
+                  categories={post.tags?.map(tag => ({
+                    name: tag,
+                    label: tag
+                  })) || []}
+                />
+              ))}
+            </div>
+          )}
+        </Container>
       </Section>
     </>
   );
-} 
+}
