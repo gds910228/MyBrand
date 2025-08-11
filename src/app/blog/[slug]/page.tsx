@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { Metadata } from 'next';
 import Image from 'next/image';
+import FallbackImage from '@/components/FallbackImage';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -152,7 +153,7 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
           
           {/* Cover Image */}
           <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
-            <Image
+            <FallbackImage
               src={coverSrc}
               alt={fullPost.title}
               fill
@@ -225,7 +226,7 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
             <div className="flex flex-col md:flex-row items-center bg-white dark:bg-dark-neutral-darker rounded-xl shadow-md p-6">
               {fullPost.authorImage && (
                 <div className="w-24 h-24 relative rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6">
-                  <Image
+                  <FallbackImage
                     src={fullPost.authorImage}
                     alt={fullPost.author}
                     fill

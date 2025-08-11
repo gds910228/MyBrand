@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import FallbackImage from '@/components/FallbackImage';
 import { motion } from 'framer-motion';
 import { format, isValid, parseISO } from 'date-fns';
 
@@ -59,7 +60,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
       className="glass-surface rounded-xl shadow-md overflow-hidden h-full flex flex-col border border-white/20 dark:border-white/10 neon-hover group"
     >
       <div className="relative h-48 w-full overflow-hidden">
-        <Image
+        <FallbackImage
           src={imgSrc}
           alt={title}
           fill
