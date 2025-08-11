@@ -37,6 +37,9 @@ const BlogCard: React.FC<BlogCardProps> = ({
   } catch (error) {
     console.error('Error formatting date:', error);
   }
+
+  // 封面占位回退
+  const imgSrc = coverImage || '/images/covers/placeholder.svg';
   
   // 根据locale决定链接路径
   const linkHref = locale === 'zh' ? `/zh/blog/${slug}` : `/blog/${slug}`;
@@ -57,7 +60,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
     >
       <div className="relative h-48 w-full overflow-hidden">
         <Image
-          src={coverImage}
+          src={imgSrc}
           alt={title}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"

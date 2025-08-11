@@ -98,6 +98,9 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
     } : {})
   };
   
+  // Cover fallback
+  const coverSrc = fullPost.coverImage || '/images/covers/placeholder.svg';
+  
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -146,18 +149,16 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
           </div>
           
           {/* Cover Image */}
-          {fullPost.coverImage && (
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
-              <Image
-                src={fullPost.coverImage}
-                alt={fullPost.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 800px"
-                priority
-              />
-            </div>
-          )}
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
+            <Image
+              src={coverSrc}
+              alt={fullPost.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 800px"
+              priority
+            />
+          </div>
         </div>
       </Section>
       

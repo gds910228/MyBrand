@@ -97,6 +97,9 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
     } : {})
   };
   
+  // Cover fallback
+  const coverSrc = fullPost.coverImage || '/images/covers/placeholder.svg';
+  
   // 渲染Notion内容
   
   return (
@@ -147,18 +150,16 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
           </div>
           
           {/* Cover Image */}
-          {fullPost.coverImage && (
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
-              <Image
-                src={fullPost.coverImage}
-                alt={fullPost.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 800px"
-                priority
-              />
-            </div>
-          )}
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
+            <Image
+              src={coverSrc}
+              alt={fullPost.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 800px"
+              priority
+            />
+          </div>
         </div>
       </Section>
       
