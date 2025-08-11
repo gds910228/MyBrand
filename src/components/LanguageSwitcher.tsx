@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 // 语言配置
@@ -11,7 +11,7 @@ const localeNames = {
   zh: '中文',
 };
 
-export default function LanguageSwitcher() {
+function LanguageSwitcherContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -115,4 +115,17 @@ export default function LanguageSwitcher() {
       )}
     </div>
   );
-} 
+}
+
+export default function LanguageSwitcher() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center gap-1 px-2 py-1 rounded-md">
+        <span>English</span>
+        <ChevronDownIcon className="w-4 h-4" />
+      </div>
+    }>
+      <LanguageSwitcherContent />
+    </Suspense>
+  );
+}
