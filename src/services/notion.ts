@@ -362,11 +362,7 @@ export async function getAllBlogPosts(options?: { language?: string }) {
               excerpt.substring(0, 200) +
               (excerpt.length > 200 ? '...' : ''),
             coverImage,
-            date: createdTime.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            }),
+            date: createdTime.toISOString(),
             author: properties.Author?.people?.[0]?.name || 'Anonymous',
             authorImage: properties.Author?.people?.[0]?.avatar_url || '',
             readTime:
