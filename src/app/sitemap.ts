@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getAllBlogPosts } from '@/services/notion';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://mybrand.example.com').replace(/\/$/, '');
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.misitebo.win').replace(/\/$/, '');
 
   // 读取 EN/ZH 博客
   const [enPosts, zhPosts] = await Promise.all([

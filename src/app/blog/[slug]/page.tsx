@@ -13,6 +13,7 @@ import NotionRenderer from '@/components/NotionRenderer';
 import ReviewRating from '@/components/ReviewRating';
 import ProsCons from '@/components/ProsCons';
 import ToolInfoBox from '@/components/ToolInfoBox';
+import ComparisonTable from '@/components/ComparisonTable';
 import { format } from 'date-fns';
 
 // 生成静态参数
@@ -189,6 +190,19 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
             cons={(fullPost as any).cons}
             locale="en"
           />
+
+          {(fullPost as any).comparisonColumns && (fullPost as any).comparisonData && (
+            <div className="my-8">
+              <ComparisonTable
+                columns={(fullPost as any).comparisonColumns}
+                data={(fullPost as any).comparisonData}
+                locale="en"
+                highlightWinners
+                initialSortKey={((fullPost as any).comparisonColumns[0]?.key) ?? undefined}
+                initialSortDir="desc"
+              />
+            </div>
+          )}
 
           <NotionRenderer blocks={fullPost.content} className="prose prose-lg dark:prose-invert max-w-none" />
           
