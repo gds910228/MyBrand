@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import FallbackImage from '@/components/FallbackImage';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faArrowLeft, faTags, faUser } from '@fortawesome/free-solid-svg-icons';
 import Section from '@/components/Section';
@@ -62,7 +62,7 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
   const post = posts.find(p => p.slug === params.slug);
   
   if (!post) {
-    notFound();
+    redirect('/blog');
   }
   
   // 获取完整的博客文章内容
