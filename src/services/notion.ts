@@ -245,6 +245,22 @@ export async function getAllBlogPosts(options?: { language?: string }) {
               const f = props.CoverImage.files[0];
               coverImage = f?.file?.url || f?.external?.url || '';
             }
+            // 兼容 Text/URL 类型 CoverImage（或误写 Coverlmage），支持本地文件名映射到 /images/covers/*
+            if (!coverImage) {
+              const coverText =
+                props.CoverImage?.rich_text?.[0]?.plain_text ||
+                props.CoverImageUrl?.url ||
+                props.CoverImageUrl?.rich_text?.[0]?.plain_text ||
+                props.Coverlmage?.rich_text?.[0]?.plain_text ||
+                '';
+              if (coverText) {
+                if (/^https?:\/\//i.test(coverText)) {
+                  coverImage = coverText;
+                } else {
+                  coverImage = `/images/covers/${coverText}`;
+                }
+              }
+            }
 
             // 标签
             const tags =
@@ -458,6 +474,22 @@ export async function getBlogPostById(id: string) {
     if (!coverImage && pageAny.properties?.CoverImage?.files?.[0]) {
       const f = pageAny.properties.CoverImage.files[0];
       coverImage = f?.file?.url || f?.external?.url || '';
+    }
+    // 兼容 Text/URL 类型 CoverImage（或误写 Coverlmage），支持本地文件名映射到 /images/covers/*
+    if (!coverImage) {
+      const coverText =
+        pageAny.properties?.CoverImage?.rich_text?.[0]?.plain_text ||
+        pageAny.properties?.CoverImageUrl?.url ||
+        pageAny.properties?.CoverImageUrl?.rich_text?.[0]?.plain_text ||
+        pageAny.properties?.Coverlmage?.rich_text?.[0]?.plain_text ||
+        '';
+      if (coverText) {
+        if (/^https?:\/\//i.test(coverText)) {
+          coverImage = coverText;
+        } else {
+          coverImage = `/images/covers/${coverText}`;
+        }
+      }
     }
 
     // 元数据
