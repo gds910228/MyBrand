@@ -24,18 +24,17 @@ interface ThemeProviderProps {
 }
 
 export default function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>('light');
+  // 默认深色，减少初始闪烁
+  const [theme, setTheme] = useState<Theme>('dark');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // 从localStorage获取主题设置，如果没有则使用系统偏好
+    // 从 localStorage 获取主题设置；没有则默认 dark（不再跟随系统）
     const savedTheme = localStorage.getItem('theme') as Theme | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme) {
+    if (savedTheme === 'light' || savedTheme === 'dark') {
       setTheme(savedTheme);
-    } else if (prefersDark) {
+    } else {
       setTheme('dark');
     }
   }, []);

@@ -1,7 +1,7 @@
 "use client";
 
 import '../styles/globals.css';
-import { Inter, Montserrat, Fira_Code } from 'next/font/google';
+import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 import React from 'react';
 import ThemeProvider from '@/components/ThemeProvider';
 import Navbar from '@/components/Navbar';
@@ -15,17 +15,17 @@ const inter = Inter({
   weight: ['400', '500', '600', '700'],
 });
 
-const montserrat = Montserrat({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-montserrat',
-  weight: ['500', '600', '700', '800'],
+  variable: '--font-space-grotesk',
+  weight: ['400', '500', '600', '700'],
 });
 
-const firaCode = Fira_Code({
+const jetbrains = JetBrains_Mono({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-fira-code',
+  variable: '--font-jetbrains-mono',
   weight: ['400', '500'],
 });
 
@@ -35,8 +35,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${montserrat.variable} ${firaCode.variable}`}>
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable}`}>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: `!function(){try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.remove('dark')}else{document.documentElement.classList.add('dark')}}catch(e){document.documentElement.classList.add('dark')}}();` }} />
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4217180014733990"
           crossOrigin="anonymous"></script>
       </head>
