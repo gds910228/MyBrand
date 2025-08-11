@@ -549,6 +549,34 @@ export async function getBlogPostById(id: string) {
     const toolPricing =
       props.Tool_Pricing?.rich_text?.[0]?.plain_text || '';
 
+    // Comparison table (optional, JSON strings in Notion)
+    let parsedComparisonColumns: any[] | undefined = undefined;
+    let parsedComparisonData: any[] | undefined = undefined;
+    try {
+      const colText =
+        (props as any).ComparisonColumns?.rich_text?.map((t: any) => t.plain_text).join('') ||
+        (props as any).Comparison_Columns?.rich_text?.map((t: any) => t.plain_text).join('') ||
+        (props as any).ComparisonColumns?.url ||
+        (props as any).Comparison_Columns?.url ||
+        '';
+      if (colText) {
+        const parsed = JSON.parse(colText);
+        if (Array.isArray(parsed)) parsedComparisonColumns = parsed;
+      }
+    } catch {}
+    try {
+      const dataText =
+        (props as any).ComparisonData?.rich_text?.map((t: any) => t.plain_text).join('') ||
+        (props as any).Comparison_Data?.rich_text?.map((t: any) => t.plain_text).join('') ||
+        (props as any).ComparisonData?.url ||
+        (props as any).Comparison_Data?.url ||
+        '';
+      if (dataText) {
+        const parsed = JSON.parse(dataText);
+        if (Array.isArray(parsed)) parsedComparisonData = parsed;
+      }
+    } catch {}
+
     return {
       id: page.id,
       title,

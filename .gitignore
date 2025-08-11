@@ -44,5 +44,10 @@ test-notion-blog.js
 debug-notion.js
 debug-notion-v2.js
 
+# Blog import tools (one-time use)
+scripts/
+docs/blog-posts-sample.json
+docs/blog-import-guide.md
+
 # Assets not needed in repo
 Notion\ Integrations.png
