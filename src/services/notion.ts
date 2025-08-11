@@ -33,6 +33,13 @@ const COMMENTS_DATABASE_ID = process.env.NOTION_COMMENTS_DATABASE_ID
   ? process.env.NOTION_COMMENTS_DATABASE_ID.replace(/^(\w{8})(\w{4})(\w{4})(\w{4})(\w{12})$/, '$1-$2-$3-$4-$5')
   : '';
 
+ // 简易缓存（内存，默认60秒）
+const BLOG_LIST_CACHE_TTL_MS = 60 * 1000;
+const blogListCache = new Map<string, { data: any[]; expiry: number }>();
+
+// 数据库字段探测缓存：是否存在 Language 属性
+let blogDbHasLanguageProp: boolean | null = null;
+
 // Notion评论页面类型
 interface NotionCommentPage {
   properties: {
@@ -161,25 +168,37 @@ export async function getAllBlogPosts(options?: { language?: string }) {
     // 如果配置了数据库ID，则从数据库读取
     if (BLOG_DATABASE_ID) {
       // 构建过滤器：Status=Published，且（可选）Language=options.language
+      // 探测 Language 字段是否存在（仅首轮探测一次）
+      if (blogDbHasLanguageProp === null) {
+        try {
+          const dbMeta: any = await notion.databases.retrieve({ database_id: BLOG_DATABASE_ID });
+          blogDbHasLanguageProp = !!dbMeta?.properties?.Language;
+        } catch {
+          blogDbHasLanguageProp = false;
+        }
+      }
+
+      const includeLanguageFilter = !!(options?.language && blogDbHasLanguageProp);
+
       const filters: any[] = [
-        {
-          property: 'Status',
-          select: { equals: 'Published' },
-        },
+        { property: 'Status', select: { equals: 'Published' } },
       ];
-      if (options?.language) {
-        filters.push({
-          property: 'Language',
-          select: { equals: options.language },
-        });
+      if (includeLanguageFilter) {
+        filters.push({ property: 'Language', select: { equals: options!.language! } });
+      }
+
+      // 简易缓存（按语言维度缓存）
+      const cacheKey = `list:${includeLanguageFilter ? options!.language! : 'all'}`;
+      const cached = blogListCache.get(cacheKey);
+      const now = Date.now();
+      if (cached && cached.expiry > now) {
+        return cached.data;
       }
 
       const response = await notion.databases.query({
         database_id: BLOG_DATABASE_ID,
         filter: filters.length > 1 ? { and: filters } : filters[0],
-        sorts: [
-          { property: 'PublishDate', direction: 'descending' },
-        ],
+        sorts: [{ property: 'PublishDate', direction: 'descending' }],
       });
 
       const posts = await Promise.all(
@@ -305,7 +324,10 @@ export async function getAllBlogPosts(options?: { language?: string }) {
         })
       );
 
-      return posts.filter((p): p is NonNullable<typeof p> => !!p);
+      const result = posts.filter((p): p is NonNullable<typeof p> => !!p);
+      // 写入缓存
+      blogListCache.set(cacheKey, { data: result, expiry: Date.now() + BLOG_LIST_CACHE_TTL_MS });
+      return result;
     }
 
     // 未配置数据库ID，回退到父页面模式
