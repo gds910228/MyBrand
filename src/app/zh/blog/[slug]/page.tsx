@@ -218,33 +218,6 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
         </div>
       </Section>
       
-      {/* Author Card */}
-      {fullPost.author && (
-        <Section id="author-card" bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="py-12">
-          <div className="container mx-auto max-w-4xl">
-            <div className="flex flex-col md:flex-row items-center bg-white dark:bg-dark-neutral-darker rounded-xl shadow-md p-6">
-              {fullPost.authorImage && (
-                <div className="w-24 h-24 relative rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6">
-                  <FallbackImage
-                    src={fullPost.authorImage}
-                    alt={fullPost.author}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              <div className="text-center md:text-left">
-                <h3 className="text-xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-2">
-                  {fullPost.author}
-                </h3>
-                <p className="text-neutral-dark dark:text-dark-neutral-dark">
-                  {fullPost.author}
-                </p>
-              </div>
-            </div>
-          </div>
-        </Section>
-      )}
       
       {/* Comments Section */}
       <Section id="comments-section">
