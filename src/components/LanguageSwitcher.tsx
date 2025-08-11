@@ -55,6 +55,29 @@ export default function LanguageSwitcher() {
     }
     
     console.log(`切换语言：${currentLocale} -> ${newLocale}，新路径：${newPath}`);
+
+    // 博客详情页：预检目标语言同 slug 页面，不存在则回退到对应语言的博客列表
+    const isBlogDetail = /^\/(zh\/)?blog\/[^\/?#]+$/.test(pathname);
+    if (isBlogDetail) {
+      const targetList = newLocale === 'zh' ? '/zh/blog' : '/blog';
+      try {
+        fetch(newPath, { method: 'GET', cache: 'no-store' })
+          .then((res) => {
+            if (res.ok) {
+              router.push(newPath);
+            } else {
+              router.push(targetList);
+            }
+          })
+          .catch(() => {
+            router.push(targetList);
+          });
+      } catch {
+        router.push(targetList);
+      }
+      setIsOpen(false);
+      return;
+    }
     
     // 导航到新路径
     router.push(newPath);
