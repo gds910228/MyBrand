@@ -19,13 +19,15 @@ export default async function BlogPage() {
     <>
       {/* Hero Section */}
       <Section id="blog-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="relative overflow-hidden bg-tech-grid">
-        <div className="text-center max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold font-heading text-neutral-darker mb-6">
-            Blog
-          </h1>
-          <p className="text-lg text-neutral-dark">
-            Thoughts, insights, and perspectives on web development, design, and technology.
-          </p>
+        <div className="max-w-3xl mx-auto">
+          <div className="glass-surface border border-white/20 dark:border-white/10 rounded-2xl p-8 shadow-md text-center">
+            <h1 className="text-4xl md:text-5xl font-bold font-heading bg-gradient-to-r from-cyan-400 to-fuchsia-500 bg-clip-text text-transparent mb-4">
+              Blog
+            </h1>
+            <p className="text-lg text-neutral-dark dark:text-dark-neutral-dark">
+              Thoughts, insights, and perspectives on web development, design, and technology.
+            </p>
+          </div>
         </div>
       </Section>
       
@@ -48,7 +50,7 @@ export default async function BlogPage() {
                 <Link
                   key={tag}
                   href={`/blog?tag=${encodeURIComponent(tag)}`}
-                  className="px-4 py-2 rounded-full text-sm font-medium bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+                  className="px-4 py-2 rounded-full text-sm font-medium glass-surface border border-white/20 dark:border-white/10 text-neutral-dark dark:text-dark-neutral-dark neon-hover"
                 >
                   #{tag}
                 </Link>
