@@ -73,9 +73,34 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
   
   // 格式化日期（中文）
   const formattedDate = format(new Date(fullPost.date), 'yyyy年MM月dd日', { locale: zhCN });
+
+  // JSON-LD for SEO
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: fullPost.title,
+    image: fullPost.coverImage ? [fullPost.coverImage] : undefined,
+    datePublished: fullPost.date,
+    dateModified: (fullPost as any).lastEditedTime,
+    author: fullPost.author ? [{ "@type": "Person", name: fullPost.author }] : undefined,
+    inLanguage: "zh",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/zh/blog/${(fullPost as any).slug ?? params.slug}`,
+    articleSection: (fullPost.tags ?? []),
+    description: fullPost.excerpt,
+    ...(((fullPost as any).ratingOverall && (fullPost as any).ratingOverall > 0) ? {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: (fullPost as any).ratingOverall,
+        ratingCount: 1,
+        bestRating: 5,
+        worstRating: 0
+      }
+    } : {})
+  };
   
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Hero Section */}
       <Section id="blog-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="py-20">
         <div className="container mx-auto max-w-4xl">
