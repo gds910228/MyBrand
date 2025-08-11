@@ -5,11 +5,13 @@ import ContactCTA from '@/components/ContactCTA';
 import { getAllBlogPosts } from '@/services/notion';
 
 // 博客列表页面（中文）
-export default async function BlogPageZh() {
+export default async function BlogPageZh({ searchParams }: { searchParams?: { tag?: string } }) {
   const blogPosts = await getAllBlogPosts({ language: 'Chinese' });
+  const activeTag = searchParams?.tag ? decodeURIComponent(searchParams.tag as string) : undefined;
+  const filteredPosts = activeTag ? blogPosts.filter(p => (p.tags ?? []).includes(activeTag)) : blogPosts;
   
   // 获取所有唯一标签
-  const allTags = Array.from(new Set(blogPosts.flatMap(post => post.tags)));
+  const allTags = Array.from(new Set(blogPosts.flatMap(post => (post.tags ?? []))));
   
   return (
     <>
@@ -29,8 +31,9 @@ export default async function BlogPageZh() {
         {/* Stats */}
         <div className="text-center mt-8">
           <p className="text-neutral-dark">
-            {blogPosts.length} {blogPosts.length === 1 ? '篇文章' : '篇文章'}
-            {allTags.length > 0 && ` • ${allTags.length} 个${allTags.length === 1 ? '标签' : '标签'}`}
+            {filteredPosts.length} 篇文章
+            {allTags.length > 0 && ` • ${allTags.length} 个标签`}
+            {activeTag ? ` • 按 #${activeTag} 筛选` : ''}
           </p>
         </div>
         
@@ -38,11 +41,11 @@ export default async function BlogPageZh() {
         {allTags.length > 0 && (
           <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-8 mb-12">
             {allTags.map((tag: string) => (
-              <Link
-                key={tag}
-                href={`/zh/blog?tag=${encodeURIComponent(tag)}`}
-                className="px-4 py-2 rounded-full text-sm font-medium glass-surface border border-white/20 dark:border-white/10 text-neutral-dark dark:text-dark-neutral-dark neon-hover"
-              >
+                <Link
+                  key={tag}
+                  href={activeTag === tag ? `/zh/blog` : `/zh/blog?tag=${encodeURIComponent(tag)}`}
+                  className={`px-4 py-2 rounded-full text-sm font-medium glass-surface border border-white/20 dark:border-white/10 text-neutral-dark dark:text-dark-neutral-dark neon-hover ${activeTag === tag ? 'bg-primary/15 text-primary border-primary/40 dark:bg-primary/20' : ''}`}
+                >
                 #{tag}
               </Link>
             ))}
@@ -52,7 +55,7 @@ export default async function BlogPageZh() {
       
       {/* Blog Posts */}
       <Section id="blog-posts">
-        {blogPosts.length === 0 ? (
+        {filteredPosts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-neutral-dark dark:text-dark-neutral-dark text-lg">
               没有找到博客文章。
@@ -63,7 +66,7 @@ export default async function BlogPageZh() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.map((post) => (
+            {filteredPosts.map((post) => (
               <BlogCard
                 key={post.id}
                 title={post.title}

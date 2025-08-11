@@ -8,9 +8,11 @@ import { getAllBlogPosts } from '@/services/notion';
 import { format } from 'date-fns';
 
 // 博客列表页面
-export default async function BlogPage() {
+export default async function BlogPage({ searchParams }: { searchParams?: { tag?: string } }) {
   // 英文站点：只取 English
   const blogPosts = await getAllBlogPosts({ language: 'English' });
+  const activeTag = searchParams?.tag ? decodeURIComponent(searchParams.tag as string) : undefined;
+  const filteredPosts = activeTag ? blogPosts.filter(p => (p.tags ?? []).includes(activeTag)) : blogPosts;
   
   // 获取所有唯一标签
   const allTags = Array.from(new Set(blogPosts.flatMap(post => post.tags ?? [])));
@@ -35,8 +37,9 @@ export default async function BlogPage() {
       <Section id="blog-stats" className="py-8">
         <div className="text-center">
           <p className="text-neutral-dark">
-            {blogPosts.length} {blogPosts.length === 1 ? 'article' : 'articles'}
+            {filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'}
             {allTags.length > 0 && ` • ${allTags.length} ${allTags.length === 1 ? 'tag' : 'tags'}`}
+            {activeTag ? ` • filtered by #${activeTag}` : ''}
           </p>
         </div>
       </Section>
@@ -49,8 +52,8 @@ export default async function BlogPage() {
               {allTags.map(tag => (
                 <Link
                   key={tag}
-                  href={`/blog?tag=${encodeURIComponent(tag)}`}
-                  className="px-4 py-2 rounded-full text-sm font-medium glass-surface border border-white/20 dark:border-white/10 text-neutral-dark dark:text-dark-neutral-dark neon-hover"
+                  href={activeTag === tag ? `/blog` : `/blog?tag=${encodeURIComponent(tag)}`}
+                  className={`px-4 py-2 rounded-full text-sm font-medium glass-surface border border-white/20 dark:border-white/10 text-neutral-dark dark:text-dark-neutral-dark neon-hover ${activeTag === tag ? 'bg-primary/15 text-primary border-primary/40 dark:bg-primary/20' : ''}`}
                 >
                   #{tag}
                 </Link>
@@ -63,14 +66,14 @@ export default async function BlogPage() {
       {/* Blog Posts List */}
       <Section id="blog-posts">
         <Container>
-          {blogPosts.length === 0 ? (
+          {filteredPosts.length === 0 ? (
             <div className="text-center py-12">
               <h3 className="text-xl font-medium text-neutral-dark">No blog posts yet.</h3>
               <p className="mt-2 text-neutral-medium">Check back soon for new content!</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {blogPosts.map(post => (
+              {filteredPosts.map(post => (
                 <BlogCard
                   key={post.id}
                   title={post.title}
