@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
@@ -14,6 +14,7 @@ const localeNames = {
 export default function LanguageSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   
   // 获取当前语言
@@ -25,28 +26,32 @@ export default function LanguageSwitcher() {
       return;
     }
     
-    // 构建新路径
+    // 构建新路径（保留查询参数）
     let newPath = '';
     
-    // 英文转换到中文
+    // 英文 -> 中文：添加 /zh 前缀
     if (newLocale === 'zh' && currentLocale === 'en') {
-      // 根路径特殊处理
       if (pathname === '/') {
         newPath = '/zh';
       } else {
-        // 其他路径在前面添加/zh
         newPath = `/zh${pathname}`;
       }
     } 
-    // 中文转换到英文
+    // 中文 -> 英文：移除 /zh 前缀
     else if (newLocale === 'en' && currentLocale === 'zh') {
-      // 如果是/zh根路径，转为/
       if (pathname === '/zh') {
         newPath = '/';
       } else {
-        // 其他路径移除/zh前缀
         newPath = pathname.replace(/^\/zh/, '');
       }
+    } else {
+      newPath = pathname;
+    }
+
+    // 保留当前查询参数（如 tag/page/pageSize/sort）
+    const qs = searchParams.toString();
+    if (qs) {
+      newPath = `${newPath}?${qs}`;
     }
     
     console.log(`切换语言：${currentLocale} -> ${newLocale}，新路径：${newPath}`);
