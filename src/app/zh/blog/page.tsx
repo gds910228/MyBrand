@@ -167,6 +167,7 @@ export default async function BlogPageZh({
                   publishedAt={post.date}
                   slug={post.slug}
                   locale="zh"
+                  ratingOverall={post.ratingOverall}
                   categories={(post.tags ?? []).map((tag: string) => ({
                     name: tag,
                     label: tag,

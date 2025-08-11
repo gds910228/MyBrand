@@ -171,6 +171,7 @@ export default async function BlogPage({
                     publishedAt={post.date}
                     slug={post.slug}
                     locale="en"
+                    ratingOverall={post.ratingOverall}
                     categories={(post.tags ?? []).map((tag: string) => ({
                       name: tag,
                       label: tag,
