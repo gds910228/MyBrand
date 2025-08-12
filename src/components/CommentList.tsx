@@ -89,11 +89,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, locale = '
   };
 
   return (
-    <div className="mt-8">
-      <h3 className="text-xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
-        {locale === 'zh' ? '评论' : 'Comments'} ({comments.length})
-      </h3>
-      
+    <div className="mt-4">
       {comments.length === 0 ? (
         <p className="text-neutral-dark dark:text-dark-neutral-dark italic">
           {locale === 'zh' ? '还没有评论。成为第一个评论的人！' : 'No comments yet. Be the first to comment!'}
