@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getAllBlogPosts } from '@/services/notion';
-import { projectsDataEn, projectsDataZh } from '@/data/projects';
+import { getAllBlogPosts, getAllProjects } from '@/services/notion';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.misitebo.win').replace(/\/$/, '');
@@ -75,15 +74,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
   };
 
-  // 项目页面路由
+  // 项目页面路由（从 Notion 获取）
+  const [enProjects, zhProjects] = await Promise.all([
+    getAllProjects({ language: 'English' }),
+    getAllProjects({ language: 'Chinese' }),
+  ]);
+
   const projectRoutes: MetadataRoute.Sitemap = [
-    ...projectsDataEn.map(project => ({
+    ...(enProjects || []).map((project: any) => ({
       url: `${siteUrl}/projects/${project.slug}`,
       lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.7
     })),
-    ...projectsDataZh.map(project => ({
+    ...(zhProjects || []).map((project: any) => ({
       url: `${siteUrl}/zh/projects/${project.slug}`,
       lastModified: now,
       changeFrequency: 'monthly' as const,

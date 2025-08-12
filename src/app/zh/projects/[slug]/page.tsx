@@ -7,7 +7,7 @@ import ContactCTA from '@/components/ContactCTA';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
-import { getProjectBySlug, getProjectById } from '@/services/notion';
+import { getProjectBySlug, getProjectById, renderNotionBlocks } from '@/services/notion';
 
 type PageProps = {
   params: { slug: string | string[] };
@@ -98,6 +98,13 @@ export default async function ProjectDetailPageZh({ params }: PageProps) {
             <p className="text-neutral-dark dark:text-dark-neutral-dark mb-6">
               {project.description}
             </p>
+
+            {Array.isArray((project as any).content) && (project as any).content.length > 0 && (
+              <div
+                className="notion-content mt-8"
+                dangerouslySetInnerHTML={{ __html: renderNotionBlocks((project as any).content) }}
+              />
+            )}
 
             <div className="my-12">
               <Link

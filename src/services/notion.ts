@@ -115,7 +115,12 @@ export async function getAllProjects(options?: { language?: string }) {
       { property: 'Status', select: { equals: 'Published' } },
     ];
     if (includeLanguageFilter) {
-      filters.push({ property: 'Language', select: { equals: options!.language! } });
+      filters.push({
+        or: [
+          { property: 'Language', select: { equals: options!.language! } },
+          { property: 'Language', select: { is_empty: true } }
+        ]
+      } as any);
     }
 
     const response = await notion.databases.query({
@@ -351,7 +356,12 @@ export async function getProjectBySlug(slug: string, options?: { language?: stri
       { property: 'Slug', rich_text: { equals: slug } },
     ];
     if (includeLanguageFilter) {
-      filters.push({ property: 'Language', select: { equals: options!.language! } });
+      filters.push({
+        or: [
+          { property: 'Language', select: { equals: options!.language! } },
+          { property: 'Language', select: { is_empty: true } }
+        ]
+      } as any);
     }
 
     const query = await notion.databases.query({
@@ -360,9 +370,42 @@ export async function getProjectBySlug(slug: string, options?: { language?: stri
       page_size: 1,
     });
 
-    if (!query.results.length) return null;
-
-    const page: any = query.results[0];
+    let page: any;
+    if (query.results.length) {
+      page = query.results[0];
+    } else {
+      // Fallback: list candidates and match by generated slug from Title when Slug is missing
+      const baseFilters: any[] = [
+        { property: 'Status', select: { equals: 'Published' } },
+      ];
+      if (includeLanguageFilter) {
+        baseFilters.push({
+          or: [
+            { property: 'Language', select: { equals: options!.language! } },
+            { property: 'Language', select: { is_empty: true } }
+          ]
+        } as any);
+      }
+      const listRes = await notion.databases.query({
+        database_id: PROJECTS_DATABASE_ID,
+        filter: baseFilters.length > 1 ? { and: baseFilters } : baseFilters[0],
+        page_size: 100,
+      });
+      const match = (listRes.results as any[]).find((p: any) => {
+        const props = p.properties || {};
+        const rawSlug =
+          props.slug?.rich_text?.[0]?.plain_text ||
+          props.Slug?.rich_text?.[0]?.plain_text ||
+          '';
+        const titleText = props.Title?.title?.[0]?.plain_text || 'Untitled';
+        const generated =
+          (rawSlug ||
+            titleText.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''));
+        return generated === slug;
+      });
+      if (!match) return null;
+      page = match;
+    }
     const blocks = await notion.blocks.children.list({ block_id: page.id });
 
     const props = page.properties || {};
