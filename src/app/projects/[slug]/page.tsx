@@ -64,6 +64,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               <p className="text-neutral-dark dark:text-dark-neutral-dark mb-6">
                 {project.description}
               </p>
+              {Array.isArray((project as any).responsibilities) && (project as any).responsibilities.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-neutral-darker dark:text-dark-neutral-darker mb-2">Responsibilities</h3>
+                  <ul className="list-disc list-inside text-neutral-dark dark:text-dark-neutral-dark">
+                    {(project as any).responsibilities.map((item: string, idx: number) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <div className="flex flex-wrap gap-2 mb-6">
                 {(project.technologies || []).map((tech: string) => (
                   <span
@@ -126,18 +136,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       <Section id="project-description">
         <div className="container mx-auto">
           <div className="prose prose-lg dark:prose-invert max-w-none">
-            {Array.isArray((project as any).responsibilities) && (project as any).responsibilities.length > 0 && (
-              <>
-                <h2 className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
-                  Responsibilities
-                </h2>
-                <ul className="list-disc list-inside text-neutral-dark dark:text-dark-neutral-dark mb-6">
-                  {(project as any).responsibilities.map((item: string, idx: number) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              </>
-            )}
 
             {Array.isArray((project as any).content) && (project as any).content.length > 0 && (
               <div

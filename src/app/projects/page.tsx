@@ -28,8 +28,8 @@ export default async function ProjectsPage() {
           {(projects || []).map((project) => (
             <ProjectCard
               key={project.id}
-              title={project.title}
-              description={project.subtitle || project.description || ''}
+              title={project.description || project.title}
+              description={''}
               imageSrc={project.coverImage}
               tags={project.technologies}
               slug={project.slug}
