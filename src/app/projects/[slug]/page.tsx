@@ -62,7 +62,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 {project.title}
               </h1>
               <p className="text-neutral-dark dark:text-dark-neutral-dark mb-6">
-                {project.subtitle || project.description}
+                {project.description}
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
                 {(project.technologies || []).map((tech: string) => (
@@ -74,6 +74,25 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                   </span>
                 ))}
               </div>
+              {(project.role || project.client || project.year) && (
+                <div className="flex flex-wrap gap-4 mb-4 text-sm text-neutral-medium dark:text-dark-neutral-medium">
+                  {project.role && (
+                    <span>
+                      <span className="font-medium text-neutral-darker dark:text-dark-neutral-darker">Role:</span> {project.role}
+                    </span>
+                  )}
+                  {project.client && (
+                    <span>
+                      <span className="font-medium text-neutral-darker dark:text-dark-neutral-darker">Client:</span> {project.client}
+                    </span>
+                  )}
+                  {project.year && (
+                    <span>
+                      <span className="font-medium text-neutral-darker dark:text-dark-neutral-darker">Year:</span> {project.year}
+                    </span>
+                  )}
+                </div>
+              )}
               <div className="flex gap-4 mb-6">
                 {project.projectUrl && (
                   <a
@@ -107,12 +126,18 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       <Section id="project-description">
         <div className="container mx-auto">
           <div className="prose prose-lg dark:prose-invert max-w-none">
-            <h2 className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
-              Project Overview
-            </h2>
-            <p className="text-neutral-dark dark:text-dark-neutral-dark mb-6">
-              {project.description}
-            </p>
+            {Array.isArray((project as any).responsibilities) && (project as any).responsibilities.length > 0 && (
+              <>
+                <h2 className="text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
+                  Responsibilities
+                </h2>
+                <ul className="list-disc list-inside text-neutral-dark dark:text-dark-neutral-dark mb-6">
+                  {(project as any).responsibilities.map((item: string, idx: number) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              </>
+            )}
 
             {Array.isArray((project as any).content) && (project as any).content.length > 0 && (
               <div

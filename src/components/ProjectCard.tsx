@@ -4,6 +4,8 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 export interface ProjectCardProps {
   title: string;
@@ -14,6 +16,9 @@ export interface ProjectCardProps {
   className?: string;
   imageAlt?: string;
   locale?: string;
+  role?: string;
+  client?: string;
+  githubUrl?: string;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -25,6 +30,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   className = '',
   imageAlt = '',
   locale = 'en',
+  role,
+  client,
+  githubUrl,
 }) => {
   const linkHref = locale === 'zh' ? `/zh/projects/${slug}` : `/projects/${slug}`;
   
@@ -68,6 +76,26 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               <span className="inline-block py-1 px-2 text-xs font-medium rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark">
                 +{tags.length - 3}
               </span>
+            )}
+          </div>
+        )}
+        
+        {(role || client || githubUrl) && (
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-wrap gap-2 text-xs text-neutral-medium dark:text-dark-neutral-medium">
+              {role && <span className="px-2 py-1 rounded bg-neutral-light dark:bg-dark-neutral-light">{role}</span>}
+              {client && <span className="px-2 py-1 rounded bg-neutral-light dark:bg-dark-neutral-light">{client}</span>}
+            </div>
+            {githubUrl && (
+              <a
+                href={githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub repository"
+                className="text-neutral-medium hover:text-neutral-darker dark:hover:text-dark-neutral-darker"
+              >
+                <FontAwesomeIcon icon={faGithub} className="w-5 h-5" />
+              </a>
             )}
           </div>
         )}

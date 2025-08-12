@@ -34,6 +34,9 @@ export default async function ProjectsPage() {
               tags={project.technologies}
               slug={project.slug}
               locale="en"
+              role={project.role}
+              client={project.client}
+              githubUrl={project.githubUrl}
               className="h-full"
             />
           ))}

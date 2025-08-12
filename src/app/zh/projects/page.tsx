@@ -34,6 +34,9 @@ export default async function ProjectsPageZh() {
               tags={project.technologies}
               slug={project.slug}
               locale="zh"
+              role={project.role}
+              client={project.client}
+              githubUrl={project.githubUrl}
               className="h-full"
             />
           ))}

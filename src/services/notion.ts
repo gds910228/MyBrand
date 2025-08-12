@@ -206,6 +206,7 @@ export async function getAllProjects(options?: { language?: string }) {
 
       // 语言（可选）
       const language = props.Language?.select?.name || undefined;
+      const client = props.Client?.rich_text?.[0]?.plain_text || '';
 
       return {
         id: page.id,
@@ -223,6 +224,7 @@ export async function getAllProjects(options?: { language?: string }) {
         githubUrl,
         slug,
         language,
+        client,
       };
     });
   } catch (error) {
