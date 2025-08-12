@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import Container from './Container';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGithub, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -34,9 +34,8 @@ const Footer: React.FC = () => {
   const contactLabel = locale === 'zh' ? '联系' : 'Contact';
   
   const socialLinks = [
-    { name: 'GitHub', icon: faGithub, href: 'https://github.com/' },
-    { name: 'LinkedIn', icon: faLinkedin, href: 'https://linkedin.com/' },
-    { name: 'Twitter', icon: faTwitter, href: 'https://twitter.com/' },
+    { name: 'GitHub', icon: faGithub, href: 'https://github.com/gds910228' },
+    { name: 'Twitter', icon: faTwitter, href: 'https://x.com/BobXu350839133' },
   ];
   
   // 页脚版权和制作信息
@@ -144,4 +143,4 @@ const Footer: React.FC = () => {
   );
 };
 
-export default Footer; 
+export default Footer;

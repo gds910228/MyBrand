@@ -7,7 +7,7 @@ import ContactForm from '@/components/ContactForm';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faPhone, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
-import { faGithub, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import Image from 'next/image';
 
 export default function ContactPageZh() {
@@ -104,7 +104,7 @@ export default function ContactPageZh() {
         
         <div className="flex flex-wrap justify-center gap-6">
           <motion.a
-            href="https://github.com"
+            href="https://github.com/gds910228"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center w-16 h-16 bg-neutral-light dark:bg-dark-bg-secondary rounded-full text-neutral-darker dark:text-dark-neutral-lighter hover:text-primary dark:hover:text-dark-primary transition-colors"
@@ -119,7 +119,7 @@ export default function ContactPageZh() {
           </motion.a>
           
           <motion.a
-            href="https://linkedin.com"
+            href="https://x.com/BobXu350839133"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center w-16 h-16 bg-neutral-light dark:bg-dark-bg-secondary rounded-full text-neutral-darker dark:text-dark-neutral-lighter hover:text-primary dark:hover:text-dark-primary transition-colors"
@@ -129,21 +129,6 @@ export default function ContactPageZh() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.3, delay: 0.2 }}
-          >
-            <FontAwesomeIcon icon={faLinkedin} className="h-8 w-8" />
-          </motion.a>
-          
-          <motion.a
-            href="https://twitter.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center w-16 h-16 bg-neutral-light dark:bg-dark-bg-secondary rounded-full text-neutral-darker dark:text-dark-neutral-lighter hover:text-primary dark:hover:text-dark-primary transition-colors"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.3 }}
           >
             <FontAwesomeIcon icon={faTwitter} className="h-8 w-8" />
           </motion.a>
@@ -182,4 +167,4 @@ export default function ContactPageZh() {
       </Section>
     </>
   );
-} 
+}
