@@ -1,37 +1,30 @@
-"use client";
-
 import React from 'react';
-import { useParams } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProjectsByLocale } from '@/data/projects';
 import Section from '@/components/Section';
 import ContactCTA from '@/components/ContactCTA';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import { getProjectBySlug, getProjectById } from '@/services/notion';
 
-export default function ProjectDetailPageZh() {
-  const { slug } = useParams();
-  const projectSlug = Array.isArray(slug) ? slug[0] : slug;
-  
-  // 获取中文项目数据
-  const zhProjects = getProjectsByLocale('zh');
-  
-  // 查找匹配的项目
-  let project = zhProjects.find(project => project.slug === projectSlug);
-  
-  // 如果找不到项目，尝试按id查找
+type PageProps = {
+  params: { slug: string | string[] };
+};
+
+export default async function ProjectDetailPageZh({ params }: PageProps) {
+  const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+
+  // 优先通过 slug + 语言（Chinese）查询；若失败则按 id 回退
+  let project = await getProjectBySlug(slugParam, { language: 'Chinese' });
   if (!project) {
-    project = zhProjects.find(project => project.id === projectSlug);
+    project = await getProjectById(slugParam);
   }
-  
-  // 如果找不到项目，返回404
   if (!project) {
     notFound();
   }
-  
+
   return (
     <>
       {/* Hero Section */}
@@ -54,10 +47,10 @@ export default function ProjectDetailPageZh() {
                 {project.title}
               </h1>
               <p className="text-neutral-dark dark:text-dark-neutral-dark mb-6">
-                {project.subtitle}
+                {project.subtitle || project.description}
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
-                {project.technologies.map((tech) => (
+                {(project.technologies || []).map((tech: string) => (
                   <span
                     key={tech}
                     className="inline-block py-1 px-3 rounded-full text-sm font-medium bg-primary-light dark:bg-dark-primary-light text-primary dark:text-dark-primary"
@@ -94,7 +87,7 @@ export default function ProjectDetailPageZh() {
           </div>
         </div>
       </Section>
-      
+
       {/* Project Description */}
       <Section id="project-description">
         <div className="container mx-auto">
@@ -105,10 +98,10 @@ export default function ProjectDetailPageZh() {
             <p className="text-neutral-dark dark:text-dark-neutral-dark mb-6">
               {project.description}
             </p>
-            
+
             <div className="my-12">
-              <Link 
-                href="/zh/projects" 
+              <Link
+                href="/zh/projects"
                 className="flex items-center gap-2 text-primary dark:text-dark-primary font-medium hover:underline"
               >
                 <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
@@ -118,8 +111,8 @@ export default function ProjectDetailPageZh() {
           </div>
         </div>
       </Section>
-      
+
       <ContactCTA />
     </>
   );
-} 
+}

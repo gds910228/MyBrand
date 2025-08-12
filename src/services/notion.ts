@@ -37,8 +37,10 @@ const COMMENTS_DATABASE_ID = process.env.NOTION_COMMENTS_DATABASE_ID
 const BLOG_LIST_CACHE_TTL_MS = 60 * 1000;
 const blogListCache = new Map<string, { data: any[]; expiry: number }>();
 
-// 数据库字段探测缓存：是否存在 Language 属性
+ // 数据库字段探测缓存：是否存在 Language 属性
 let blogDbHasLanguageProp: boolean | null = null;
+// Projects 数据库字段探测缓存：是否存在 Language 属性
+let projectsDbHasLanguageProp: boolean | null = null;
 
 // Notion评论页面类型
 interface NotionCommentPage {
@@ -95,10 +97,30 @@ let localComments: CommentType[] = [
 /**
  * 获取所有项目
  */
-export async function getAllProjects() {
+export async function getAllProjects(options?: { language?: string }) {
   try {
+    // 探测 Projects 数据库是否存在 Language 字段
+    if (projectsDbHasLanguageProp === null) {
+      try {
+        const dbMeta: any = await notion.databases.retrieve({ database_id: PROJECTS_DATABASE_ID });
+        projectsDbHasLanguageProp = !!dbMeta?.properties?.Language;
+      } catch {
+        projectsDbHasLanguageProp = false;
+      }
+    }
+
+    const includeLanguageFilter = !!(options?.language && projectsDbHasLanguageProp);
+
+    const filters: any[] = [
+      { property: 'Status', select: { equals: 'Published' } },
+    ];
+    if (includeLanguageFilter) {
+      filters.push({ property: 'Language', select: { equals: options!.language! } });
+    }
+
     const response = await notion.databases.query({
       database_id: PROJECTS_DATABASE_ID,
+      filter: filters.length > 1 ? { and: filters } : filters[0],
       sorts: [
         {
           property: 'Date',
@@ -108,18 +130,94 @@ export async function getAllProjects() {
     });
 
     return response.results.map((page: any) => {
-      // @ts-ignore - Notion API类型定义不完整
-      const { properties } = page;
-      
+      const props = (page as any).properties || {};
+
+      // 标题
+      const title = props.Title?.title?.[0]?.plain_text || 'Untitled';
+      // 副标题
+      const subtitle =
+        props.Subtitle?.rich_text?.[0]?.plain_text ||
+        '';
+      // 描述
+      const description = props.Description?.rich_text?.[0]?.plain_text || '';
+
+      // 封面（与 Blog 对齐的回退策略）
+      let coverImage = '';
+      if ((page as any).cover) {
+        if ((page as any).cover.type === 'external') {
+          coverImage = (page as any).cover.external.url;
+        } else if ((page as any).cover.type === 'file') {
+          coverImage = (page as any).cover.file.url;
+        }
+      }
+      if (!coverImage && props.CoverImage?.files?.[0]) {
+        const f = props.CoverImage.files[0];
+        coverImage = f?.file?.url || f?.external?.url || '';
+      }
+      if (!coverImage) {
+        const coverText =
+          props.CoverImage?.rich_text?.[0]?.plain_text ||
+          props.CoverImageUrl?.url ||
+          props.CoverImageUrl?.rich_text?.[0]?.plain_text ||
+          props.Coverlmage?.rich_text?.[0]?.plain_text || // 兼容误拼
+          '';
+        if (coverText) {
+          if (/^https?:\/\//i.test(coverText)) {
+            coverImage = coverText;
+          } else {
+            coverImage = `/images/covers/${coverText}`;
+          }
+        }
+      }
+
+      // 缩略图（若有）
+      const thumbnail =
+        props.Thumbnail?.files?.[0]?.file?.url ||
+        props.Thumbnail?.files?.[0]?.external?.url ||
+        '';
+
+      // 标签与分类
+      const technologies = props.Technologies?.multi_select?.map((t: any) => t.name) || [];
+      const category = props.Category?.select?.name || undefined;
+      const role = props.Role?.select?.name || '';
+      const year =
+        props.Year?.select?.name ||
+        (typeof props.Year?.number === 'number' ? String(props.Year.number) : '') ||
+        '';
+
+      // 链接与精选
+      const featured = !!props.Featured?.checkbox;
+      const projectUrl = props.ProjectUrl?.url || '';
+      const githubUrl = props.GitHubUrl?.url || props.GithubUrl?.url || '';
+
+      // slug
+      const rawSlug =
+        props.slug?.rich_text?.[0]?.plain_text ||
+        props.Slug?.rich_text?.[0]?.plain_text ||
+        '';
+      const slug =
+        rawSlug ||
+        title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+      // 语言（可选）
+      const language = props.Language?.select?.name || undefined;
+
       return {
         id: page.id,
-        title: properties.Title.title[0]?.plain_text || '',
-        description: properties.Description.rich_text[0]?.plain_text || '',
-        thumbnail: properties.Thumbnail.files[0]?.file?.url || '',
-        technologies: properties.Technologies.multi_select.map((tech: any) => tech.name),
-        role: properties.Role.select?.name || '',
-        year: properties.Year.select?.name || '',
-        // 其他属性...
+        title,
+        subtitle,
+        description,
+        coverImage: coverImage || thumbnail || '',
+        thumbnail,
+        technologies,
+        category,
+        role,
+        year,
+        featured,
+        projectUrl,
+        githubUrl,
+        slug,
+        language,
       };
     });
   } catch (error) {
@@ -134,26 +232,226 @@ export async function getAllProjects() {
 export async function getProjectById(id: string) {
   try {
     const page = await notion.pages.retrieve({ page_id: id });
+    // 内容块（简单列表，若需完整分页可按 Blog 的实现递归拉取）
     const blocks = await notion.blocks.children.list({ block_id: id });
-    
-    // @ts-ignore - Notion API类型定义不完整
-    const { properties } = page as any;
-    
+
+    const pageAny = page as any;
+    const props = pageAny.properties || {};
+
+    // 标题/副标题/描述
+    const title = props.Title?.title?.[0]?.plain_text || 'Untitled';
+    const subtitle = props.Subtitle?.rich_text?.[0]?.plain_text || '';
+    const description = props.Description?.rich_text?.[0]?.plain_text || '';
+
+    // 封面解析（与 Blog 一致）
+    let coverImage = '';
+    if (pageAny.cover) {
+      if (pageAny.cover.type === 'external') {
+        coverImage = pageAny.cover.external.url;
+      } else if (pageAny.cover.type === 'file') {
+        coverImage = pageAny.cover.file.url;
+      }
+    }
+    if (!coverImage && props.CoverImage?.files?.[0]) {
+      const f = props.CoverImage.files[0];
+      coverImage = f?.file?.url || f?.external?.url || '';
+    }
+    if (!coverImage) {
+      const coverText =
+        props.CoverImage?.rich_text?.[0]?.plain_text ||
+        props.CoverImageUrl?.url ||
+        props.CoverImageUrl?.rich_text?.[0]?.plain_text ||
+        props.Coverlmage?.rich_text?.[0]?.plain_text ||
+        '';
+      if (coverText) {
+        if (/^https?:\/\//i.test(coverText)) {
+          coverImage = coverText;
+        } else {
+          coverImage = `/images/covers/${coverText}`;
+        }
+      }
+    }
+
+    const thumbnail =
+      props.Thumbnail?.files?.[0]?.file?.url ||
+      props.Thumbnail?.files?.[0]?.external?.url ||
+      '';
+
+    const technologies = props.Technologies?.multi_select?.map((t: any) => t.name) || [];
+    const category = props.Category?.select?.name || undefined;
+    const role = props.Role?.select?.name || '';
+    const year =
+      props.Year?.select?.name ||
+      (typeof props.Year?.number === 'number' ? String(props.Year.number) : '') ||
+      '';
+
+    const featured = !!props.Featured?.checkbox;
+    const projectUrl = props.ProjectUrl?.url || '';
+    const githubUrl = props.GitHubUrl?.url || props.GithubUrl?.url || '';
+
+    const rawSlug =
+      props.slug?.rich_text?.[0]?.plain_text ||
+      props.Slug?.rich_text?.[0]?.plain_text ||
+      '';
+    const slug =
+      rawSlug ||
+      title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+    const language = props.Language?.select?.name || undefined;
+
+    const client = props.Client?.rich_text?.[0]?.plain_text || '';
+    const responsibilities =
+      props.Responsibilities?.rich_text?.[0]?.plain_text?.split('\n') || [];
+
     return {
       id: page.id,
-      title: properties.Title.title[0]?.plain_text || '',
-      description: properties.Description.rich_text[0]?.plain_text || '',
-      thumbnail: properties.Thumbnail.files[0]?.file?.url || '',
-      technologies: properties.Technologies.multi_select.map((tech: any) => tech.name),
-      role: properties.Role.select?.name || '',
-      year: properties.Year.select?.name || '',
-      client: properties.Client.rich_text[0]?.plain_text || '',
-      responsibilities: properties.Responsibilities.rich_text[0]?.plain_text.split('\n') || [],
+      title,
+      subtitle,
+      description,
+      coverImage: coverImage || thumbnail || '',
+      thumbnail,
+      technologies,
+      category,
+      role,
+      year,
+      featured,
+      projectUrl,
+      githubUrl,
+      slug,
+      language,
+      client,
+      responsibilities,
       content: blocks.results,
-      // 其他属性...
     };
   } catch (error) {
     console.error('Error fetching project from Notion:', error);
+    return null;
+  }
+}
+
+/**
+ * 通过 slug 获取项目详情（支持可选语言过滤）
+ */
+export async function getProjectBySlug(slug: string, options?: { language?: string }) {
+  try {
+    // 探测 Projects 数据库是否存在 Language 字段
+    if (projectsDbHasLanguageProp === null) {
+      try {
+        const dbMeta: any = await notion.databases.retrieve({ database_id: PROJECTS_DATABASE_ID });
+        projectsDbHasLanguageProp = !!dbMeta?.properties?.Language;
+      } catch {
+        projectsDbHasLanguageProp = false;
+      }
+    }
+
+    const includeLanguageFilter = !!(options?.language && projectsDbHasLanguageProp);
+
+    const filters: any[] = [
+      { property: 'Status', select: { equals: 'Published' } },
+      { property: 'Slug', rich_text: { equals: slug } },
+    ];
+    if (includeLanguageFilter) {
+      filters.push({ property: 'Language', select: { equals: options!.language! } });
+    }
+
+    const query = await notion.databases.query({
+      database_id: PROJECTS_DATABASE_ID,
+      filter: { and: filters },
+      page_size: 1,
+    });
+
+    if (!query.results.length) return null;
+
+    const page: any = query.results[0];
+    const blocks = await notion.blocks.children.list({ block_id: page.id });
+
+    const props = page.properties || {};
+
+    const title = props.Title?.title?.[0]?.plain_text || 'Untitled';
+    const subtitle = props.Subtitle?.rich_text?.[0]?.plain_text || '';
+    const description = props.Description?.rich_text?.[0]?.plain_text || '';
+
+    let coverImage = '';
+    if (page.cover) {
+      if (page.cover.type === 'external') {
+        coverImage = page.cover.external.url;
+      } else if (page.cover.type === 'file') {
+        coverImage = page.cover.file.url;
+      }
+    }
+    if (!coverImage && props.CoverImage?.files?.[0]) {
+      const f = props.CoverImage.files[0];
+      coverImage = f?.file?.url || f?.external?.url || '';
+    }
+    if (!coverImage) {
+      const coverText =
+        props.CoverImage?.rich_text?.[0]?.plain_text ||
+        props.CoverImageUrl?.url ||
+        props.CoverImageUrl?.rich_text?.[0]?.plain_text ||
+        props.Coverlmage?.rich_text?.[0]?.plain_text ||
+        '';
+      if (coverText) {
+        if (/^https?:\/\//i.test(coverText)) {
+          coverImage = coverText;
+        } else {
+          coverImage = `/images/covers/${coverText}`;
+        }
+      }
+    }
+
+    const thumbnail =
+      props.Thumbnail?.files?.[0]?.file?.url ||
+      props.Thumbnail?.files?.[0]?.external?.url ||
+      '';
+
+    const technologies = props.Technologies?.multi_select?.map((t: any) => t.name) || [];
+    const category = props.Category?.select?.name || undefined;
+    const role = props.Role?.select?.name || '';
+    const year =
+      props.Year?.select?.name ||
+      (typeof props.Year?.number === 'number' ? String(props.Year.number) : '') ||
+      '';
+
+    const featured = !!props.Featured?.checkbox;
+    const projectUrl = props.ProjectUrl?.url || '';
+    const githubUrl = props.GitHubUrl?.url || props.GithubUrl?.url || '';
+
+    const rawSlug =
+      props.slug?.rich_text?.[0]?.plain_text ||
+      props.Slug?.rich_text?.[0]?.plain_text ||
+      '';
+    const resolvedSlug =
+      rawSlug ||
+      title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+    const language = props.Language?.select?.name || undefined;
+
+    const client = props.Client?.rich_text?.[0]?.plain_text || '';
+    const responsibilities =
+      props.Responsibilities?.rich_text?.[0]?.plain_text?.split('\n') || [];
+
+    return {
+      id: page.id,
+      title,
+      subtitle,
+      description,
+      coverImage: coverImage || thumbnail || '',
+      thumbnail,
+      technologies,
+      category,
+      role,
+      year,
+      featured,
+      projectUrl,
+      githubUrl,
+      slug: resolvedSlug,
+      language,
+      client,
+      responsibilities,
+      content: blocks.results,
+    };
+  } catch (error) {
+    console.error('Error fetching project by slug from Notion:', error);
     return null;
   }
 }

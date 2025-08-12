@@ -1,18 +1,13 @@
-"use client";
-
 import React from 'react';
 import Section from '@/components/Section';
 import SectionHeading from '@/components/SectionHeading';
-import Container from '@/components/Container';
-import Image from 'next/image';
-import Link from 'next/link';
-import { getProjectsByLocale } from '@/data/projects';
 import ProjectCard from '@/components/ProjectCard';
+import { getAllProjects } from '@/services/notion';
 
-export default function ProjectsPage() {
-  // 获取英文项目数据
-  const projects = getProjectsByLocale('en');
-  
+export default async function ProjectsPage() {
+  // 服务端获取英文项目列表（与 Blog 一致的 Notion Database 读取）
+  const projects = await getAllProjects({ language: 'English' });
+
   return (
     <>
       {/* Hero Section */}
@@ -26,15 +21,15 @@ export default function ProjectsPage() {
           </p>
         </div>
       </Section>
-      
+
       {/* Projects Grid Section */}
       <Section id="projects-grid">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project) => (
+          {(projects || []).map((project) => (
             <ProjectCard
               key={project.id}
-              title={project.title} 
-              description={project.subtitle}
+              title={project.title}
+              description={project.subtitle || project.description || ''}
               imageSrc={project.coverImage}
               tags={project.technologies}
               slug={project.slug}
@@ -42,8 +37,13 @@ export default function ProjectsPage() {
               className="h-full"
             />
           ))}
+          {(!projects || projects.length === 0) && (
+            <div className="col-span-full text-neutral-medium">
+              No projects found.
+            </div>
+          )}
         </div>
       </Section>
     </>
   );
-} 
+}
