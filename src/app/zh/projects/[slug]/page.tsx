@@ -13,13 +13,28 @@ type PageProps = {
   params: { slug: string | string[] };
 };
 
+function normalizeNotionId(input: string): string | null {
+  // 36-char UUID with dashes
+  const dashed = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+  if (dashed.test(input)) return input;
+  // 32-char UUID without dashes
+  const plain = /^[0-9a-fA-F]{32}$/;
+  if (plain.test(input)) {
+    return `${input.slice(0,8)}-${input.slice(8,12)}-${input.slice(12,16)}-${input.slice(16,20)}-${input.slice(20)}`;
+  }
+  return null;
+}
+
 export default async function ProjectDetailPageZh({ params }: PageProps) {
   const slugParam = Array.isArray(params.slug) ? params.slug[0] : params.slug;
 
   // 优先通过 slug + 语言（Chinese）查询；若失败则按 id 回退
   let project = await getProjectBySlug(slugParam, { language: 'Chinese' });
   if (!project) {
-    project = await getProjectById(slugParam);
+    const normalizedId = normalizeNotionId(slugParam);
+    if (normalizedId) {
+      project = await getProjectById(normalizedId);
+    }
   }
   if (!project) {
     notFound();
