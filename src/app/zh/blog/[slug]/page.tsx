@@ -222,7 +222,7 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
       {/* Comments Section */}
       <Section id="comments-section">
         <div className="container mx-auto max-w-4xl">
-          <CommentSection postId={fullPost.id} locale="zh" />
+          <CommentSection postId={(fullPost as any).slug || params.slug} locale="zh" />
         </div>
       </Section>
     </>

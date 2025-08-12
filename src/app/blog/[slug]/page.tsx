@@ -223,7 +223,7 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
       {/* Comments Section */}
       <Section id="comments-section">
         <div className="container mx-auto max-w-4xl">
-          <CommentSection postId={fullPost.id} locale="en" />
+          <CommentSection postId={(fullPost as any).slug || params.slug} locale="en" />
         </div>
       </Section>
     </>
