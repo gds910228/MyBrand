@@ -64,9 +64,9 @@ const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ locale = 'en' }) =>
             <ProjectCard
               key={project.id}
               title={project.title}
-              description={project.subtitle || project.description}
-              imageSrc={project.coverImage}
-              imageAlt={project.title}
+              description={project.description || ''}
+              imageSrc={project.coverImage || ''}
+              imageAlt={project.title || ''}
               slug={project.slug}
               tags={project.technologies}
               locale={locale}
