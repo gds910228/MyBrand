@@ -23,39 +23,46 @@ export function middleware(request: NextRequest) {
   // 获取请求路径名
   const pathname = request.nextUrl.pathname
 
+  // 兜底：将 "/$" 归一化到根路径，避免 404 与 GSC 报错
+  if (pathname === '/$') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url, 308)
+  }
+
   // 为了防止循环重定向，我们先检查是否已经处理过此请求
   const isRedirected = request.headers.get('x-redirected');
   if (isRedirected) return NextResponse.next();
-  
+
   // 检查请求路径是否已包含支持的语言前缀
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
-  
+
   // 如果路径已包含语言代码，则不做任何处理
   if (pathnameHasLocale) {
     return NextResponse.next()
   }
-  
+
   // 获取用户首选语言
   const preferredLocale = request.headers.get('accept-language')?.split(',')[0]?.split('-')[0] || defaultLocale;
-  
+
   // 如果是根路径，根据用户浏览器语言决定重定向
   if (pathname === '/') {
     if (preferredLocale === 'zh') {
       // 中文用户重定向到/zh路径
       const newUrl = request.nextUrl.clone()
       newUrl.pathname = `/zh`
-      
+
       const response = NextResponse.redirect(newUrl)
       response.headers.set('x-redirected', '1')
-      
+
       return response
     }
     // 英文用户不需要重定向，直接访问根路径
     return NextResponse.next();
   }
-  
+
   // 对于非根路径，不进行语言重定向，保持原有路径
   return NextResponse.next();
 } 

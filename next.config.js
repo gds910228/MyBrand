@@ -9,6 +9,11 @@ const nextConfig = {
       { protocol: 'https', hostname: 'prod-files-secure.s3.amazonaws.com' },
       { protocol: 'https', hostname: 'i.ytimg.com' }
     ]
+  },
+  async redirects() {
+    return [
+      { source: '/$', destination: '/', permanent: true },
+    ]
   }
 };
 
