@@ -20,14 +20,18 @@ const Footer: React.FC = () => {
     { name: 'Projects', href: '/projects' },
     { name: 'Blog', href: '/blog' },
     { name: 'Contact', href: '/contact' },
+    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Disclaimer', href: '/disclaimer' },
   ];
   
   const footerLinksZh = [
-    { name: '首页', href: '/' },
-    { name: '关于', href: '/about' },
-    { name: '项目', href: '/projects' },
-    { name: '博客', href: '/blog' },
-    { name: '联系', href: '/contact' },
+    { name: '首页', href: '/zh' },
+    { name: '关于', href: '/zh/about' },
+    { name: '项目', href: '/zh/projects' },
+    { name: '博客', href: '/zh/blog' },
+    { name: '联系', href: '/zh/contact' },
+    { name: '隐私政策', href: '/zh/privacy' },
+    { name: '免责声明', href: '/zh/disclaimer' },
   ];
   
   const footerLinks = locale === 'zh' ? footerLinksZh : footerLinksEn;

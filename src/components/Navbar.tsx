@@ -18,6 +18,7 @@ const navLinksEn = [
   { name: 'Blog', href: '/blog' },
   { name: 'Contact', href: '/contact' },
   { name: 'Privacy', href: '/privacy' },
+  { name: 'Disclaimer', href: '/disclaimer' },
 ];
 
 const navLinksZh = [
@@ -27,6 +28,7 @@ const navLinksZh = [
   { name: '博客', href: '/zh/blog' },
   { name: '联系', href: '/zh/contact' },
   { name: '隐私政策', href: '/zh/privacy' },
+  { name: '免责声明', href: '/zh/disclaimer' },
 ];
 
 const Navbar: React.FC = () => {
