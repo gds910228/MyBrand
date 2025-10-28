@@ -17,6 +17,7 @@ const navLinksEn = [
   { name: 'Projects', href: '/projects' },
   { name: 'Blog', href: '/blog' },
   { name: 'Contact', href: '/contact' },
+  { name: 'Privacy', href: '/privacy' },
 ];
 
 const navLinksZh = [
@@ -25,6 +26,7 @@ const navLinksZh = [
   { name: '项目', href: '/zh/projects' },
   { name: '博客', href: '/zh/blog' },
   { name: '联系', href: '/zh/contact' },
+  { name: '隐私政策', href: '/zh/privacy' },
 ];
 
 const Navbar: React.FC = () => {

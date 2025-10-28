@@ -7,6 +7,10 @@
 - [ ] 无
 
 ## Done
+- [x] 更新站点地图与 robots.txt 引用隐私政策
+- [x] 实现中文隐私政策页面并接入导航
+- [x] 实现英文隐私政策页面并接入导航
+- [x] 制定隐私政策页面文案结构与要点
 - [x] Notion 服务 getAllProjects 返回补充 client 字段，供列表展示
 - [x] ProjectCard 支持 role / client / githubUrl，并在卡片底部轻量展示（GitHub 为图标链接）
 - [x] 英文/中文项目列表页为 ProjectCard 透传 role、client、githubUrl
