@@ -14,10 +14,18 @@ export default async function LatestPosts({ locale = 'en' }: LatestPostsProps) {
   // 从 Notion 获取对应语言的文章列表
   const posts = await getAllBlogPosts({ language });
 
+  // 调试：打印文章信息
+  console.log(`[LatestPosts] 获取到 ${posts.length} 篇文章，语言: ${language}`);
+  posts.forEach((post, index) => {
+    console.log(`[LatestPosts] 文章 ${index + 1}: ${post.title}, 日期: ${post.date}, 封面: ${post.coverImage?.substring(0, 100)}...`);
+  });
+
   // 以 PublishDate 映射的 date 字段降序，再取前三篇
   const latestPosts = (posts || [])
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 3);
+
+  console.log('[LatestPosts] 最新的3篇文章:', latestPosts.map(p => p.title));
 
   return (
     <Section id="latest-posts" bgColor="bg-neutral-light">

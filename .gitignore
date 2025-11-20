@@ -36,7 +36,6 @@ next-env.d.ts
 # project-specific ignores
 # AI assistant and rules
 .codebuddy/
-CLAUDE.md
 
 # Dev scripts and debug tools
 start-dev.js

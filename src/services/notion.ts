@@ -33,8 +33,8 @@ const COMMENTS_DATABASE_ID = process.env.NOTION_COMMENTS_DATABASE_ID
   ? process.env.NOTION_COMMENTS_DATABASE_ID.replace(/^(\w{8})(\w{4})(\w{4})(\w{4})(\w{12})$/, '$1-$2-$3-$4-$5')
   : '';
 
- // 简易缓存（内存，默认60秒）
-const BLOG_LIST_CACHE_TTL_MS = 60 * 1000;
+ // 简易缓存（内存，默认10秒）
+const BLOG_LIST_CACHE_TTL_MS = process.env.DISABLE_NOTION_CACHE ? 0 : 10 * 1000;
 const blogListCache = new Map<string, { data: any[]; expiry: number }>();
 
  // 数据库字段探测缓存：是否存在 Language 属性
