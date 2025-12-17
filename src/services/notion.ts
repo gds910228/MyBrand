@@ -33,8 +33,8 @@ const COMMENTS_DATABASE_ID = process.env.NOTION_COMMENTS_DATABASE_ID
   ? process.env.NOTION_COMMENTS_DATABASE_ID.replace(/^(\w{8})(\w{4})(\w{4})(\w{4})(\w{12})$/, '$1-$2-$3-$4-$5')
   : '';
 
- // 简易缓存（内存，默认10秒）
-const BLOG_LIST_CACHE_TTL_MS = process.env.DISABLE_NOTION_CACHE ? 0 : 10 * 1000;
+ // 简易缓存（内存，默认60秒）
+const BLOG_LIST_CACHE_TTL_MS = process.env.DISABLE_NOTION_CACHE ? 0 : 60 * 1000;
 const blogListCache = new Map<string, { data: any[]; expiry: number }>();
 
  // 数据库字段探测缓存：是否存在 Language 属性
@@ -576,19 +576,26 @@ export async function getAllBlogPosts(options?: { language?: string }) {
 
             // 封面
             let coverImage = '';
+
+            // 1. 首先尝试从 Notion 页面封面获取
             if (pageAny.cover) {
               if (pageAny.cover.type === 'external') {
                 coverImage = pageAny.cover.external.url;
+                console.log(`[Notion] 从页面封面获取图片: ${coverImage}`);
               } else if (pageAny.cover.type === 'file') {
                 coverImage = pageAny.cover.file.url;
+                console.log(`[Notion] 从页面文件获取图片: ${coverImage}`);
               }
             }
-            // 若数据库有 CoverImage 属性则优先
+
+            // 2. 若数据库有 CoverImage 属性则优先
             if (!coverImage && props.CoverImage?.files?.[0]) {
               const f = props.CoverImage.files[0];
               coverImage = f?.file?.url || f?.external?.url || '';
+              console.log(`[Notion] 从数据库CoverImage获取图片: ${coverImage}`);
             }
-            // 兼容 Text/URL 类型 CoverImage（或误写 Coverlmage），支持本地文件名映射到 /images/covers/*
+
+            // 3. 兼容 Text/URL 类型 CoverImage，支持本地文件名映射到 /images/covers/*
             if (!coverImage) {
               const coverText =
                 props.CoverImage?.rich_text?.[0]?.plain_text ||
@@ -599,10 +606,18 @@ export async function getAllBlogPosts(options?: { language?: string }) {
               if (coverText) {
                 if (/^https?:\/\//i.test(coverText)) {
                   coverImage = coverText;
+                  console.log(`[Notion] 从文本URL获取图片: ${coverImage}`);
                 } else {
                   coverImage = `/images/covers/${coverText}`;
+                  console.log(`[Notion] 映射本地图片: ${coverImage}`);
                 }
               }
+            }
+
+            // 4. 如果都没有找到，使用默认占位图
+            if (!coverImage) {
+              coverImage = '/images/covers/placeholder.svg';
+              console.log(`[Notion] 使用默认占位图: ${coverImage}`);
             }
 
             // 标签

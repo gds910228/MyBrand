@@ -58,25 +58,34 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 // 博客文章详情页面
 export default async function BlogPostDetailPage({ params }: { params: { slug: string } }) {
-  const posts = await getAllBlogPosts({ language: 'English' });
-  const post = posts.find(p => p.slug === params.slug);
-  
-  if (!post) {
-    redirect('/blog');
-  }
-  
-  // 获取完整的博客文章内容
-  const fullPost = await getBlogPostById(post.id);
-  
-  if (!fullPost) {
-    notFound();
-  }
-  
-  // 格式化日期
-  const formattedDate = format(new Date(fullPost.date), 'MMMM d, yyyy');
+  try {
+    console.log(`[BlogPost] Loading post with slug: ${params.slug}`);
 
-  // JSON-LD for SEO
-  const jsonLd = {
+    const posts = await getAllBlogPosts({ language: 'English' });
+    const post = posts.find(p => p.slug === params.slug);
+
+    if (!post) {
+      console.log(`[BlogPost] Post not found with slug: ${params.slug}`);
+      redirect('/blog');
+    }
+
+    console.log(`[BlogPost] Found post: ${post.title}, fetching full content...`);
+
+    // 获取完整的博客文章内容
+    const fullPost = await getBlogPostById(post.id);
+
+    if (!fullPost) {
+      console.log(`[BlogPost] Full post content not found for ID: ${post.id}`);
+      notFound();
+    }
+
+    console.log(`[BlogPost] Successfully loaded full post content`);
+
+    // 格式化日期
+    const formattedDate = format(new Date(fullPost.date), 'MMMM d, yyyy');
+
+    // JSON-LD for SEO
+    const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: fullPost.title,
@@ -152,16 +161,21 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
           </div>
           
           {/* Cover Image */}
-          <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
-            <FallbackImage
-              src={coverSrc}
-              alt={fullPost.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 800px"
-              priority
-            />
-          </div>
+          {coverSrc && (
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
+              <FallbackImage
+                src={coverSrc}
+                alt={fullPost.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 800px"
+                priority
+                onError={(e) => {
+                  console.error('Cover image failed to load:', coverSrc, e);
+                }}
+              />
+            </div>
+          )}
         </div>
       </Section>
       
@@ -228,4 +242,26 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
       </Section>
     </>
   );
+  } catch (error) {
+    console.error(`[BlogPost] Error loading blog post ${params.slug}:`, error);
+
+    // 返回错误页面或重定向
+    return (
+      <Section>
+        <div className="container mx-auto max-w-4xl text-center">
+          <h1 className="text-2xl font-bold mb-4">Oops! Something went wrong</h1>
+          <p className="text-neutral-dark dark:text-dark-neutral-dark mb-8">
+            We couldn't load this blog post. Please try again later or go back to the blog.
+          </p>
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 text-primary dark:text-dark-primary font-medium hover:underline"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
+            <span>Back to Blog</span>
+          </Link>
+        </div>
+      </Section>
+    );
+  }
 }

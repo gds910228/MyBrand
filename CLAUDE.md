@@ -49,6 +49,16 @@ npm run lint         # Run ESLint
 npm test             # Run tests (currently placeholder)
 ```
 
+## Testing & Debugging
+
+### Debug Tools
+- `debug-notion.js` - Notion API debugging script
+- `debug-notion-v2.js` - Enhanced Notion API debugging
+- `/api/test-email` - Email functionality testing endpoint
+
+### Test Current Setup
+Use `DISABLE_NOTION_CACHE=true` in `.env.local` to disable Notion data caching for real-time preview updates during development.
+
 ## Environment Setup
 
 Create `.env.local` with these variables:
@@ -66,7 +76,8 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=emailjs_public_key
 NEXT_PUBLIC_SITE_URL=http://localhost:4000
 
 # Development
-DISABLE_NOTION_CACHE=true  # 禁用 Notion 数据缓存，方便实时预览更新
+DISABLE_NOTION_CACHE=true  # Disable Notion data caching for real-time preview updates
+NEXT_PUBLIC_GA_ID=your_google_analytics_id
 ```
 
 ## Content Management
@@ -124,6 +135,12 @@ DISABLE_NOTION_CACHE=true  # 禁用 Notion 数据缓存，方便实时预览更�
 - 60-second caching for blog lists (Notion API)
 - Console log removal in production
 
+### Image Optimization
+Remote image patterns configured in `next.config.js`:
+- Unsplash images (`images.unsplash.com`)
+- Notion static files (`s3.us-west-2.amazonaws.com`, `prod-files-secure.s3.amazonaws.com`)
+- YouTube thumbnails (`i.ytimg.com`)
+
 ## Key Files to Know
 
 - `/src/middleware.ts` - Language routing logic
@@ -151,3 +168,17 @@ The Notion integration (`/src/services/notion.ts`) includes:
 3. **Testing**: Email functionality via `/api/test-email` endpoint
 4. **Deployment**: Static generation with dynamic API routes
 5. **Analytics**: Vercel Analytics and Google Analytics integrated
+
+## Cursor Development Rules
+
+The project includes Cursor AI development rules in `.cursor/rules/`:
+- **Project Manager Rules** (`pm.mdc`): PRD creation and requirement analysis guidance
+- **Development Rules** (`dev.mdc`): Task breakdown and management workflow
+- Development uses Kanban-style task tracking with To Do/Doing/Done columns
+- Tasks saved to `docs/tasks.md` for project management
+
+## SEO & Metadata
+
+- **Sitemap**: Generated at `/sitemap.xml` with automatic locale support
+- **Analytics**: Google Analytics integration via NEXT_PUBLIC_GA_ID
+- **Meta Tags**: Automatic meta tag generation for pages and blog posts

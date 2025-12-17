@@ -11,17 +11,37 @@ interface LatestPostsProps {
 export default async function LatestPosts({ locale = 'en' }: LatestPostsProps) {
   const language = locale === 'zh' ? 'Chinese' : 'English';
 
+  console.log(`[LatestPosts] 请求语言: ${locale}, 映射到Notion语言: ${language}`);
+
   // 从 Notion 获取对应语言的文章列表
   const posts = await getAllBlogPosts({ language });
 
-  // 调试：打印文章信息
-  console.log(`[LatestPosts] 获取到 ${posts.length} 篇文章，语言: ${language}`);
-  posts.forEach((post, index) => {
-    console.log(`[LatestPosts] 文章 ${index + 1}: ${post.title}, 日期: ${post.date}, 封面: ${post.coverImage?.substring(0, 100)}...`);
+  // 过滤掉没有正确语言标签的文章（防御性编程）
+  const filteredPosts = posts.filter(post => {
+    const postLanguage = post.language || 'Unknown';
+    const matchesLanguage = postLanguage === language || (!post.language && language === 'English');
+
+    if (!matchesLanguage) {
+      console.log(`[LatestPosts] 过滤掉文章: ${post.title}, 语言: ${postLanguage}, 期望: ${language}`);
+    }
+
+    return matchesLanguage;
+  });
+
+  console.log(`[LatestPosts] 过滤后文章数量: ${filteredPosts.length}/${posts.length}`);
+
+  // 调试：打印过滤后的文章信息
+  console.log(`[LatestPosts] 详细检查过滤后的 ${filteredPosts.length} 篇文章:`);
+  filteredPosts.forEach((post, index) => {
+    console.log(`[LatestPosts] 文章 ${index + 1}: ${post.title}`);
+    console.log(`  - 语言: ${post.language}`);
+    console.log(`  - 日期: ${post.date}`);
+    console.log(`  - 封面: ${post.coverImage?.substring(0, 100)}...`);
+    console.log(`  - 摘要: ${post.excerpt?.substring(0, 100)}...`);
   });
 
   // 以 PublishDate 映射的 date 字段降序，再取前三篇
-  const latestPosts = (posts || [])
+  const latestPosts = (filteredPosts || [])
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 3);
 
