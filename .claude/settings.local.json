@@ -3,7 +3,12 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(npm run dev:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(nul:*)"
     ],
     "deny": [],
     "ask": []

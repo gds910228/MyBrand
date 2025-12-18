@@ -57,15 +57,20 @@ const Hero: React.FC<HeroProps> = ({
           
           {/* Image */}
           <div className="order-1 lg:order-2 relative h-56 sm:h-64 md:h-80 lg:h-96 shadow-xl rounded-lg overflow-hidden mb-8 lg:mb-0">
-            <Image
-              src={imageSrc}
-              alt={imageAlt}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority={true}
-              quality={85}
-            />
+            {imageSrc && (
+              <Image
+                src={imageSrc}
+                alt={imageAlt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                priority={true}
+                quality={85}
+                onError={() => {
+                  console.error('Hero image failed to load:', imageSrc);
+                }}
+              />
+            )}
           </div>
         </div>
       </div>

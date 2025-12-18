@@ -1,11 +1,9 @@
-import { redirect } from 'next/navigation';
 import { defaultLocale } from '@/i18n/locales';
-import Hero from '@/components/Hero';
 import FeaturedProjects from '@/components/FeaturedProjects';
 import LatestPosts from '@/components/LatestPosts';
+import Hero from '@/components/Hero';
 import ContactCTA from '@/components/ContactCTA';
 
-// 重定向到默认语言的首页
 export default function HomePage() {
   return (
     <>
@@ -14,12 +12,12 @@ export default function HomePage() {
         subtitle="Decode the Stack"
         ctaText="View Our Solutions"
         ctaLink="/projects"
-        imageSrc="/images/hero-image.jpg" 
-        imageAlt="MisoTech - Professional Technology Solutions" 
+        imageSrc="/images/hero-image.jpg"
+        imageAlt="MisoTech - Professional Tech Solutions"
       />
-      <FeaturedProjects locale="en" />
-      <LatestPosts locale="en" />
-      <ContactCTA 
+      <FeaturedProjects locale={defaultLocale} />
+      <LatestPosts locale={defaultLocale} />
+      <ContactCTA
         padding="py-24"
       />
     </>

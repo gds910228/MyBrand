@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { Metadata } from 'next';
 import Image from 'next/image';
-import FallbackImage from '@/components/FallbackImage';
+import BlogCoverImage from '@/components/BlogCoverImage';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -163,16 +163,11 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
           {/* Cover Image */}
           {coverSrc && (
             <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
-              <FallbackImage
+              <BlogCoverImage
                 src={coverSrc}
                 alt={fullPost.title}
-                fill
                 className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 800px"
                 priority
-                onError={(e) => {
-                  console.error('Cover image failed to load:', coverSrc, e);
-                }}
               />
             </div>
           )}
