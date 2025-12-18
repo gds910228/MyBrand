@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAllProjects } from '@/services/notion';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(req.url || 'http://localhost');
     const language = searchParams.get('language') || undefined;
 
     const projects = await getAllProjects({ language });

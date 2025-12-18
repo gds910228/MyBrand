@@ -1,5 +1,36 @@
 import { Client } from '@notionhq/client';
 
+/**
+ * 验证和清理图片URL
+ * - 确保URL格式正确
+ * - 检查是否为有效的图片URL
+ * - 处理AWS签名URL的特殊情况
+ */
+function validateImageUrl(url: string): string {
+  if (!url || typeof url !== 'string') return '';
+
+  const trimmedUrl = url.trim();
+  if (!trimmedUrl) return '';
+
+  // 检查是否是有效的URL格式
+  try {
+    new URL(trimmedUrl);
+  } catch {
+    return '';
+  }
+
+  // 检查是否是图片URL
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.avif'];
+  const isImageUrl = imageExtensions.some(ext =>
+    trimmedUrl.toLowerCase().includes(ext)
+  ) ||
+  trimmedUrl.includes('amazonaws.com') || // Notion图片
+  trimmedUrl.includes('unsplash.com') ||   // Unsplash图片
+  trimmedUrl.includes('ytimg.com');       // YouTube图片
+
+  return isImageUrl ? trimmedUrl : '';
+}
+
 // 评论类型定义
 export interface CommentType {
   id: string;
@@ -150,14 +181,14 @@ export async function getAllProjects(options?: { language?: string }) {
       let coverImage = '';
       if ((page as any).cover) {
         if ((page as any).cover.type === 'external') {
-          coverImage = (page as any).cover.external.url;
+          coverImage = validateImageUrl((page as any).cover.external.url);
         } else if ((page as any).cover.type === 'file') {
-          coverImage = (page as any).cover.file.url;
+          coverImage = validateImageUrl((page as any).cover.file.url);
         }
       }
       if (!coverImage && props.CoverImage?.files?.[0]) {
         const f = props.CoverImage.files[0];
-        coverImage = f?.file?.url || f?.external?.url || '';
+        coverImage = validateImageUrl(f?.file?.url || f?.external?.url || '');
       }
       if (!coverImage) {
         const coverText =
@@ -168,7 +199,7 @@ export async function getAllProjects(options?: { language?: string }) {
           '';
         if (coverText) {
           if (/^https?:\/\//i.test(coverText)) {
-            coverImage = coverText;
+            coverImage = validateImageUrl(coverText);
           } else {
             coverImage = `/images/covers/${coverText}`;
           }
@@ -254,14 +285,14 @@ export async function getProjectById(id: string) {
     let coverImage = '';
     if (pageAny.cover) {
       if (pageAny.cover.type === 'external') {
-        coverImage = pageAny.cover.external.url;
+        coverImage = validateImageUrl(pageAny.cover.external.url);
       } else if (pageAny.cover.type === 'file') {
-        coverImage = pageAny.cover.file.url;
+        coverImage = validateImageUrl(pageAny.cover.file.url);
       }
     }
     if (!coverImage && props.CoverImage?.files?.[0]) {
       const f = props.CoverImage.files[0];
-      coverImage = f?.file?.url || f?.external?.url || '';
+      coverImage = validateImageUrl(f?.file?.url || f?.external?.url || '');
     }
     if (!coverImage) {
       const coverText =
@@ -419,14 +450,14 @@ export async function getProjectBySlug(slug: string, options?: { language?: stri
     let coverImage = '';
     if (page.cover) {
       if (page.cover.type === 'external') {
-        coverImage = page.cover.external.url;
+        coverImage = validateImageUrl(page.cover.external.url);
       } else if (page.cover.type === 'file') {
-        coverImage = page.cover.file.url;
+        coverImage = validateImageUrl(page.cover.file.url);
       }
     }
     if (!coverImage && props.CoverImage?.files?.[0]) {
       const f = props.CoverImage.files[0];
-      coverImage = f?.file?.url || f?.external?.url || '';
+      coverImage = validateImageUrl(f?.file?.url || f?.external?.url || '');
     }
     if (!coverImage) {
       const coverText =
@@ -852,14 +883,14 @@ export async function getBlogPostById(id: string) {
     let coverImage = '';
     if (pageAny.cover) {
       if (pageAny.cover.type === 'external') {
-        coverImage = pageAny.cover.external.url;
+        coverImage = validateImageUrl(pageAny.cover.external.url);
       } else if (pageAny.cover.type === 'file') {
-        coverImage = pageAny.cover.file.url;
+        coverImage = validateImageUrl(pageAny.cover.file.url);
       }
     }
     if (!coverImage && pageAny.properties?.CoverImage?.files?.[0]) {
       const f = pageAny.properties.CoverImage.files[0];
-      coverImage = f?.file?.url || f?.external?.url || '';
+      coverImage = validateImageUrl(f?.file?.url || f?.external?.url || '');
     }
     // 兼容 Text/URL 类型 CoverImage（或误写 Coverlmage），支持本地文件名映射到 /images/covers/*
     if (!coverImage) {
