@@ -9,7 +9,11 @@
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
       "Bash(nul:*)",
-      "Bash(npm run build)"
+      "Bash(npm run build)",
+      "Bash(node:*)",
+      "Bash(DISABLE_NOTION_CACHE=true node:*)",
+      "Bash(DISABLE_NOTION_CACHE=true npm run build:*)",
+      "Bash(DISABLE_NOTION_CACHE=true npm run dev:*)"
     ],
     "deny": [],
     "ask": []

@@ -672,7 +672,7 @@ export async function getAllBlogPosts(options?: { language?: string }) {
 
             // 估算阅读时长（基于摘要）
             const readTime =
-              Math.max(1, Math.ceil(excerpt.split(/\s+/).length / 200)) +
+              Math.max(3, Math.ceil(excerpt.split(/\s+/).length / 200)) +
               ' min read';
 
             // 评测字段
@@ -728,7 +728,7 @@ export async function getAllBlogPosts(options?: { language?: string }) {
               author:
                 props.Author?.people?.[0]?.name ||
                 props.AuthorName?.rich_text?.[0]?.plain_text ||
-                'Anonymous',
+                'MisoTech',
               authorImage:
                 props.Author?.people?.[0]?.avatar_url || '',
               readTime,
@@ -818,10 +818,14 @@ export async function getAllBlogPosts(options?: { language?: string }) {
               (excerpt.length > 200 ? '...' : ''),
             coverImage,
             date: createdTime.toISOString(),
-            author: properties.Author?.people?.[0]?.name || 'Anonymous',
+            author: properties.Author?.people?.[0]?.name ||
+                    (properties.AuthorText?.rich_text?.[0]?.plain_text?.trim() ||
+                     properties.AuthorName?.rich_text?.[0]?.plain_text?.trim()) ||
+                    'MisoTech',
             authorImage: properties.Author?.people?.[0]?.avatar_url || '',
-            readTime:
-              Math.ceil(excerpt.split(' ').length / 200) + ' min read',
+            readTime: properties.ReadingTime?.number
+              ? `${properties.ReadingTime.number} min read`
+              : `${Math.max(3, Math.ceil(excerpt.split(/\s+/).length / 200))} min read`,
             tags:
               properties.Tags?.multi_select?.map((tag: any) => tag.name) ||
               [],
@@ -974,11 +978,13 @@ export async function getBlogPostById(id: string) {
       date: createdTime.toISOString(),
       author:
         props.Author?.people?.[0]?.name ||
-        props.AuthorName?.rich_text?.[0]?.plain_text ||
-        'Anonymous',
+        (props.AuthorText?.rich_text?.[0]?.plain_text?.trim() ||
+         props.AuthorName?.rich_text?.[0]?.plain_text?.trim()) ||
+        'MisoTech',
       authorImage: props.Author?.people?.[0]?.avatar_url || '',
-      readTime:
-        Math.max(1, Math.ceil(excerpt.split(/\s+/).length / 200)) + ' min read',
+      readTime: props.ReadingTime?.number
+        ? `${props.ReadingTime.number} min read`
+        : Math.max(3, Math.ceil(excerpt.split(/\s+/).length / 200)) + ' min read',
       tags: props.Tags?.multi_select?.map((tag: any) => tag.name) || [],
       content: blocks,
       createdTime: createdTime.toISOString(),
