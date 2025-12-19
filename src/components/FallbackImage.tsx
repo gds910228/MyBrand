@@ -24,7 +24,6 @@ const FallbackImage: React.FC<FallbackImageProps> = ({
 }) => {
   const initial = src && String(src).trim().length > 0 ? String(src) : fallbackSrc;
   const [currentSrc, setCurrentSrc] = useState<string>(initial);
-  const [retryCount, setRetryCount] = useState(0);
 
   // 检查是否是Notion/AWS的签名URL
   const isNotionSignedUrl = useCallback((url: string) => {
@@ -35,27 +34,24 @@ const FallbackImage: React.FC<FallbackImageProps> = ({
   const handleError = useCallback(() => {
     console.warn(`[FallbackImage] 图片加载失败: ${currentSrc.substring(0, 100)}...`);
 
-    // 如果是AWS签名URL且重试次数少于2次，可能需要刷新URL
-    if (isNotionSignedUrl(currentSrc) && retryCount < 2) {
-      setRetryCount(prev => prev + 1);
-      // 延迟重试，避免频繁请求
-      setTimeout(() => {
-        setCurrentSrc(currentSrc + `&retry=${Date.now()}`);
-      }, 1000 * (retryCount + 1));
+    // 如果是AWS签名URL且重试次数少于2次，说明可能是签名过期
+    // 这种情况下不应该修改原URL，而是直接回退到占位图
+    if (isNotionSignedUrl(currentSrc)) {
+      console.log(`[FallbackImage] AWS签名URL加载失败，直接回退到占位图`);
+      setCurrentSrc(fallbackSrc);
       return;
     }
 
-    // 否则直接回退到占位图
+    // 非签名URL的回退逻辑
     if (currentSrc !== fallbackSrc) {
       console.log(`[FallbackImage] 回退到占位图: ${fallbackSrc}`);
       setCurrentSrc(fallbackSrc);
     }
-  }, [currentSrc, fallbackSrc, isNotionSignedUrl, retryCount]);
+  }, [currentSrc, fallbackSrc, isNotionSignedUrl]);
 
   useEffect(() => {
     const next = src && String(src).trim().length > 0 ? String(src) : fallbackSrc;
     setCurrentSrc(next);
-    setRetryCount(0); // 重置重试计数
   }, [src, fallbackSrc]);
 
   return (
@@ -64,9 +60,9 @@ const FallbackImage: React.FC<FallbackImageProps> = ({
       alt={alt}
       src={currentSrc}
       onError={handleError}
-      // 为Notion图片添加更长的缓存时间
+      // 为Notion/AWS签名URL使用unoptimized避免签名验证问题
       {...(isNotionSignedUrl(currentSrc) && {
-        unoptimized: false,
+        unoptimized: true,
         priority: false
       })}
     />

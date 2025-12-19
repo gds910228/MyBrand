@@ -19,14 +19,15 @@ function validateImageUrl(url: string): string {
     return '';
   }
 
-  // 检查是否是图片URL
+  // 检查是否是图片URL或已知的图片托管服务
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.avif'];
   const isImageUrl = imageExtensions.some(ext =>
     trimmedUrl.toLowerCase().includes(ext)
   ) ||
-  trimmedUrl.includes('amazonaws.com') || // Notion图片
+  trimmedUrl.includes('amazonaws.com') || // Notion/AWS S3图片
   trimmedUrl.includes('unsplash.com') ||   // Unsplash图片
-  trimmedUrl.includes('ytimg.com');       // YouTube图片
+  trimmedUrl.includes('ytimg.com') ||      // YouTube图片
+  trimmedUrl.includes('images.unsplash.com'); // Unsplash代理图片
 
   return isImageUrl ? trimmedUrl : '';
 }
@@ -611,19 +612,25 @@ export async function getAllBlogPosts(options?: { language?: string }) {
             // 1. 首先尝试从 Notion 页面封面获取
             if (pageAny.cover) {
               if (pageAny.cover.type === 'external') {
-                coverImage = pageAny.cover.external.url;
-                console.log(`[Notion] 从页面封面获取图片: ${coverImage}`);
+                coverImage = validateImageUrl(pageAny.cover.external.url);
+                if (coverImage) {
+                  console.log(`[Notion] 从页面封面获取图片: ${coverImage}`);
+                }
               } else if (pageAny.cover.type === 'file') {
-                coverImage = pageAny.cover.file.url;
-                console.log(`[Notion] 从页面文件获取图片: ${coverImage}`);
+                coverImage = validateImageUrl(pageAny.cover.file.url);
+                if (coverImage) {
+                  console.log(`[Notion] 从页面文件获取图片: ${coverImage}`);
+                }
               }
             }
 
             // 2. 若数据库有 CoverImage 属性则优先
             if (!coverImage && props.CoverImage?.files?.[0]) {
               const f = props.CoverImage.files[0];
-              coverImage = f?.file?.url || f?.external?.url || '';
-              console.log(`[Notion] 从数据库CoverImage获取图片: ${coverImage}`);
+              coverImage = validateImageUrl(f?.file?.url || f?.external?.url || '');
+              if (coverImage) {
+                console.log(`[Notion] 从数据库CoverImage获取图片: ${coverImage}`);
+              }
             }
 
             // 3. 兼容 Text/URL 类型 CoverImage，支持本地文件名映射到 /images/covers/*
