@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import Container from './Container';
 import ThemeToggle from './ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
+import SearchButton from './SearchButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -106,16 +107,20 @@ const Navbar: React.FC = () => {
                 </Link>
               ))}
             </nav>
-            
+
+            {/* Search Button */}
+            <SearchButton locale={locale} />
+
             {/* Language Switcher */}
             <LanguageSwitcher />
-            
+
             {/* Theme Toggle */}
             <ThemeToggle />
           </div>
 
           {/* Mobile Menu Button and Theme Toggle */}
           <div className="md:hidden flex items-center space-x-2">
+            <SearchButton locale={locale} />
             <LanguageSwitcher />
             <ThemeToggle />
             <button
