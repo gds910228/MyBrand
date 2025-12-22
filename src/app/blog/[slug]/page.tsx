@@ -17,13 +17,8 @@ import ToolInfoBox from '@/components/ToolInfoBox';
 import ComparisonTable from '@/components/ComparisonTable';
 import { format } from 'date-fns';
 
-// 生成静态参数
-export async function generateStaticParams() {
-  const posts = await getAllBlogPosts({ language: 'English' });
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
-}
+// 移除 generateStaticParams 以避免构建时的webpack错误
+// 页面将在运行时动态生成
 
 // 生成元数据
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
@@ -66,7 +61,7 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
 
     if (!post) {
       console.log(`[BlogPost] Post not found with slug: ${params.slug}`);
-      redirect('/blog');
+      notFound();
     }
 
     console.log(`[BlogPost] Found post: ${post.title}, fetching full content...`);
@@ -240,23 +235,13 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
   } catch (error) {
     console.error(`[BlogPost] Error loading blog post ${params.slug}:`, error);
 
-    // 返回错误页面或重定向
-    return (
-      <Section>
-        <div className="container mx-auto max-w-4xl text-center">
-          <h1 className="text-2xl font-bold mb-4">Oops! Something went wrong</h1>
-          <p className="text-neutral-dark dark:text-dark-neutral-dark mb-8">
-            We couldn't load this blog post. Please try again later or go back to the blog.
-          </p>
-          <Link
-            href="/blog"
-            className="inline-flex items-center gap-2 text-primary dark:text-dark-primary font-medium hover:underline"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
-            <span>Back to Blog</span>
-          </Link>
-        </div>
-      </Section>
-    );
+    // 区分不同类型的错误
+    if (error instanceof Error && error.message.includes('Post not found')) {
+      // 如果是404错误，触发404页面
+      notFound();
+    } else {
+      // 对于其他严重错误，抛出让Next.js的错误边界处理
+      throw error;
+    }
   }
 }

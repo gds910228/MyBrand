@@ -129,7 +129,7 @@ let localComments: CommentType[] = [
 /**
  * 获取所有项目
  */
-export async function getAllProjects(options?: { language?: string }) {
+export async function getAllProjects(options?: { language?: string; limit?: number }) {
   try {
     // 探测 Projects 数据库是否存在 Language 字段
     if (projectsDbHasLanguageProp === null) {
@@ -164,6 +164,7 @@ export async function getAllProjects(options?: { language?: string }) {
           direction: 'descending',
         },
       ],
+      page_size: options?.limit || 100, // 默认最多100条
     });
 
     return response.results.map((page: any) => {
@@ -538,7 +539,7 @@ export async function getProjectBySlug(slug: string, options?: { language?: stri
  * 优先从 Notion Database 读取；若未配置则回退到父页面子页模式
  * 可选参数：language 用于过滤 'Chinese' | 'English'
  */
-export async function getAllBlogPosts(options?: { language?: string }) {
+export async function getAllBlogPosts(options?: { language?: string; limit?: number }) {
   try {
     // 如果配置了数据库ID，则从数据库读取
     if (BLOG_DATABASE_ID) {
@@ -574,6 +575,7 @@ export async function getAllBlogPosts(options?: { language?: string }) {
         database_id: BLOG_DATABASE_ID,
         filter: filters.length > 1 ? { and: filters } : filters[0],
         sorts: [{ property: 'PublishDate', direction: 'descending' }],
+        page_size: options?.limit || 100, // 默认最多100条
       });
 
       const posts = await Promise.all(

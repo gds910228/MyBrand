@@ -14,7 +14,8 @@
       "Bash(DISABLE_NOTION_CACHE=true node:*)",
       "Bash(DISABLE_NOTION_CACHE=true npm run build:*)",
       "Bash(DISABLE_NOTION_CACHE=true npm run dev:*)",
-      "Bash(npm run dev:env:*)"
+      "Bash(npm run dev:env:*)",
+      "Bash(cmd:*)"
     ],
     "deny": [],
     "ask": []

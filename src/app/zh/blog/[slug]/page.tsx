@@ -18,13 +18,8 @@ import ComparisonTable from '@/components/ComparisonTable';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
-// 生成静态参数
-export async function generateStaticParams() {
-  const posts = await getAllBlogPosts({ language: 'Chinese' });
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
-}
+// 移除 generateStaticParams 以避免构建时的webpack错误
+// 页面将在运行时动态生成
 
 // 生成元数据
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
