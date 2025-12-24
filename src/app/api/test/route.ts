@@ -29,9 +29,10 @@ export async function GET() {
     }
   } catch (error) {
     console.error('[Test] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({
       status: 'error',
-      message: error.message
+      message: errorMessage
     }, { status: 500 });
   }
 }

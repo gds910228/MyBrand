@@ -68,7 +68,7 @@ export default function SmartRecommendations({
             title: project.title,
             excerpt: project.description,
             type: 'project' as const,
-            date: project.date || project.createdTime || new Date().toISOString(),
+            date: (project as any).createdTime || new Date().toISOString(),
             technologies: project.technologies,
             score: 0
           })));
@@ -128,7 +128,7 @@ export default function SmartRecommendations({
       }
     });
 
-    return [...new Set(expandedKeywords)]; // 去重
+    return Array.from(new Set(expandedKeywords)); // 去重
   };
 
   // 计算内容相关性分数

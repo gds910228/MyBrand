@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import { transitions, easing } from '@/styles/animations';
 
 export interface ProjectCardProps {
   title: string;
@@ -37,19 +38,20 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   const linkHref = locale === 'zh' ? `/zh/projects/${slug}` : `/projects/${slug}`;
   
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className={`bg-white dark:bg-dark-bg-secondary rounded-xl shadow-md overflow-hidden ${className}`}
+      transition={{ duration: transitions.smooth.duration / 1000, ease: easing.easeOut }}
+      whileHover={{ y: -4, scale: 1.01 }}
+      className={`glass-surface rounded-xl shadow-lg overflow-hidden border border-white/20 dark:border-white/10 card-hover group ${className}`}
     >
-      <div className="relative h-48 sm:h-56 w-full overflow-hidden">
+      <div className="relative h-48 sm:h-56 w-full overflow-hidden img-zoom-container">
         <Image
           src={imageSrc}
           alt={imageAlt || title}
           fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>

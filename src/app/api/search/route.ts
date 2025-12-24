@@ -65,8 +65,8 @@ export async function GET(request: Request) {
     const preFiltered = candidates.filter(item => {
       const titleMatch = item.title.toLowerCase().includes(lowercaseQuery);
       const excerptMatch = item.excerpt?.toLowerCase().includes(lowercaseQuery);
-      const tagsMatch = item.tags?.some(tag => tag.toLowerCase().includes(lowercaseQuery));
-      const techMatch = item.technologies?.some(tech => tech.toLowerCase().includes(lowercaseQuery));
+      const tagsMatch = 'tags' in item && item.tags?.some((tag: string) => tag.toLowerCase().includes(lowercaseQuery));
+      const techMatch = 'technologies' in item && item.technologies?.some((tech: string) => tech.toLowerCase().includes(lowercaseQuery));
 
       return titleMatch || excerptMatch || tagsMatch || techMatch;
     });
@@ -207,8 +207,9 @@ export async function GET(request: Request) {
 
   } catch (error) {
     console.error('[API] Search error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Search failed', message: error.message },
+      { error: 'Search failed', message: errorMessage },
       { status: 500 }
     );
   }
