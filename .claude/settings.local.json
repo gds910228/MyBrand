@@ -15,7 +15,9 @@
       "Bash(DISABLE_NOTION_CACHE=true npm run build:*)",
       "Bash(DISABLE_NOTION_CACHE=true npm run dev:*)",
       "Bash(npm run dev:env:*)",
-      "Bash(cmd:*)"
+      "Bash(cmd:*)",
+      "Bash(if not exist \"D:\\WorkProjects\\AI\\MyBrand\\public\\images\\about\\life\" mkdir \"D:\\WorkProjects\\AI\\MyBrand\\public\\images\\about\\life\")",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

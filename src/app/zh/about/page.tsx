@@ -49,6 +49,30 @@ const galleryItems = [
     icon: "💡"
   },
   {
+    src: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    localSrc: "/images/about/life/reading.jpg",
+    alt: "阅读技术书籍和文档",
+    caption: "通过阅读持续学习",
+    category: "life",
+    icon: "📖"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    localSrc: "/images/about/life/coffee.jpg",
+    alt: "享受一杯好咖啡",
+    caption: "咖啡时光激发创造力",
+    category: "life",
+    icon: "☕"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    localSrc: "/images/about/life/sports.jpg",
+    alt: "晨跑获得新视角",
+    caption: "活跃生活带来清晰思维",
+    category: "life",
+    icon: "🏃"
+  },
+  {
     src: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
     localSrc: "/images/about/work/discussion.jpg",
     alt: "参与技术讨论和头脑风暴",

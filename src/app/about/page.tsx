@@ -49,6 +49,30 @@ const galleryItems = [
     icon: "💡"
   },
   {
+    src: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    localSrc: "/images/about/life/reading.jpg",
+    alt: "Reading technical books and documentation",
+    caption: "Continuous learning through reading",
+    category: "life",
+    icon: "📖"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    localSrc: "/images/about/life/coffee.jpg",
+    alt: "Enjoying a good cup of coffee",
+    caption: "Coffee breaks fuel creativity",
+    category: "life",
+    icon: "☕"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    localSrc: "/images/about/life/sports.jpg",
+    alt: "Morning run for fresh perspective",
+    caption: "Active lifestyle for clear mind",
+    category: "life",
+    icon: "🏃"
+  },
+  {
     src: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
     localSrc: "/images/about/work/discussion.jpg",
     alt: "Participating in tech discussions",
