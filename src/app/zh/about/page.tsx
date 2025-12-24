@@ -6,6 +6,58 @@ import SectionHeading from '@/components/SectionHeading';
 import Container from '@/components/Container';
 import Image from 'next/image';
 
+// Gallery data configuration
+const galleryItems = [
+  {
+    src: "https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80",
+    localSrc: "/images/about/work/ai-research.jpg", // 替换为本地图片
+    alt: "探索AI技术与未来趋势",
+    caption: "探索前沿AI技术",
+    category: "work",
+    icon: "🤖"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1173&q=80",
+    localSrc: "/images/about/work/testing-tools.jpg",
+    alt: "深度测试新的AI工具",
+    caption: "深度实测AI工具",
+    category: "work",
+    icon: "🔍"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+    localSrc: "/images/about/work/community.jpg",
+    alt: "与科技社区交流分享",
+    caption: "与社区交流实践经验",
+    category: "work",
+    icon: "👥"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+    localSrc: "/images/about/inspiration/learning.jpg",
+    alt: "阅读最新AI研究论文",
+    caption: "追踪AI领域最新进展",
+    category: "inspiration",
+    icon: "📚"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80",
+    localSrc: "/images/about/life/cafe-thinking.jpg",
+    alt: "在咖啡店思考产品创意",
+    caption: "寻找提升效率的灵感",
+    category: "life",
+    icon: "💡"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+    localSrc: "/images/about/work/discussion.jpg",
+    alt: "参与技术讨论和头脑风暴",
+    caption: "参与技术讨论与头脑风暴",
+    category: "work",
+    icon: "💭"
+  }
+];
+
 export default function AboutPageZh() {
   return (
     <>
@@ -175,52 +227,23 @@ export default function AboutPageZh() {
       <Section id="about-gallery" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
         <SectionHeading
           title="代码之外的生活"
-          subtitle="科技探索与生活灵感的日常瞬间。"
+          subtitle="工作探索、生活灵感与持续学习的融合。"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80"
-            alt="探索AI技术与未来趋势"
-            caption="探索前沿AI技术"
-          />
-
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1173&q=80"
-            alt="深度测试新的AI工具"
-            caption="深度实测AI工具"
-          />
-
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
-            alt="与科技社区交流分享"
-            caption="与社区交流实践经验"
-          />
-
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
-            alt="阅读最新AI研究论文"
-            caption="追踪AI领域最新进展"
-          />
-
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80"
-            alt="在咖啡店思考产品创意"
-            caption="寻找提升效率的灵感"
-          />
-
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
-            alt="参与技术讨论和头脑风暴"
-            caption="参与技术讨论与头脑风暴"
-          />
+          {galleryItems.map((item, index) => (
+            <GalleryItem key={index} {...item} />
+          ))}
         </div>
 
         {/* 额外说明文字 */}
         <div className="mt-12 text-center max-w-3xl mx-auto">
-          <p className="text-neutral-dark dark:text-dark-neutral-dark text-lg">
-            除了代码和评测，我热衷于探索AI技术的边界，与社区分享实践经验，
+          <p className="text-neutral-dark dark:text-dark-neutral-dark text-lg leading-relaxed">
+            <strong className="text-neutral-darker dark:text-dark-neutral-darker">除了代码和评测</strong>，我热衷于探索AI技术的边界，与社区分享实践经验，
             并思考如何让复杂的AI工具变得简单易用。我相信，真正的技术创新应该让每个人的生活更美好。
+          </p>
+          <p className="text-neutral-medium dark:text-dark-neutral-medium text-base mt-4">
+            📚 正在阅读 • 🛠️ 测试新工具 • 💡 分享见解
           </p>
         </div>
       </Section>
@@ -282,24 +305,45 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ year, title, company, descr
 // Gallery Item Component
 interface GalleryItemProps {
   src: string;
+  localSrc?: string; // 本地图片路径，优先使用
   alt: string;
   caption?: string;
+  category?: 'work' | 'life' | 'inspiration';
+  icon?: string;
 }
 
-const GalleryItem: React.FC<GalleryItemProps> = ({ src, alt, caption }) => {
+const GalleryItem: React.FC<GalleryItemProps> = ({ src, localSrc, alt, caption, category, icon }) => {
+  const imageSrc = localSrc || src; // 优先使用本地图片，如果没有则使用远程图片
+
+  // 中文分类名称映射
+  const categoryNames: Record<string, string> = {
+    work: '工作',
+    life: '生活',
+    inspiration: '灵感'
+  };
+
   return (
-    <div className="relative group overflow-hidden rounded-lg shadow-md">
-      <div className="aspect-w-3 aspect-h-2 bg-neutral-muted">
+    <div className="group overflow-hidden rounded-lg shadow-md dark:shadow-neutral-black/20 hover:shadow-xl dark:hover:shadow-neutral-black/30 transition-all duration-300">
+      <div className="relative h-56">
         <Image
-          src={src}
+          src={imageSrc}
           alt={alt}
           fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
+        {/* Category badge */}
+        {category && (
+          <div className="absolute top-3 right-3 bg-white/90 dark:bg-dark-bg-primary/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow-sm">
+            <span className="mr-1">{icon}</span>
+            <span>{categoryNames[category] || category}</span>
+          </div>
+        )}
       </div>
       {caption && (
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-          <p className="text-white text-sm md:text-base">{caption}</p>
+        <div className="p-4 bg-white dark:bg-dark-bg-secondary border-t border-neutral-light/30 dark:border-dark-neutral-light/30">
+          <p className="text-center text-neutral-dark dark:text-dark-neutral-dark text-sm leading-snug">
+            {caption}
+          </p>
         </div>
       )}
     </div>

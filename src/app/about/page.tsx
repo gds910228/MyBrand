@@ -6,6 +6,58 @@ import SectionHeading from '@/components/SectionHeading';
 import Container from '@/components/Container';
 import Image from 'next/image';
 
+// Gallery data configuration
+const galleryItems = [
+  {
+    src: "https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80",
+    localSrc: "/images/about/work/ai-research.jpg", // 替换为本地图片
+    alt: "Exploring AI technology and future trends",
+    caption: "Exploring cutting-edge AI technology",
+    category: "work",
+    icon: "🤖"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1173&q=80",
+    localSrc: "/images/about/work/testing-tools.jpg",
+    alt: "Deep testing new AI tools",
+    caption: "In-depth testing of AI tools",
+    category: "work",
+    icon: "🔍"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+    localSrc: "/images/about/work/community.jpg",
+    alt: "Sharing with tech community",
+    caption: "Exchanging practical insights with community",
+    category: "work",
+    icon: "👥"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+    localSrc: "/images/about/inspiration/learning.jpg",
+    alt: "Reading latest AI research papers",
+    caption: "Tracking latest AI developments",
+    category: "inspiration",
+    icon: "📚"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80",
+    localSrc: "/images/about/life/cafe-thinking.jpg",
+    alt: "Thinking about product ideas in cafe",
+    caption: "Finding inspiration for efficiency",
+    category: "life",
+    icon: "💡"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+    localSrc: "/images/about/work/discussion.jpg",
+    alt: "Participating in tech discussions",
+    caption: "Tech discussions and brainstorming",
+    category: "work",
+    icon: "💭"
+  }
+];
+
 export default function AboutPage() {
   return (
     <>
@@ -175,53 +227,24 @@ export default function AboutPage() {
       <Section id="about-gallery" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
         <SectionHeading
           title="Beyond the Code"
-          subtitle="Daily moments of tech exploration and life inspiration."
+          subtitle="A blend of work exploration, life inspirations, and continuous learning."
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80"
-            alt="Exploring AI technology and future trends"
-            caption="Exploring cutting-edge AI technology"
-          />
-
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1173&q=80"
-            alt="Deep testing new AI tools"
-            caption="In-depth testing of AI tools"
-          />
-
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
-            alt="Sharing with tech community"
-            caption="Exchanging practical insights with community"
-          />
-
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
-            alt="Reading latest AI research papers"
-            caption="Tracking latest AI developments"
-          />
-
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80"
-            alt="Thinking about product ideas in cafe"
-            caption="Finding inspiration for efficiency"
-          />
-
-          <GalleryItem
-            src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
-            alt="Participating in tech discussions"
-            caption="Tech discussions and brainstorming"
-          />
+          {galleryItems.map((item, index) => (
+            <GalleryItem key={index} {...item} />
+          ))}
         </div>
 
         {/* Additional description text */}
         <div className="mt-12 text-center max-w-3xl mx-auto">
-          <p className="text-neutral-dark dark:text-dark-neutral-dark text-lg">
-            Beyond code and reviews, I'm passionate about exploring the boundaries of AI technology,
+          <p className="text-neutral-dark dark:text-dark-neutral-dark text-lg leading-relaxed">
+            <strong className="text-neutral-darker dark:text-dark-neutral-darker">Beyond code and reviews</strong>, I'm passionate about exploring the boundaries of AI technology,
             sharing practical experiences with the community, and thinking about how to make complex
             AI tools simple and accessible. I believe true technological innovation should make everyone's life better.
+          </p>
+          <p className="text-neutral-medium dark:text-dark-neutral-medium text-base mt-4">
+            📚 Currently reading • 🛠️ Testing new tools • 💡 Sharing insights
           </p>
         </div>
       </Section>
@@ -284,24 +307,38 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ year, title, company, descr
 // Gallery Item Component
 interface GalleryItemProps {
   src: string;
+  localSrc?: string; // 本地图片路径，优先使用
   alt: string;
   caption?: string;
+  category?: 'work' | 'life' | 'inspiration';
+  icon?: string;
 }
 
-const GalleryItem: React.FC<GalleryItemProps> = ({ src, alt, caption }) => {
+const GalleryItem: React.FC<GalleryItemProps> = ({ src, localSrc, alt, caption, category, icon }) => {
+  const imageSrc = localSrc || src; // 优先使用本地图片，如果没有则使用远程图片
+
   return (
-    <div className="overflow-hidden rounded-lg shadow-md dark:shadow-neutral-black/20">
-      <div className="relative h-64">
+    <div className="group overflow-hidden rounded-lg shadow-md dark:shadow-neutral-black/20 hover:shadow-xl dark:hover:shadow-neutral-black/30 transition-all duration-300">
+      <div className="relative h-56">
         <Image
-          src={src}
+          src={imageSrc}
           alt={alt}
           fill
-          className="object-cover transition-transform duration-300 hover:scale-105"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
+        {/* Category badge */}
+        {category && (
+          <div className="absolute top-3 right-3 bg-white/90 dark:bg-dark-bg-primary/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow-sm">
+            <span className="mr-1">{icon}</span>
+            <span className="capitalize">{category}</span>
+          </div>
+        )}
       </div>
       {caption && (
-        <div className="p-4 bg-white dark:bg-dark-bg-secondary">
-          <p className="text-center text-neutral-dark dark:text-dark-neutral-dark">{caption}</p>
+        <div className="p-4 bg-white dark:bg-dark-bg-secondary border-t border-neutral-light/30 dark:border-dark-neutral-light/30">
+          <p className="text-center text-neutral-dark dark:text-dark-neutral-dark text-sm leading-snug">
+            {caption}
+          </p>
         </div>
       )}
     </div>
