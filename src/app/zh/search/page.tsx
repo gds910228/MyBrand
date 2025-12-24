@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -21,7 +21,7 @@ interface SearchResult {
   score?: number; // Relevance score from search
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') || '');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -249,5 +249,22 @@ export default function SearchPage() {
         </Container>
       </Section>
     </>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <Section bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="py-20">
+        <Container>
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <p className="mt-4 text-neutral-dark dark:text-dark-neutral-dark">加载中...</p>
+          </div>
+        </Container>
+      </Section>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 }

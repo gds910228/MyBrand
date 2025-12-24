@@ -6,8 +6,18 @@ import SectionHeading from '@/components/SectionHeading';
 import Container from '@/components/Container';
 import Image from 'next/image';
 
+// Gallery Item Component
+interface GalleryItemProps {
+  src: string;
+  localSrc?: string; // 本地图片路径，优先使用
+  alt: string;
+  caption?: string;
+  category?: 'work' | 'life' | 'inspiration';
+  icon?: string;
+}
+
 // Gallery data configuration
-const galleryItems = [
+const galleryItems: GalleryItemProps[] = [
   {
     src: "https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80",
     localSrc: "/images/about/work/ai-research.jpg", // 替换为本地图片
@@ -327,16 +337,6 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ year, title, company, descr
     </div>
   );
 };
-
-// Gallery Item Component
-interface GalleryItemProps {
-  src: string;
-  localSrc?: string; // 本地图片路径，优先使用
-  alt: string;
-  caption?: string;
-  category?: 'work' | 'life' | 'inspiration';
-  icon?: string;
-}
 
 const GalleryItem: React.FC<GalleryItemProps> = ({ src, localSrc, alt, caption, category, icon }) => {
   const imageSrc = localSrc || src; // 优先使用本地图片，如果没有则使用远程图片

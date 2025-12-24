@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- 去重后的博客条目（中英文各一条） -->
-<url>
+  <url>
+    <loc>https://www.misitebo.win/zh/blog/2025-ai-coding-tools-guide</loc>
+    <lastmod>2025-12-24T16:00:00Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.misitebo.win/zh/blog/tencent-ima-review</loc>
     <lastmod>2025-11-30T16:00:00Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-<url>
+  <url>
     <loc>https://www.misitebo.win/zh/blog/ai-inspiration-notes-review</loc>
     <lastmod>2025-11-28T10:00:00Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-<url>
+  <url>
     <loc>https://www.misitebo.win/zh/blog/2025-talent-trends-ai-impact</loc>
     <lastmod>2025-11-26T12:00:00Z</lastmod>
     <changefreq>monthly</changefreq>
