@@ -64,7 +64,7 @@ export default function PrivacyPolicyZhPage(): JSX.Element {
           <p className="uppercase tracking-widest text-sm font-semibold text-primary dark:text-dark-primary mb-4">
             隐私政策
           </p>
-          <h1 className="text-4xl md:text-5xl font-heading font-bold text-neutral-darker dark:text-dark-neutral-darker mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-neutral-darker dark:text-dark-neutral-darker mb-6 leading-tight whitespace-nowrap">
             您的信任与数据隐私对 MisoTech 至关重要
           </h1>
           <p className="text-lg md:text-xl text-neutral-dark dark:text-dark-neutral-dark">

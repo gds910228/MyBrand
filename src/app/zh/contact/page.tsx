@@ -35,8 +35,8 @@ export default function ContactPageZh() {
       
       {/* Contact Information */}
       <Section id="contact-info">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          <motion.div 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-3xl mx-auto">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -53,30 +53,12 @@ export default function ContactPageZh() {
               <a href="mailto:1479333689@qq.com" className="hover:text-primary dark:hover:text-dark-primary transition-colors">1479333689@qq.com</a>
             </p>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white dark:bg-dark-bg-secondary rounded-xl p-6 shadow-md text-center"
-          >
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-light dark:bg-dark-primary-light text-primary dark:text-dark-primary rounded-full mb-4">
-              <FontAwesomeIcon icon={faPhone} className="h-6 w-6" />
-            </div>
-            <h3 className="text-lg font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-2">
-              电话
-            </h3>
-            <p className="text-neutral-dark dark:text-dark-neutral-dark">
-              <a href="tel:+18001234567" className="hover:text-primary dark:hover:text-dark-primary transition-colors">+1 (800) 123-4567</a>
-            </p>
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.5 }}
             className="bg-white dark:bg-dark-bg-secondary rounded-xl p-6 shadow-md text-center"
           >
             <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-light dark:bg-dark-primary-light text-primary dark:text-dark-primary rounded-full mb-4">
@@ -119,7 +101,7 @@ export default function ContactPageZh() {
           </motion.a>
           
           <motion.a
-            href="https://x.com/BobXu350839133"
+            href="https://x.com/ArcherRealAI"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center w-16 h-16 bg-neutral-light dark:bg-dark-bg-secondary rounded-full text-neutral-darker dark:text-dark-neutral-lighter hover:text-primary dark:hover:text-dark-primary transition-colors"

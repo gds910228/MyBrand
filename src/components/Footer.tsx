@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
   
   const socialLinks = [
     { name: 'GitHub', icon: faGithub, href: 'https://github.com/gds910228' },
-    { name: 'Twitter', icon: faTwitter, href: 'https://x.com/BobXu350839133' },
+    { name: 'X', icon: faTwitter, href: 'https://x.com/ArcherRealAI' },
   ];
   
   // 页脚版权和制作信息

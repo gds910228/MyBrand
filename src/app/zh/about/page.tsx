@@ -33,28 +33,27 @@ export default function AboutPageZh() {
       
       {/* Story & Philosophy Section */}
       <Section id="about-story">
-        <SectionHeading 
-          title="我的故事与理念" 
+        <SectionHeading
+          title="我的故事与理念"
           subtitle="一瞥我的旅程和指导我工作的原则。"
         />
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            你好！我是一名充满激情的全栈开发者，热爱创建干净、用户友好且有影响力的数字体验。我在科技领域的旅程始于五年前，那时我出于好奇心构建了我的第一个网站。那个小项目点燃了一种随着时间推移只会变得更强烈的热情。
+            你好！我是一名专注于构建"听懂人话"的 AI 产品的开发者。在科技快速发展的时代，我发现很多AI工具虽然功能强大，但学习门槛高、使用复杂，普通人难以真正受益。因此，我致力于打造真正懂用户、易用且实用的AI解决方案。
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            获得计算机科学学位后，我曾与初创公司和成熟公司合作，帮助他们构建用户喜爱的产品。在此过程中，我对技术、设计和人类心理学的交叉领域产生了深刻的认识。
+            我的核心理念很简单：<strong>拒谈概念，只讲落地</strong>。在充斥着各种AI概念和术语的市场中，我坚持用最朴实的语言，通过深度实测和硬核评测，帮助用户找到真正能解决问题的工具。每一篇评测、每一个产品推荐，都基于真实使用体验和具体场景测试。
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            我的开发方法由几个核心原则指导：
+            在 MisoTech，我分享的内容遵循三个原则：
           </p>
           <ul className="text-neutral-dark dark:text-dark-neutral-dark">
-            <li><strong>以用户为中心的设计：</strong> 我相信技术应该服务于人，而不是相反。我写的每一行代码都考虑到了最终用户。</li>
-            <li><strong>持续学习：</strong> 科技领域迅速发展，我致力于与之共同成长。我每周都会花时间学习新技能并完善现有技能。</li>
-            <li><strong>质量优于数量：</strong> 我更喜欢做少量但出色的事情，而不是做很多但平庸的事情。这一理念适用于我的代码和项目。</li>
-            <li><strong>协作精神：</strong> 最好的产品是由多元化的团队共同构建的。我重视开放沟通、建设性反馈和共同成功。</li>
+            <li><strong>硬核评测：</strong> 不做表面功夫，深入产品核心功能，测试真实场景下的表现。无论是AI编程工具、图像生成，还是知识库管理，我都亲自上手、全面测试。</li>
+            <li><strong>拒绝空谈：</strong> 不讲大道理，不堆砌概念。直接告诉你这个工具能做什么、不能做什么、适合谁用、怎么用效果最好。</li>
+            <li><strong>用户视角：</strong> 站在普通用户角度思考问题。技术再强大，如果不好用、学不会，就没有价值。我关注的是真实的使用体验和实际生产力提升。</li>
           </ul>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            当我不在编码时，你会发现我在大自然中徒步旅行，尝试新的烹饪食谱，或沉浸在一本好书中。这些活动帮助我保持视角并为我的技术工作带来新的想法。
+            当我不在写代码或测试新工具时，你会发现我在研究AI领域的最新进展，与社区交流实践经验，或在寻找下一个能够真正改变日常工作的AI工具。我相信，最好的技术应该是透明的——它默默地在背后工作，让你的生活更简单、更高效。
           </p>
         </div>
       </Section>
@@ -174,47 +173,55 @@ export default function AboutPageZh() {
       
       {/* Personal Gallery Section */}
       <Section id="about-gallery" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
-        <SectionHeading 
-          title="代码之外的生活" 
-          subtitle="让您一瞥我在编程之外的生活。"
+        <SectionHeading
+          title="代码之外的生活"
+          subtitle="科技探索与生活灵感的日常瞬间。"
         />
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80"
-            alt="与团队成员协作的工作空间"
-            caption="与我的优秀团队合作"
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80"
+            alt="探索AI技术与未来趋势"
+            caption="探索前沿AI技术"
           />
-          
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1501555088652-021faa106b9b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1173&q=80"
-            alt="在山中徒步的人"
-            caption="周末徒步冒险"
+
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1173&q=80"
+            alt="深度测试新的AI工具"
+            caption="深度实测AI工具"
           />
-          
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-            alt="在舒适的环境中读书的人"
-            caption="与一本好书放松身心"
+
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
+            alt="与科技社区交流分享"
+            caption="与社区交流实践经验"
           />
-          
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-            alt="屏幕上有代码的笔记本电脑和咖啡"
-            caption="深夜编码会话"
+
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
+            alt="阅读最新AI研究论文"
+            caption="追踪AI领域最新进展"
           />
-          
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1511988617509-a57c8a288659?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80"
-            alt="在技术会议上发言的人"
-            caption="在技术会议上演讲"
+
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80"
+            alt="在咖啡店思考产品创意"
+            caption="寻找提升效率的灵感"
           />
-          
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-            alt="写有项目规划笔记的白板"
-            caption="规划下一个大项目"
+
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
+            alt="参与技术讨论和头脑风暴"
+            caption="参与技术讨论与头脑风暴"
           />
+        </div>
+
+        {/* 额外说明文字 */}
+        <div className="mt-12 text-center max-w-3xl mx-auto">
+          <p className="text-neutral-dark dark:text-dark-neutral-dark text-lg">
+            除了代码和评测，我热衷于探索AI技术的边界，与社区分享实践经验，
+            并思考如何让复杂的AI工具变得简单易用。我相信，真正的技术创新应该让每个人的生活更美好。
+          </p>
         </div>
       </Section>
     </>

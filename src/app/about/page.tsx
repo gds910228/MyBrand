@@ -33,28 +33,27 @@ export default function AboutPage() {
       
       {/* Story & Philosophy Section */}
       <Section id="about-story">
-        <SectionHeading 
-          title="My Story & Philosophy" 
+        <SectionHeading
+          title="My Story & Philosophy"
           subtitle="A glimpse into my journey and the principles that guide my work."
         />
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            Hello! I'm a passionate full-stack developer with a love for creating clean, user-friendly, and impactful digital experiences. My journey in tech began over 5 years ago when I built my first website out of curiosity. That small project ignited a passion that has only grown stronger with time.
+            Hello! I'm a developer focused on building AI products that truly "understand human language." In this era of rapid technological advancement, I've found that many AI tools are powerful but come with high learning barriers and complex interfaces, making them inaccessible to ordinary users. That's why I'm dedicated to creating AI solutions that genuinely understand users, are easy to use, and deliver practical value.
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            After graduating with a degree in Computer Science, I've worked with startups and established companies alike, helping them build products that users love. Along the way, I've developed a deep appreciation for the intersection of technology, design, and human psychology.
+            My core philosophy is simple: <strong>No buzzwords, just practical solutions</strong>. In a market flooded with AI concepts and terminology, I insist on using the most straightforward language. Through in-depth testing and hardcore reviews, I help users find tools that actually solve real problems. Every review and product recommendation is based on genuine hands-on experience and real-world scenario testing.
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            My approach to development is guided by a few core principles:
+            At MisoTech, the content I share follows three principles:
           </p>
           <ul className="text-neutral-dark dark:text-dark-neutral-dark">
-            <li><strong>User-Centered Design:</strong> I believe that technology should serve people, not the other way around. Every line of code I write is with the end user in mind.</li>
-            <li><strong>Continuous Learning:</strong> The tech landscape evolves rapidly, and I'm committed to growing with it. I dedicate time each week to learning new skills and refining existing ones.</li>
-            <li><strong>Quality Over Quantity:</strong> I prefer doing fewer things exceptionally well rather than many things adequately. This philosophy applies to both my code and my projects.</li>
-            <li><strong>Collaborative Spirit:</strong> The best products are built by diverse teams working together. I value open communication, constructive feedback, and shared success.</li>
+            <li><strong>Hardcore Reviews:</strong> No superficial coverage. I dive deep into core features and test performance in real scenarios. Whether it's AI coding tools, image generation, or knowledge management, I personally test every aspect comprehensively.</li>
+            <li><strong>No Empty Talk:</strong> No big theories, no concept stacking. I tell you directly what this tool can and cannot do, who it's for, and how to use it most effectively.</li>
+            <li><strong>User Perspective:</strong> I think from the ordinary user's standpoint. No matter how powerful the technology, if it's not easy to use or learn, it has no value. I focus on real user experience and actual productivity improvements.</li>
           </ul>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            When I'm not coding, you'll find me hiking in nature, experimenting with new recipes, or diving into a good book. These activities help me maintain perspective and bring fresh ideas to my technical work.
+            When I'm not coding or testing new tools, you'll find me researching the latest developments in AI, exchanging practical insights with the community, or searching for the next AI tool that can truly transform daily work. I believe the best technology should be invisible—working silently in the background to make your life simpler and more efficient.
           </p>
         </div>
       </Section>
@@ -174,47 +173,56 @@ export default function AboutPage() {
       
       {/* Personal Gallery Section */}
       <Section id="about-gallery" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
-        <SectionHeading 
-          title="Beyond the Code" 
-          subtitle="A glimpse into my life outside of programming."
+        <SectionHeading
+          title="Beyond the Code"
+          subtitle="Daily moments of tech exploration and life inspiration."
         />
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80"
-            alt="Collaborative workspace with team members"
-            caption="Collaborating with my amazing team"
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80"
+            alt="Exploring AI technology and future trends"
+            caption="Exploring cutting-edge AI technology"
           />
-          
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1501555088652-021faa106b9b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1173&q=80"
-            alt="Person hiking in mountains"
-            caption="Weekend hiking adventures"
+
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1173&q=80"
+            alt="Deep testing new AI tools"
+            caption="In-depth testing of AI tools"
           />
-          
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-            alt="Person reading a book in a cozy setting"
-            caption="Unwinding with a good book"
+
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
+            alt="Sharing with tech community"
+            caption="Exchanging practical insights with community"
           />
-          
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-            alt="Laptop with code on screen and coffee"
-            caption="Late night coding sessions"
+
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
+            alt="Reading latest AI research papers"
+            caption="Tracking latest AI developments"
           />
-          
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1511988617509-a57c8a288659?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80"
-            alt="Person speaking at a tech conference"
-            caption="Speaking at a tech conference"
+
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80"
+            alt="Thinking about product ideas in cafe"
+            caption="Finding inspiration for efficiency"
           />
-          
-          <GalleryItem 
-            src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-            alt="Whiteboard with project planning notes"
-            caption="Planning the next big project"
+
+          <GalleryItem
+            src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80"
+            alt="Participating in tech discussions"
+            caption="Tech discussions and brainstorming"
           />
+        </div>
+
+        {/* Additional description text */}
+        <div className="mt-12 text-center max-w-3xl mx-auto">
+          <p className="text-neutral-dark dark:text-dark-neutral-dark text-lg">
+            Beyond code and reviews, I'm passionate about exploring the boundaries of AI technology,
+            sharing practical experiences with the community, and thinking about how to make complex
+            AI tools simple and accessible. I believe true technological innovation should make everyone's life better.
+          </p>
         </div>
       </Section>
     </>
