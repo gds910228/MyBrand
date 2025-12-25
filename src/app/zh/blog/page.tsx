@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import BlogViewManager from '@/components/BlogViewManager';
+import EnhancedTagCloud from '@/components/EnhancedTagCloud';
 
 // 博客列表页面（中文）
 // 支持查询参数：?tag=xxx&page=1&pageSize=9&sort=desc|asc
@@ -47,6 +48,12 @@ export default async function BlogPageZh({
 
   // 获取所有唯一标签（来自完整列表）
   const allTags = Array.from(new Set(blogPosts.flatMap((post) => post.tags ?? [])));
+
+  // 计算每个标签的文章数量
+  const tagCounts = allTags.reduce((acc, tag) => {
+    acc[tag] = blogPosts.filter((post) => (post.tags ?? []).includes(tag)).length;
+    return acc;
+  }, {} as Record<string, number>);
 
   // 构建带参链接
   const buildHref = (overrides: Record<string, string | undefined>) => {
@@ -144,21 +151,18 @@ export default async function BlogPageZh({
 
       {/* 标签区 */}
       {allTags.length > 0 && (
-        <Section id="blog-tags" className="py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
-              {allTags.map((tag: string) => (
-                <Link
-                  key={tag}
-                  href={activeTag === tag ? `/zh/blog` : `/zh/blog?tag=${encodeURIComponent(tag)}`}
-                  className={`px-4 py-2 rounded-full text-sm font-medium glass-surface border border-white/20 dark:border-white/10 text-neutral-dark dark:text-dark-neutral-dark neon-hover ${
-                    activeTag === tag ? 'bg-primary/15 text-primary border-primary/40 dark:bg-primary/20' : ''
-                  }`}
-                >
-                  #{tag}
-                </Link>
-              ))}
-            </div>
+        <Section id="blog-tags" className="py-4">
+          <div className="max-w-5xl mx-auto">
+            <EnhancedTagCloud
+              tags={allTags}
+              tagCounts={tagCounts}
+              activeTag={activeTag}
+              locale="zh"
+              defaultVisibleCount={10}
+              baseUrl="/zh/blog"
+              enableSearch={true}
+              enableGrouping={false}
+            />
           </div>
         </Section>
       )}

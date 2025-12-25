@@ -17,7 +17,10 @@
       "Bash(npm run dev:env:*)",
       "Bash(cmd:*)",
       "Bash(if not exist \"D:\\WorkProjects\\AI\\MyBrand\\public\\images\\about\\life\" mkdir \"D:\\WorkProjects\\AI\\MyBrand\\public\\images\\about\\life\")",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(timeout:*)",
+      "Bash(ping:*)",
+      "Bash(del \"\\?\\D:\\WorkProjects\\AI\\MyBrand\\nul\")"
     ],
     "deny": [],
     "ask": []
