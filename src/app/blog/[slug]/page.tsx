@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faArrowLeft, faTags, faUser } from '@fortawesome/free-solid-svg-icons';
 import Section from '@/components/Section';
 import CommentSection from '@/components/CommentSection';
+import Container from '@/components/Container';
 import { getAllBlogPosts, getBlogPostById } from '@/services/notion';
 import NotionRenderer from '@/components/NotionRenderer';
 import ReviewRating from '@/components/ReviewRating';
@@ -19,6 +20,8 @@ import ComparisonTable from '@/components/ComparisonTable';
 import ReadingProgress from '@/components/ReadingProgress';
 import RelatedPosts from '@/components/RelatedPosts';
 import ShareButtons from '@/components/ShareButtons';
+import TableOfContents from '@/components/TableOfContents';
+import { extractHeadingsFromNotion } from '@/utils/extractHeadings';
 import { format } from 'date-fns';
 
 // 移除 generateStaticParams 以避免构建时的webpack错误
@@ -186,56 +189,79 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
       
       {/* Blog Content */}
       <Section id="blog-content">
-        <div className="container mx-auto max-w-4xl">
-          {fullPost.excerpt && (
-            <p className="text-lg font-medium text-neutral-dark dark:text-dark-neutral-dark mb-8">
-              {fullPost.excerpt}
-            </p>
-          )}
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Main Content */}
+            <div className="flex-1 min-w-0">
+              {fullPost.excerpt && (
+                <p className="text-lg font-medium text-neutral-dark dark:text-dark-neutral-dark mb-8">
+                  {fullPost.excerpt}
+                </p>
+              )}
 
-          {/* Tool info and ratings */}
-          <ToolInfoBox
-            website={(fullPost as any).toolWebsite}
-            pricing={(fullPost as any).toolPricing}
-            locale="en"
-          />
-          <ReviewRating
-            overall={(fullPost as any).ratingOverall}
-            easeOfUse={(fullPost as any).ratingEase}
-            features={(fullPost as any).ratingFeatures}
-            locale="en"
-          />
-          <ProsCons
-            pros={(fullPost as any).pros}
-            cons={(fullPost as any).cons}
-            locale="en"
-          />
-
-          {(fullPost as any).comparisonColumns && (fullPost as any).comparisonData && (
-            <div className="my-8">
-              <ComparisonTable
-                columns={(fullPost as any).comparisonColumns}
-                data={(fullPost as any).comparisonData}
+              {/* Tool info and ratings */}
+              <ToolInfoBox
+                website={(fullPost as any).toolWebsite}
+                pricing={(fullPost as any).toolPricing}
                 locale="en"
-                highlightWinners
-                initialSortKey={((fullPost as any).comparisonColumns[0]?.key) ?? undefined}
-                initialSortDir="desc"
               />
-            </div>
-          )}
+              <ReviewRating
+                overall={(fullPost as any).ratingOverall}
+                easeOfUse={(fullPost as any).ratingEase}
+                features={(fullPost as any).ratingFeatures}
+                locale="en"
+              />
+              <ProsCons
+                pros={(fullPost as any).pros}
+                cons={(fullPost as any).cons}
+                locale="en"
+              />
 
-          <NotionRenderer blocks={fullPost.content} className="prose prose-lg dark:prose-invert max-w-none" />
-          
-          <div className="my-12">
-            <Link
-              href="/blog"
-              className="flex items-center gap-2 text-primary dark:text-dark-primary font-medium hover:underline"
-            >
-              <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
-              <span>Back to Blog</span>
-            </Link>
+              {(fullPost as any).comparisonColumns && (fullPost as any).comparisonData && (
+                <div className="my-8">
+                  <ComparisonTable
+                    columns={(fullPost as any).comparisonColumns}
+                    data={(fullPost as any).comparisonData}
+                    locale="en"
+                    highlightWinners
+                    initialSortKey={((fullPost as any).comparisonColumns[0]?.key) ?? undefined}
+                    initialSortDir="desc"
+                  />
+                </div>
+              )}
+
+              <NotionRenderer blocks={fullPost.content} className="prose prose-lg dark:prose-invert max-w-none" />
+
+              <div className="my-12">
+                <Link
+                  href="/blog"
+                  className="flex items-center gap-2 text-primary dark:text-dark-primary font-medium hover:underline"
+                >
+                  <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
+                  <span>Back to Blog</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Sidebar - Table of Contents */}
+            <aside className="hidden lg:block w-64 flex-shrink-0">
+              <TableOfContents
+                headings={extractHeadingsFromNotion(fullPost.content)}
+                locale="en"
+              />
+            </aside>
           </div>
         </div>
+      </Section>
+
+      {/* Mobile Table of Contents */}
+      <Section className="lg:hidden">
+        <Container>
+          <TableOfContents
+            headings={extractHeadingsFromNotion(fullPost.content)}
+            locale="en"
+          />
+        </Container>
       </Section>
 
       {/* Related Posts */}

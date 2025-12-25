@@ -1,5 +1,9 @@
-import React from 'react';
+"use client";
+
+import React, { useState } from 'react';
 import Image from 'next/image';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 interface NotionRendererProps {
   blocks: any[];
@@ -11,9 +15,25 @@ const NotionRenderer: React.FC<NotionRendererProps> = ({ blocks, className = '' 
     return null;
   }
 
+  // 为所有标题生成唯一 ID
+  let headingCounter = 0;
+  const blocksWithIds = blocks.map((block) => {
+    if (
+      block.type === 'heading_1' ||
+      block.type === 'heading_2' ||
+      block.type === 'heading_3'
+    ) {
+      return {
+        ...block,
+        headingId: `heading-${headingCounter++}`,
+      };
+    }
+    return block;
+  });
+
   return (
     <div className={`notion-content ${className}`}>
-      {blocks.map((block, index) => (
+      {blocksWithIds.map((block, index) => (
         <BlockRenderer key={block.id || index} block={block} />
       ))}
     </div>
@@ -21,18 +41,51 @@ const NotionRenderer: React.FC<NotionRendererProps> = ({ blocks, className = '' 
 };
 
 const BlockRenderer: React.FC<{ block: any }> = ({ block }) => {
+  const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
+
+  const handleCopyCode = async (code: string, blockId: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCodeId(blockId);
+      setTimeout(() => setCopiedCodeId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
+  };
+
   switch (block.type) {
     case 'paragraph':
       return <p className="mb-4 text-neutral-dark dark:text-dark-neutral-dark">{renderRichText(block.paragraph.rich_text)}</p>;
 
     case 'heading_1':
-      return <h1 className="text-3xl font-bold mb-4 text-neutral-darker dark:text-dark-neutral-darker">{renderRichText(block.heading_1.rich_text)}</h1>;
+      return (
+        <h1
+          id={block.headingId}
+          className="text-3xl font-bold mb-4 text-neutral-darker dark:text-dark-neutral-darker scroll-mt-24"
+        >
+          {renderRichText(block.heading_1.rich_text)}
+        </h1>
+      );
 
     case 'heading_2':
-      return <h2 className="text-2xl font-semibold mb-3 text-neutral-darker dark:text-dark-neutral-darker">{renderRichText(block.heading_2.rich_text)}</h2>;
+      return (
+        <h2
+          id={block.headingId}
+          className="text-2xl font-semibold mb-3 text-neutral-darker dark:text-dark-neutral-darker scroll-mt-24"
+        >
+          {renderRichText(block.heading_2.rich_text)}
+        </h2>
+      );
 
     case 'heading_3':
-      return <h3 className="text-xl font-semibold mb-2 text-neutral-darker dark:text-dark-neutral-darker">{renderRichText(block.heading_3.rich_text)}</h3>;
+      return (
+        <h3
+          id={block.headingId}
+          className="text-xl font-semibold mb-2 text-neutral-darker dark:text-dark-neutral-darker scroll-mt-24"
+        >
+          {renderRichText(block.heading_3.rich_text)}
+        </h3>
+      );
 
     case 'bulleted_list_item':
       return (
@@ -49,10 +102,34 @@ const BlockRenderer: React.FC<{ block: any }> = ({ block }) => {
       );
 
     case 'code':
+      const codeText = renderRichText(block.code.rich_text, true);
+      const language = block.code.language || 'code';
+      const isCopied = copiedCodeId === block.id;
+
       return (
-        <div className="mb-4">
-          <pre className="bg-neutral-light dark:bg-dark-neutral-light p-4 rounded-lg overflow-x-auto">
-            <code className={`language-${block.code.language} text-sm`}>{renderRichText(block.code.rich_text)}</code>
+        <div className="mb-4 relative group">
+          <div className="flex items-center justify-between bg-neutral-200 dark:bg-dark-neutral-dark px-4 py-2 rounded-t-lg text-xs text-neutral-dark dark:text-dark-neutral-dark">
+            <span className="font-mono uppercase">{language}</span>
+            <button
+              onClick={() => handleCopyCode(codeText, block.id)}
+              className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-neutral-300 dark:hover:bg-dark-neutral-light transition-colors"
+              title="Copy code"
+            >
+              {isCopied ? (
+                <>
+                  <FontAwesomeIcon icon={faCheck} className="w-3.5 h-3.5 text-green-500" />
+                  <span className="text-green-500">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faCopy} className="w-3.5 h-3.5" />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+          </div>
+          <pre className="bg-neutral-light dark:bg-dark-neutral-light p-4 rounded-b-lg overflow-x-auto">
+            <code className={`language-${language} text-sm`}>{codeText}</code>
           </pre>
         </div>
       );
@@ -158,34 +235,39 @@ const BlockRenderer: React.FC<{ block: any }> = ({ block }) => {
   }
 };
 
-const renderRichText = (richText: any[]) => {
+const renderRichText = (richText: any[], returnPlainText = false) => {
   if (!richText || richText.length === 0) {
     return '';
   }
-  
+
+  // 如果需要纯文本（用于复制代码）
+  if (returnPlainText) {
+    return richText.map((text: any) => text.plain_text).join('');
+  }
+
   return richText.map((text: any, index: number) => {
     let content = text.plain_text;
-    
+
     if (text.annotations.bold) {
       content = <strong key={index}>{content}</strong>;
     }
-    
+
     if (text.annotations.italic) {
       content = <em key={index}>{content}</em>;
     }
-    
+
     if (text.annotations.strikethrough) {
       content = <del key={index}>{content}</del>;
     }
-    
+
     if (text.annotations.underline) {
       content = <u key={index}>{content}</u>;
     }
-    
+
     if (text.annotations.code) {
       content = <code key={index} className="bg-neutral-light dark:bg-dark-neutral-light px-1 py-0.5 rounded text-sm">{content}</code>;
     }
-    
+
     if (text.href) {
       content = <a key={index} href={text.href} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-dark-primary hover:underline">{content}</a>;
     }

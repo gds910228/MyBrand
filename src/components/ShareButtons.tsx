@@ -96,58 +96,56 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
   const text = i18n;
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-medium text-neutral-dark dark:text-dark-neutral-dark mb-3">
-        {text.share}
-      </h3>
+    <div className="flex items-center justify-center gap-2 flex-wrap">
+      {/* Twitter */}
+      <button
+        onClick={() => handleShare(platforms.twitter.getShareUrl())}
+        className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium text-white transition-all duration-200 hover:scale-105 shadow-md ${platforms.twitter.color} ${platforms.twitter.bgColor}`}
+        aria-label="Share on Twitter"
+        title="Share on Twitter"
+      >
+        <FontAwesomeIcon icon={platforms.twitter.icon} className="w-4 h-4" />
+        {showLabels && <span>Twitter</span>}
+      </button>
 
-      <div className="flex flex-wrap gap-2">
-        {/* Twitter */}
-        <button
-          onClick={() => handleShare(platforms.twitter.getShareUrl())}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white transition-all duration-200 hover:scale-105 shadow-md ${platforms.twitter.color} ${platforms.twitter.bgColor}`}
-          aria-label="Share on Twitter"
-        >
-          <FontAwesomeIcon icon={platforms.twitter.icon} className="w-4 h-4" />
-          {showLabels && <span>Twitter</span>}
-        </button>
+      {/* Facebook */}
+      <button
+        onClick={() => handleShare(platforms.facebook.getShareUrl())}
+        className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium text-white transition-all duration-200 hover:scale-105 shadow-md ${platforms.facebook.color} ${platforms.facebook.bgColor}`}
+        aria-label="Share on Facebook"
+        title="Share on Facebook"
+      >
+        <FontAwesomeIcon icon={platforms.facebook.icon} className="w-4 h-4" />
+        {showLabels && <span>Facebook</span>}
+      </button>
 
-        {/* Facebook */}
-        <button
-          onClick={() => handleShare(platforms.facebook.getShareUrl())}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white transition-all duration-200 hover:scale-105 shadow-md ${platforms.facebook.color} ${platforms.facebook.bgColor}`}
-          aria-label="Share on Facebook"
-        >
-          <FontAwesomeIcon icon={platforms.facebook.icon} className="w-4 h-4" />
-          {showLabels && <span>Facebook</span>}
-        </button>
+      {/* LinkedIn */}
+      <button
+        onClick={() => handleShare(platforms.linkedin.getShareUrl())}
+        className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium text-white transition-all duration-200 hover:scale-105 shadow-md ${platforms.linkedin.color} ${platforms.linkedin.bgColor}`}
+        aria-label="Share on LinkedIn"
+        title="Share on LinkedIn"
+      >
+        <FontAwesomeIcon icon={platforms.linkedin.icon} className="w-4 h-4" />
+        {showLabels && <span>LinkedIn</span>}
+      </button>
 
-        {/* LinkedIn */}
-        <button
-          onClick={() => handleShare(platforms.linkedin.getShareUrl())}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white transition-all duration-200 hover:scale-105 shadow-md ${platforms.linkedin.color} ${platforms.linkedin.bgColor}`}
-          aria-label="Share on LinkedIn"
-        >
-          <FontAwesomeIcon icon={platforms.linkedin.icon} className="w-4 h-4" />
-          {showLabels && <span>LinkedIn</span>}
-        </button>
-
-        {/* Copy Link */}
-        <button
-          onClick={handleCopyLink}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium glass-surface border border-white/20 dark:border-white/10 hover:scale-105 transition-all duration-200 ${
-            copied ? 'bg-green-500/20 text-green-600 border-green-500/50' : ''
-          }`}
-          aria-label={text.copyLink}
-        >
-          {copied ? (
-            <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
-          ) : (
-            <FontAwesomeIcon icon={faLink} className="w-4 h-4" />
-          )}
-          {showLabels && <span>{copied ? text.copied : text.copyLink}</span>}
-        </button>
-      </div>
+      {/* Copy Link */}
+      <button
+        onClick={handleCopyLink}
+        className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium glass-surface border border-white/20 dark:border-white/10 hover:scale-105 transition-all duration-200 ${
+          copied ? 'bg-green-500/20 text-green-600 border-green-500/50' : ''
+        }`}
+        aria-label={text.copyLink}
+        title={copied ? text.copied : text.copyLink}
+      >
+        {copied ? (
+          <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
+        ) : (
+          <FontAwesomeIcon icon={faLink} className="w-4 h-4" />
+        )}
+        {showLabels && <span>{copied ? text.copied : text.copyLink}</span>}
+      </button>
     </div>
   );
 };
