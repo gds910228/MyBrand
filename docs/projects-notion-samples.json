@@ -45,7 +45,7 @@
       "Slug": "ecommerce-platform",
       "Featured": true,
       "ProjectUrl": "https://nextjs-ecommerce-example.vercel.app/",
-      "GitHubUrl": "https://github.com/vercel/commerce",
+      "GitHubUrl": "https://github.com/gds910228/WP-e-Commerce",
       "Client": "开源社区",
       "Responsibilities": "搭建Next.js电商基础架构\n集成Stripe完成支付流程\n实现购物车与订单管理\n部署与性能优化（缓存/CDN）"
     },
@@ -64,7 +64,7 @@
       "Slug": "travel-explorer-app",
       "Featured": true,
       "ProjectUrl": "https://travelapp.dev",
-      "GitHubUrl": "https://github.com/Traveler/TravelApp",
+      "GitHubUrl": "https://github.com/gds910228/Aspen-Travel-App-Exploration",
       "Client": "个人项目",
       "Responsibilities": "行程规划与提醒模块\n谷歌地图/定位集成\nFirebase鉴权与数据同步\n多端打包与发布"
     },
@@ -83,7 +83,7 @@
       "Slug": "task-management-system",
       "Featured": false,
       "ProjectUrl": "https://kanban-board-vue.netlify.app/",
-      "GitHubUrl": "https://github.com/kanbancorp/kanban-vue",
+      "GitHubUrl": "https://github.com/gds910228/TASK-Management-System",
       "Client": "企业内部",
       "Responsibilities": "拖拽式看板交互\n实时协作与通知\n权限与角色管理\n报表与统计图表"
     },
@@ -102,7 +102,7 @@
       "Slug": "health-tracker-app",
       "Featured": true,
       "ProjectUrl": "https://fithealth.app",
-      "GitHubUrl": "https://github.com/flutter/samples/tree/master/experimental/fitness_tracker",
+      "GitHubUrl": "https://github.com/gds910228/healthTracker",
       "Client": "个人项目",
       "Responsibilities": "Device SDK integration (HealthKit/Google Fit)\nAuth & Sync with Firebase\nTrends visualization and insights\nCrash reporting and monitoring"
     },
@@ -121,7 +121,7 @@
       "Slug": "finance-dashboard",
       "Featured": false,
       "ProjectUrl": "https://angular-finance-dashboard.netlify.app/",
-      "GitHubUrl": "https://github.com/angular/angular-finance-dashboard",
+      "GitHubUrl": "https://github.com/gds910228/spring-cloud-PiggyMetrics-git",
       "Client": "个人项目",
       "Responsibilities": "OAuth aggregation to banks/APIs\nTime-series visualization with D3.js\nBudgeting and alerts\nSSR & caching for performance"
     },
@@ -140,7 +140,7 @@
       "Slug": "social-media-design",
       "Featured": true,
       "ProjectUrl": "https://www.figma.com/community/file/1235274902028597923/social-media-ui-kit",
-      "GitHubUrl": "https://github.com/figma/awesome-figma",
+      "GitHubUrl": "https://github.com/gds910228/Flutter-Social-Media-design",
       "Client": "开源社区",
       "Responsibilities": "Design system & components\nInteractive prototypes\nUsability testing\nAccessibility guidelines"
     }

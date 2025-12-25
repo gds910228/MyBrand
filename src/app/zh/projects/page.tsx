@@ -8,6 +8,9 @@ export default async function ProjectsPageZh() {
   // 服务端获取中文项目列表（Notion Database）
   const projects = await getAllProjects({ language: 'Chinese' });
 
+  // 提取所有年份
+  const years = Array.from(new Set(projects.map(p => p.year).filter(Boolean)));
+
   return (
     <>
       {/* Hero Section */}
@@ -20,6 +23,36 @@ export default async function ProjectsPageZh() {
             这里汇集了我在不同领域的实践项目，每一个都代表了一次独特的挑战与解决方案。
           </p>
         </div>
+
+        {/* 项目统计 */}
+        {projects && projects.length > 0 && (
+          <div className="mt-8 flex justify-center gap-8 flex-wrap">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary dark:text-dark-primary">
+                {projects.length}
+              </div>
+              <div className="text-sm text-neutral-medium dark:text-dark-neutral-medium">
+                项目总数
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary dark:text-dark-primary">
+                {new Set(projects.flatMap(p => p.technologies || [])).size}
+              </div>
+              <div className="text-sm text-neutral-medium dark:text-dark-neutral-medium">
+                使用技术
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary dark:text-dark-primary">
+                {years.length}
+              </div>
+              <div className="text-sm text-neutral-medium dark:text-dark-neutral-medium">
+                年份跨度
+              </div>
+            </div>
+          </div>
+        )}
       </Section>
 
       {/* Projects Grid Section */}
@@ -29,7 +62,7 @@ export default async function ProjectsPageZh() {
             <ProjectCard
               key={project.id}
               title={project.description || project.title}
-              description={''}
+              description={project.title || ''}
               imageSrc={project.coverImage}
               tags={project.technologies}
               slug={project.slug}
@@ -37,12 +70,15 @@ export default async function ProjectsPageZh() {
               role={project.role}
               client={project.client}
               githubUrl={project.githubUrl}
+              year={project.year}
               className="h-full"
             />
           ))}
           {(!projects || projects.length === 0) && (
-            <div className="col-span-full text-neutral-medium dark:text-dark-neutral-medium">
-              暂无项目
+            <div className="col-span-full text-center py-12">
+              <div className="text-neutral-medium dark:text-dark-neutral-medium text-lg">
+                暂无项目
+              </div>
             </div>
           )}
         </div>
