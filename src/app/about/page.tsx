@@ -5,6 +5,10 @@ import Section from '@/components/Section';
 import SectionHeading from '@/components/SectionHeading';
 import Container from '@/components/Container';
 import Image from 'next/image';
+import { skillsData } from '@/data/skills';
+import { experienceData } from '@/data/experience';
+import SkillCategoryComponent from '@/components/SkillCategory';
+import TimelineItem from '@/components/TimelineItem';
 
 // Gallery Item Component
 interface GalleryItemProps {
@@ -146,65 +150,21 @@ export default function AboutPage() {
       
       {/* Skills Section */}
       <Section id="about-skills" bgColor="bg-neutral-light dark:bg-dark-bg-secondary">
-        <SectionHeading 
-          title="Skills & Expertise" 
+        <SectionHeading
+          title="Skills & Expertise"
           subtitle="A comprehensive overview of my technical skills and proficiency levels."
         />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-          {/* Frontend Skills */}
-          <div>
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">Frontend Development</h3>
-            <div className="space-y-4">
-              <SkillBar skill="React.js" level={90} />
-              <SkillBar skill="Next.js" level={85} />
-              <SkillBar skill="TypeScript" level={80} />
-              <SkillBar skill="HTML/CSS" level={95} />
-              <SkillBar skill="Tailwind CSS" level={90} />
-              <SkillBar skill="Redux" level={75} />
-            </div>
-          </div>
-          
-          {/* Backend Skills */}
-          <div>
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">Backend Development</h3>
-            <div className="space-y-4">
-              <SkillBar skill="Node.js" level={85} />
-              <SkillBar skill="Express" level={80} />
-              <SkillBar skill="MongoDB" level={75} />
-              <SkillBar skill="PostgreSQL" level={70} />
-              <SkillBar skill="GraphQL" level={65} />
-              <SkillBar skill="REST API Design" level={85} />
-            </div>
-          </div>
-          
-          {/* Tools & Others */}
-          <div>
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">Tools & Platforms</h3>
-            <div className="space-y-4">
-              <SkillBar skill="Git & GitHub" level={90} />
-              <SkillBar skill="Docker" level={70} />
-              <SkillBar skill="AWS" level={65} />
-              <SkillBar skill="Vercel" level={85} />
-              <SkillBar skill="Figma" level={75} />
-              <SkillBar skill="Jest" level={80} />
-            </div>
-          </div>
-          
-          {/* Soft Skills */}
-          <div>
-            <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">Soft Skills</h3>
-            <div className="space-y-4">
-              <SkillBar skill="Problem Solving" level={95} />
-              <SkillBar skill="Communication" level={90} />
-              <SkillBar skill="Team Collaboration" level={85} />
-              <SkillBar skill="Project Management" level={80} />
-              <SkillBar skill="Mentoring" level={75} />
-              <SkillBar skill="Adaptability" level={90} />
-            </div>
-          </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {skillsData.map((category, index) => (
+            <SkillCategoryComponent
+              key={index}
+              category={category}
+              locale="en"
+            />
+          ))}
         </div>
-        
+
         <div className="mt-12 text-center text-neutral-medium dark:text-dark-neutral-medium">
           <p>* Skill levels are based on relative proficiency and experience</p>
         </div>
@@ -212,47 +172,24 @@ export default function AboutPage() {
       
       {/* Experience Timeline Section */}
       <Section id="about-experience">
-        <SectionHeading 
-          title="Work Experience" 
+        <SectionHeading
+          title="Work Experience"
           subtitle="My professional journey through the tech industry."
         />
-        
+
         <div className="relative">
           {/* Vertical line */}
-          <div className="absolute left-0 md:left-1/2 h-full w-0.5 bg-neutral-light dark:bg-dark-neutral-light transform -translate-x-1/2"></div>
-          
-          <div className="space-y-12">
-            <TimelineItem 
-              year="2022 - Present"
-              title="Senior Frontend Developer"
-              company="TechVision Inc."
-              description="Lead the development of the company's flagship SaaS product, managing a team of 4 developers. Implemented new features that increased user engagement by 35%."
-              isLeft={true}
-            />
-            
-            <TimelineItem 
-              year="2019 - 2022"
-              title="Full Stack Developer"
-              company="InnovateSoft"
-              description="Worked on multiple client projects using React, Node.js, and MongoDB. Designed and implemented RESTful APIs and integrated third-party services."
-              isLeft={false}
-            />
-            
-            <TimelineItem 
-              year="2017 - 2019"
-              title="Web Developer"
-              company="CreativeWeb Solutions"
-              description="Developed responsive websites for clients across various industries. Collaborated with designers to implement pixel-perfect UIs."
-              isLeft={true}
-            />
-            
-            <TimelineItem 
-              year="2016 - 2017"
-              title="Junior Developer"
-              company="StartupHub"
-              description="Assisted in the development of web applications. Gained experience in agile methodologies and collaborative development workflows."
-              isLeft={false}
-            />
+          <div className="absolute left-[7px] md:left-1/2 h-full w-0.5 bg-neutral-light dark:bg-dark-neutral-light transform -translate-x-1/2"></div>
+
+          <div className="space-y-8">
+            {experienceData.map((experience, index) => (
+              <TimelineItem
+                key={experience.id}
+                experience={experience}
+                locale="en"
+                index={index}
+              />
+            ))}
           </div>
         </div>
       </Section>
@@ -286,60 +223,8 @@ export default function AboutPage() {
   );
 }
 
-// Skill Bar Component
-interface SkillBarProps {
-  skill: string;
-  level: number;
-}
-
-const SkillBar: React.FC<SkillBarProps> = ({ skill, level }) => {
-  return (
-    <div>
-      <div className="flex justify-between mb-1">
-        <span className="font-medium text-neutral-darker dark:text-dark-neutral-darker">{skill}</span>
-        <span className="text-sm text-neutral-medium dark:text-dark-neutral-medium">{level}%</span>
-      </div>
-      <div className="h-2 bg-neutral-light dark:bg-dark-neutral-light rounded-full">
-        <div 
-          className="h-full bg-primary dark:bg-dark-primary rounded-full" 
-          style={{ width: `${level}%` }}
-        ></div>
-      </div>
-    </div>
-  );
-};
-
-// Timeline Item Component
-interface TimelineItemProps {
-  year: string;
-  title: string;
-  company: string;
-  description: string;
-  isLeft: boolean;
-}
-
-const TimelineItem: React.FC<TimelineItemProps> = ({ year, title, company, description, isLeft }) => {
-  return (
-    <div className={`relative ${isLeft ? 'md:pr-12' : 'md:pl-12'} md:w-1/2 ${isLeft ? 'md:ml-0 md:mr-auto' : 'md:ml-auto md:mr-0'}`}>
-      {/* Dot on the timeline */}
-      <div className="hidden md:block absolute top-5 w-4 h-4 rounded-full bg-primary dark:bg-dark-primary border-4 border-white dark:border-dark-bg-primary" style={{ 
-        [isLeft ? 'right' : 'left']: '-8px',
-      }}></div>
-      
-      <div className="bg-white dark:bg-dark-bg-secondary p-6 rounded-lg shadow-md dark:shadow-neutral-black/20">
-        <span className="inline-block px-3 py-1 mb-4 text-sm font-medium text-primary-dark dark:text-dark-primary-dark bg-primary-light/20 dark:bg-dark-primary-light/20 rounded-full">
-          {year}
-        </span>
-        <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker">{title}</h3>
-        <p className="text-primary dark:text-dark-primary font-medium mt-1">{company}</p>
-        <p className="mt-3 text-neutral-dark dark:text-dark-neutral-dark">{description}</p>
-      </div>
-    </div>
-  );
-};
-
 const GalleryItem: React.FC<GalleryItemProps> = ({ src, localSrc, alt, caption, category, icon }) => {
-  const imageSrc = localSrc || src; // 优先使用本地图片，如果没有则使用远程图片
+  const imageSrc = localSrc || src;
 
   return (
     <div className="group overflow-hidden rounded-lg shadow-md dark:shadow-neutral-black/20 hover:shadow-xl dark:hover:shadow-neutral-black/30 transition-all duration-300">
@@ -350,7 +235,6 @@ const GalleryItem: React.FC<GalleryItemProps> = ({ src, localSrc, alt, caption, 
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        {/* Category badge */}
         {category && (
           <div className="absolute top-3 right-3 bg-white/90 dark:bg-dark-bg-primary/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow-sm">
             <span className="mr-1">{icon}</span>
