@@ -1,4 +1,5 @@
-export const dynamic = 'force-dynamic';
+// ISR 缓存配置：每小时重新验证一次
+export const revalidate = 3600;
 
 import { Metadata } from 'next';
 import Image from 'next/image';
@@ -15,6 +16,9 @@ import ReviewRating from '@/components/ReviewRating';
 import ProsCons from '@/components/ProsCons';
 import ToolInfoBox from '@/components/ToolInfoBox';
 import ComparisonTable from '@/components/ComparisonTable';
+import ReadingProgress from '@/components/ReadingProgress';
+import RelatedPosts from '@/components/RelatedPosts';
+import ShareButtons from '@/components/ShareButtons';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
@@ -110,6 +114,7 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
     return (
       <>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <ReadingProgress height={3} showPercentage={false} />
         {/* Hero Section */}
         <Section id="blog-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="py-20">
           <div className="container mx-auto max-w-4xl">
@@ -151,6 +156,16 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
                     <span>{fullPost.readTime}</span>
                   </div>
                 )}
+              </div>
+
+              {/* Share Buttons */}
+              <div className="mt-6 max-w-md mx-auto">
+                <ShareButtons
+                  title={fullPost.title}
+                  url={`${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/zh/blog/${(fullPost as any).slug ?? params.slug}`}
+                  description={fullPost.excerpt}
+                  locale="zh"
+                />
               </div>
             </div>
 
@@ -221,6 +236,13 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
           </div>
         </Section>
 
+        {/* Related Posts */}
+        <RelatedPosts
+          currentPost={fullPost}
+          allPosts={posts}
+          maxPosts={3}
+          locale="zh"
+        />
 
         {/* Comments Section */}
         <Section id="comments-section">

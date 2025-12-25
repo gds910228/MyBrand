@@ -10,6 +10,10 @@ import EnhancedTagCloud from '@/components/EnhancedTagCloud';
 
 // 博客列表页面（中文）
 // 支持查询参数：?tag=xxx&page=1&pageSize=9&sort=desc|asc
+
+// ISR 缓存配置：每小时重新验证一次
+export const revalidate = 3600;
+
 export default async function BlogPageZh({
   searchParams,
 }: {
@@ -170,9 +174,88 @@ export default async function BlogPageZh({
       {/* 博客列表 */}
       <Section id="blog-posts">
         {paged.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-neutral-dark dark:text-dark-neutral-dark text-lg">没有找到博客文章。</p>
-            <p className="text-neutral-medium mt-2">请稍后再来查看新内容！</p>
+          <div className="text-center py-16 px-4">
+            <div className="max-w-md mx-auto space-y-6">
+              {/* 插图或图标 */}
+              <div className="text-8xl mb-4 animate-bounce">
+                {activeTag ? '🔍' : '📝'}
+              </div>
+
+              <div className="glass-surface border border-white/20 dark:border-white/10 rounded-2xl p-8">
+                <h3 className="text-2xl font-bold text-neutral-darker dark:text-dark-neutral-darker mb-3">
+                  {activeTag ? '没有找到文章' : '暂无博客文章'}
+                </h3>
+
+                <p className="text-neutral-dark dark:text-dark-neutral-dark mb-6">
+                  {activeTag
+                    ? `没有找到标签为 "${activeTag}" 的文章。尝试探索其他主题或浏览所有文章。`
+                    : '请稍后再来查看新内容！我们正在为您准备关于Web开发、设计和技术的精彩文章。'}
+                </p>
+
+                {/* 操作按钮 */}
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  {activeTag && (
+                    <Link
+                      href="/zh/blog"
+                      className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-medium bg-primary hover:bg-primary-dark text-white transition-all duration-200 hover:scale-105 shadow-lg"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                      清除筛选
+                    </Link>
+                  )}
+
+                  <Link
+                    href="/zh/projects"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-medium glass-surface border border-white/20 dark:border-white/10 hover:scale-105 transition-all duration-200"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
+                    </svg>
+                    查看项目
+                  </Link>
+                </div>
+              </div>
+
+              {/* 建议 */}
+              {!activeTag && allTags.length > 0 && (
+                <div className="text-sm text-neutral-medium">
+                  或探索这些主题{' '}
+                  {allTags.slice(0, 3).map((tag, i) => (
+                    <span key={tag}>
+                      <Link
+                        href={`/zh/blog?tag=${encodeURIComponent(tag)}`}
+                        className="text-primary hover:underline"
+                      >
+                        #{tag}
+                      </Link>
+                      {i < Math.min(2, allTags.length - 1) && '、'}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <>

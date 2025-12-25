@@ -1,4 +1,5 @@
-export const dynamic = 'force-dynamic';
+// ISR 缓存配置：每小时重新验证一次
+export const revalidate = 3600;
 
 import { Metadata } from 'next';
 import Image from 'next/image';
@@ -15,6 +16,9 @@ import ReviewRating from '@/components/ReviewRating';
 import ProsCons from '@/components/ProsCons';
 import ToolInfoBox from '@/components/ToolInfoBox';
 import ComparisonTable from '@/components/ComparisonTable';
+import ReadingProgress from '@/components/ReadingProgress';
+import RelatedPosts from '@/components/RelatedPosts';
+import ShareButtons from '@/components/ShareButtons';
 import { format } from 'date-fns';
 
 // 移除 generateStaticParams 以避免构建时的webpack错误
@@ -111,6 +115,7 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <ReadingProgress height={3} showPercentage={false} />
       {/* Hero Section */}
       <Section id="blog-hero" bgColor="bg-neutral-light dark:bg-dark-bg-secondary" className="py-20">
         <div className="container mx-auto max-w-4xl">
@@ -153,8 +158,18 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
                 </div>
               )}
             </div>
+
+            {/* Share Buttons */}
+            <div className="mt-6 max-w-md mx-auto">
+              <ShareButtons
+                title={fullPost.title}
+                url={`${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/blog/${(fullPost as any).slug ?? params.slug}`}
+                description={fullPost.excerpt}
+                locale="en"
+              />
+            </div>
           </div>
-          
+
           {/* Cover Image */}
           {coverSrc && (
             <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg mb-8">
@@ -222,8 +237,15 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
           </div>
         </div>
       </Section>
-      
-      
+
+      {/* Related Posts */}
+      <RelatedPosts
+        currentPost={fullPost}
+        allPosts={posts}
+        maxPosts={3}
+        locale="en"
+      />
+
       {/* Comments Section */}
       <Section id="comments-section">
         <div className="container mx-auto max-w-4xl">
