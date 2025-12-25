@@ -21,6 +21,18 @@ export interface Experience {
   isCurrent?: boolean;
   logo?: string;
   companyUrl?: string;
+  companyInfo?: CompanyInfo;
+}
+
+export interface CompanyInfo {
+  industry: string;
+  industryZh: string;
+  size: string;
+  sizeZh: string;
+  location?: string;
+  locationZh?: string;
+  description?: string;
+  descriptionZh?: string;
 }
 
 export const experienceData: Experience[] = [
@@ -59,7 +71,16 @@ export const experienceData: Experience[] = [
     techStack: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Node.js", "PostgreSQL"],
     isCurrent: true,
     logo: "/images/companies/techvision.svg",
-    companyUrl: "https://techvision.example.com"
+    companyInfo: {
+      industry: "B2B SaaS",
+      industryZh: "B2B SaaS",
+      size: "50-200 employees",
+      sizeZh: "50-200人",
+      location: "San Francisco, CA",
+      locationZh: "加利福尼亚州旧金山",
+      description: "Leading provider of AI-powered data visualization tools",
+      descriptionZh: "AI驱动的数据可视化工具领先提供商"
+    }
   },
   {
     id: "exp-2",
@@ -95,7 +116,16 @@ export const experienceData: Experience[] = [
     ],
     techStack: ["React", "Node.js", "Express", "MongoDB", "Docker", "AWS", "Jest"],
     logo: "/images/companies/innovatesoft.svg",
-    companyUrl: "https://innovatesoft.example.com"
+    companyInfo: {
+      industry: "Software Consulting",
+      industryZh: "软件咨询",
+      size: "20-50 employees",
+      sizeZh: "20-50人",
+      location: "New York, NY",
+      locationZh: "纽约州纽约市",
+      description: "Custom software solutions for startups and SMBs",
+      descriptionZh: "为初创企业和中小企业提供定制软件解决方案"
+    }
   },
   {
     id: "exp-3",
@@ -126,7 +156,16 @@ export const experienceData: Experience[] = [
     ],
     techStack: ["HTML", "CSS", "JavaScript", "React", "Git", "Figma"],
     logo: "/images/companies/creativeweb.svg",
-    companyUrl: "https://creativeweb.example.com"
+    companyInfo: {
+      industry: "Web Development Agency",
+      industryZh: "网站开发代理",
+      size: "10-30 employees",
+      sizeZh: "10-30人",
+      location: "Austin, TX",
+      locationZh: "德克萨斯州奥斯汀",
+      description: "Full-service web design and development agency",
+      descriptionZh: "全方位网站设计和开发代理机构"
+    }
   },
   {
     id: "exp-4",
@@ -157,7 +196,16 @@ export const experienceData: Experience[] = [
     ],
     techStack: ["JavaScript", "HTML", "CSS", "Git", "jQuery", "Bootstrap"],
     logo: "/images/companies/startuphub.svg",
-    companyUrl: "https://startuphub.example.com"
+    companyInfo: {
+      industry: "Tech Incubator",
+      industryZh: "科技孵化器",
+      size: "5-10 employees",
+      sizeZh: "5-10人",
+      location: "Boston, MA",
+      locationZh: "马萨诸塞州波士顿",
+      description: "Early-stage startup incubator and co-working space",
+      descriptionZh: "早期创业孵化器和联合办公空间"
+    }
   }
 ];
 

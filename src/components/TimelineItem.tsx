@@ -15,6 +15,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
   index = 0
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const {
     year,
@@ -28,7 +29,8 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
     achievements,
     techStack,
     isCurrent,
-    companyUrl
+    companyUrl,
+    companyInfo
   } = experience;
 
   const displayYear = locale === 'en' ? year : yearZh;
@@ -66,6 +68,8 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
             <h3 className="text-xl font-semibold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-1">
               {displayTitle}
             </h3>
+
+            {/* Company with or without link/info tooltip */}
             {companyUrl ? (
               <a
                 href={companyUrl}
@@ -79,6 +83,66 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
+            ) : companyInfo ? (
+              <div className="relative inline-block">
+                <span
+                  className="text-primary dark:text-dark-primary font-medium inline-flex items-center gap-1 cursor-help border-b border-dashed border-primary/50 dark:border-dark-primary/50 hover:border-primary dark:hover:border-dark-primary"
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {displayCompany}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </span>
+
+                {/* Tooltip */}
+                {showTooltip && (
+                  <div className="absolute z-50 w-72 p-4 mt-2 bg-white dark:bg-dark-bg-primary border-2 border-primary dark:border-dark-primary rounded-lg shadow-xl dark:shadow-neutral-black/40 text-sm">
+                    {/* Industry */}
+                    <div className="mb-2">
+                      <span className="font-semibold text-neutral-darker dark:text-dark-neutral-darker">
+                        {locale === 'en' ? 'Industry' : '行业'}:
+                      </span>{' '}
+                      <span className="text-neutral-dark dark:text-dark-neutral-dark">
+                        {locale === 'en' ? companyInfo.industry : companyInfo.industryZh}
+                      </span>
+                    </div>
+
+                    {/* Size */}
+                    <div className="mb-2">
+                      <span className="font-semibold text-neutral-darker dark:text-dark-neutral-darker">
+                        {locale === 'en' ? 'Company Size' : '公司规模'}:
+                      </span>{' '}
+                      <span className="text-neutral-dark dark:text-dark-neutral-dark">
+                        {locale === 'en' ? companyInfo.size : companyInfo.sizeZh}
+                      </span>
+                    </div>
+
+                    {/* Location */}
+                    {companyInfo.location && (
+                      <div className="mb-2">
+                        <span className="font-semibold text-neutral-darker dark:text-dark-neutral-darker">
+                          {locale === 'en' ? 'Location' : '所在地'}:
+                        </span>{' '}
+                        <span className="text-neutral-dark dark:text-dark-neutral-dark">
+                          {locale === 'en' ? companyInfo.location : companyInfo.locationZh}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Description */}
+                    {companyInfo.description && (
+                      <div className="pt-2 mt-2 border-t border-neutral-light dark:border-dark-neutral-light">
+                        <span className="text-neutral-dark dark:text-dark-neutral-dark italic">
+                          {locale === 'en' ? companyInfo.description : companyInfo.descriptionZh}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             ) : (
               <p className="text-primary dark:text-dark-primary font-medium">
                 {displayCompany}
