@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faList } from '@fortawesome/free-solid-svg-icons';
+import { faList, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 
 export interface Heading {
   id: string;
@@ -24,8 +24,10 @@ export interface TableOfContentsProps {
 const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, locale = 'en' }) => {
   const [activeId, setActiveId] = useState<string>('');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   const text = locale === 'zh' ? '目录' : 'Contents';
+  const backToTopText = locale === 'zh' ? '返回顶部' : 'Back to Top';
 
   useEffect(() => {
     // 为标题元素添加 ID
@@ -36,7 +38,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, locale = 'e
       }
     });
 
-    // 滚动监听
+    // 滚动监听 - 用于高亮当前章节
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -58,6 +60,14 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, locale = 'e
       }
     });
 
+    // 监听页面滚动以显示/隐藏返回顶部按钮
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 500);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // 初始检查
+
     return () => {
       headings.forEach((heading) => {
         const element = document.getElementById(heading.id);
@@ -65,6 +75,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, locale = 'e
           observer.unobserve(element);
         }
       });
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [headings]);
 
@@ -80,7 +91,17 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, locale = 'e
         top: offsetPosition,
         behavior: 'smooth',
       });
+
+      // 更新激活状态
+      setActiveId(id);
     }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
   };
 
   // 如果没有标题，不显示组件
@@ -90,39 +111,53 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, locale = 'e
 
   return (
     <nav className="relative">
-      {/* 桌面端目录 */}
+      {/* 桌面端目录 - 使用 fixed 定位确保始终可见 */}
       <div className="hidden lg:block">
-        <div className="sticky top-24">
-          <h3 className="text-sm font-bold text-neutral-darker dark:text-dark-neutral-darker mb-4 flex items-center gap-2">
-            <FontAwesomeIcon icon={faList} className="w-4 h-4 text-primary" />
-            {text}
-          </h3>
-          <ul className="space-y-2 text-sm border-l-2 border-neutral-light dark:border-dark-neutral-light pl-4">
-            {headings.map((heading) => {
-              const isActive = activeId === heading.id;
-              const indent = heading.level > 1 ? (heading.level - 1) * 12 : 0;
+        <div className="fixed right-4 top-24 w-64 max-h-[calc(100vh-8rem)] overflow-y-auto">
+          <div className="bg-white/80 dark:bg-dark-bg-secondary/80 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-neutral-light/20 dark:border-dark-neutral-light/20">
+            <h3 className="text-sm font-bold text-neutral-darker dark:text-dark-neutral-darker mb-4 flex items-center gap-2">
+              <FontAwesomeIcon icon={faList} className="w-4 h-4 text-primary" />
+              {text}
+            </h3>
+            <ul className="space-y-2 text-sm border-l-2 border-neutral-light dark:border-dark-neutral-light pl-4">
+              {headings.map((heading) => {
+                const isActive = activeId === heading.id;
+                const indent = heading.level > 1 ? (heading.level - 1) * 12 : 0;
 
-              return (
-                <li
-                  key={heading.id}
-                  style={{ paddingLeft: `${indent}px` }}
-                  className="transition-all duration-200"
-                >
-                  <a
-                    href={`#${heading.id}`}
-                    onClick={(e) => handleClick(e, heading.id)}
-                    className={`block py-1 transition-colors duration-200 ${
-                      isActive
-                        ? 'text-primary dark:text-dark-primary font-medium border-l-2 border-primary -ml-[6px] pl-[10px]'
-                        : 'text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary'
-                    }`}
+                return (
+                  <li
+                    key={heading.id}
+                    style={{ paddingLeft: `${indent}px` }}
+                    className="transition-all duration-200"
                   >
-                    {heading.text}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+                    <a
+                      href={`#${heading.id}`}
+                      onClick={(e) => handleClick(e, heading.id)}
+                      className={`block py-1 transition-colors duration-200 ${
+                        isActive
+                          ? 'text-primary dark:text-dark-primary font-medium border-l-2 border-primary -ml-[6px] pl-[10px]'
+                          : 'text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary'
+                      }`}
+                    >
+                      {heading.text}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* 返回顶部按钮 */}
+            {showBackToTop && (
+              <button
+                onClick={scrollToTop}
+                className="mt-6 flex items-center gap-2 text-sm text-primary dark:text-dark-primary hover:underline transition-colors duration-200"
+                title={backToTopText}
+              >
+                <FontAwesomeIcon icon={faArrowUp} className="w-4 h-4" />
+                <span>{backToTopText}</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -145,32 +180,45 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ headings, locale = 'e
         </button>
 
         {!isCollapsed && (
-          <ul className="mt-3 space-y-2 text-sm">
-            {headings.map((heading) => {
-              const isActive = activeId === heading.id;
-              const indent = heading.level > 1 ? (heading.level - 1) * 12 : 0;
+          <>
+            <ul className="mt-3 space-y-2 text-sm">
+              {headings.map((heading) => {
+                const isActive = activeId === heading.id;
+                const indent = heading.level > 1 ? (heading.level - 1) * 12 : 0;
 
-              return (
-                <li
-                  key={heading.id}
-                  style={{ paddingLeft: `${16 + indent}px` }}
-                  className="transition-all duration-200"
-                >
-                  <a
-                    href={`#${heading.id}`}
-                    onClick={(e) => handleClick(e, heading.id)}
-                    className={`block py-2 border-l-2 transition-colors duration-200 ${
-                      isActive
-                        ? 'text-primary dark:text-dark-primary font-medium border-primary bg-primary-light/10 dark:bg-dark-primary-light/10'
-                        : 'text-neutral-dark dark:text-dark-neutral-dark border-transparent hover:text-primary dark:hover:text-dark-primary hover:border-neutral-light dark:hover:border-dark-neutral-light'
-                    }`}
+                return (
+                  <li
+                    key={heading.id}
+                    style={{ paddingLeft: `${16 + indent}px` }}
+                    className="transition-all duration-200"
                   >
-                    {heading.text}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+                    <a
+                      href={`#${heading.id}`}
+                      onClick={(e) => handleClick(e, heading.id)}
+                      className={`block py-2 border-l-2 transition-colors duration-200 ${
+                        isActive
+                          ? 'text-primary dark:text-dark-primary font-medium border-primary bg-primary-light/10 dark:bg-dark-primary-light/10'
+                          : 'text-neutral-dark dark:text-dark-neutral-dark border-transparent hover:text-primary dark:hover:text-dark-primary hover:border-neutral-light dark:hover:border-dark-neutral-light'
+                      }`}
+                    >
+                      {heading.text}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* 返回顶部按钮 - 移动端 */}
+            {showBackToTop && (
+              <button
+                onClick={scrollToTop}
+                className="mt-4 w-full flex items-center justify-center gap-2 py-2 text-sm text-primary dark:text-dark-primary bg-primary-light/10 dark:bg-dark-primary-light/10 rounded-lg hover:bg-primary-light/20 dark:hover:bg-dark-primary-light/20 transition-colors duration-200"
+              >
+                <FontAwesomeIcon icon={faArrowUp} className="w-4 h-4" />
+                <span>{backToTopText}</span>
+              </button>
+            )}
+          </>
         )}
       </div>
     </nav>
