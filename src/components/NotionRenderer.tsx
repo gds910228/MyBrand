@@ -102,7 +102,7 @@ const BlockRenderer: React.FC<{ block: any }> = ({ block }) => {
       );
 
     case 'code':
-      const codeText = renderRichText(block.code.rich_text, true);
+      const codeText = renderRichText(block.code.rich_text, true) as string;
       const language = block.code.language || 'code';
       const isCopied = copiedCodeId === block.id;
 
