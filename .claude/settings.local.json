@@ -25,7 +25,8 @@
       "Bash(if exist .next rmdir /s /q .next)",
       "Bash(tasklist:*)",
       "Bash(powershell -Command \"Stop-Process -Id 35304 -Force\")",
-      "Bash(powershell -Command \"Stop-Process -Id 48156 -Force\")"
+      "Bash(powershell -Command \"Stop-Process -Id 48156 -Force\")",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []
