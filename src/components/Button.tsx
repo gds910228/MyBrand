@@ -31,12 +31,12 @@ const Button: React.FC<ButtonProps> = ({
   icon,
   iconPosition = 'left',
 }) => {
-  const baseStyles = "inline-flex items-center justify-center font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-dark-bg-primary relative overflow-hidden group";
+  const baseStyles = "inline-flex items-center justify-center font-medium rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-bg-primary relative overflow-hidden group transition-smooth";
 
   const variantStyles = {
-    solid: "bg-primary text-white dark:bg-dark-primary shadow-md hover:shadow-lg",
-    outline: "border-2 border-primary text-primary dark:border-dark-primary dark:text-dark-primary hover:bg-primary/5 dark:hover:bg-dark-primary/10",
-    ghost: "text-primary hover:bg-primary/10 dark:text-dark-primary dark:hover:bg-dark-primary/10"
+    solid: "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md hover:shadow-xl dark:from-dark-primary dark:to-dark-primary-dark dark:shadow-glow",
+    outline: "border-2 border-primary text-primary dark:border-dark-primary dark:text-dark-primary hover:bg-primary/5 dark:hover:bg-dark-primary/10 hover:scale-105",
+    ghost: "text-primary hover:bg-primary/10 dark:text-dark-primary dark:hover:bg-dark-primary/10 hover:scale-105"
   };
 
   const sizeStyles = {
@@ -77,12 +77,21 @@ const Button: React.FC<ButtonProps> = ({
   );
 
   const motionProps = !disabled ? {
-    whileHover: { y: -1 },
-    whileTap: { scale: 0.97 },
-    transition: {
-      type: "spring" as const,
-      stiffness: 400,
-      damping: 17
+    whileHover: {
+      y: -2,
+      transition: {
+        type: "spring" as const,
+        stiffness: 400,
+        damping: 17
+      }
+    },
+    whileTap: {
+      scale: 0.97,
+      transition: {
+        type: "spring" as const,
+        stiffness: 600,
+        damping: 15
+      }
     }
   } : {};
 
