@@ -1,32 +1,35 @@
 "use client";
 
 import '../styles/globals.css';
-import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Syne, Space_Grotesk, IBM_Plex_Mono } from 'next/font/google';
 import React from 'react';
 import ThemeProvider from '@/components/ThemeProvider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Analytics } from '@vercel/analytics/react';
 
-const inter = Inter({
+// Syne - Distinctive, geometric display font for headings
+const syne = Syne({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter',
-  weight: ['400', '500', '600', '700'],
+  variable: '--font-syne',
+  weight: ['400', '500', '600', '700', '800'],
 });
 
+// Space Grotesk - Technical, geometric sans-serif for body text
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-space-grotesk',
-  weight: ['400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600', '700'],
 });
 
-const jetbrains = JetBrains_Mono({
+// IBM Plex Mono - Industrial monospace for code and technical details
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-jetbrains-mono',
-  weight: ['400', '500'],
+  variable: '--font-ibm-plex-mono',
+  weight: ['400', '500', '600'],
 });
 
 export default function RootLayout({
@@ -35,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${syne.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable}`}>
       <head>
         {/* Google Analytics */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-TWYKG79FX0"></script>
@@ -55,7 +58,7 @@ export default function RootLayout({
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4217180014733990"
           crossOrigin="anonymous"></script>
       </head>
-      <body className="min-h-screen flex flex-col antialiased text-neutral-dark dark:text-dark-neutral-dark bg-white dark:bg-dark-bg-primary transition-colors duration-200">
+      <body className="min-h-screen flex flex-col antialiased text-metallic bg-deep-charcoal transition-colors duration-200">
         <ThemeProvider>
           <Navbar />
           <main className="flex-grow pt-20">{children}</main>

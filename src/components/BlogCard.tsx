@@ -58,34 +58,36 @@ const BlogCard: React.FC<BlogCardProps> = ({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: transitions.smooth.duration / 1000, ease: easing.easeOut }}
-      whileHover={{ y: -4, scale: 1.01 }}
-      className="glass-surface rounded-xl shadow-lg overflow-hidden h-full flex flex-col border border-white/20 dark:border-white/10 card-hover group"
+      whileHover={{ y: -8, scale: 1.01 }}
+      className="tech-card rounded-xl overflow-hidden h-full flex flex-col"
     >
-      <div className="relative h-48 w-full overflow-hidden img-zoom-container">
+      <div className="relative h-48 w-full overflow-hidden">
         <FallbackImage
           src={imgSrc}
           alt={title}
           fill
-          className="object-cover"
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
+        {/* 工业风格覆盖层 */}
+        <div className="absolute inset-0 bg-gradient-to-t from-deep-charcoal via-transparent to-transparent opacity-60"></div>
       </div>
-      
+
       <div className="p-6 flex flex-col flex-grow">
         {categories.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {categories.slice(0, 2).map((cat) => (
-              <span 
+              <span
                 key={cat.name}
-                className="inline-block py-1 px-2 text-xs font-medium rounded-full bg-neutral-light dark:bg-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark"
+                className="inline-block py-1 px-2 text-xs font-medium rounded-md bg-electric-blue/10 text-electric-blue border border-electric-blue/30 font-mono"
               >
                 {cat.label}
               </span>
             ))}
           </div>
         )}
-        
-        <h3 className="text-xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-2">
+
+        <h3 className="text-xl font-bold font-heading text-white mb-2 group-hover:text-neon-orange transition-colors">
           {title}
         </h3>
 
@@ -98,7 +100,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
                 return (
                   <svg
                     key={i}
-                    className={`w-4 h-4 ${filled ? 'text-yellow-400' : 'text-neutral-300 dark:text-neutral-600'}`}
+                    className={`w-4 h-4 ${filled ? 'text-warning' : 'text-metallic/30'}`}
                     viewBox="0 0 20 20"
                     fill="currentColor"
                     aria-hidden="true"
@@ -108,26 +110,34 @@ const BlogCard: React.FC<BlogCardProps> = ({
                 );
               })}
             </div>
-            <span className="text-xs text-neutral-medium dark:text-dark-neutral-medium">
+            <span className="text-xs text-metallic font-mono">
               {score.toFixed(1)}/5
             </span>
           </div>
         )}
 
-        <p className="text-neutral-dark dark:text-dark-neutral-dark mb-4 flex-grow">
+        <p className="text-metallic mb-4 flex-grow text-sm line-clamp-3">
           {excerpt}
         </p>
-        
-        <div className="flex items-center justify-between mt-auto">
-          <span className="text-sm text-neutral-medium dark:text-dark-neutral-medium">
+
+        <div className="flex items-center justify-between mt-auto pt-4 border-t border-metallic/10">
+          <span className="text-xs text-metallic font-mono">
             {formattedDate}
           </span>
-          
-          <Link 
+
+          <Link
             href={linkHref}
-            className="inline-block text-primary dark:text-dark-primary font-medium hover:underline"
+            className="inline-block text-neon-orange font-medium hover:text-electric-blue text-sm font-mono flex items-center gap-2 group/link"
           >
             {locale === 'zh' ? '阅读更多' : 'Read More'}
+            <svg
+              className="w-4 h-4 transition-transform duration-200 group-hover/link:translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
           </Link>
         </div>
       </div>

@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? 'bg-white/90 dark:bg-dark-bg-primary/90 backdrop-blur-md shadow-lg dark:shadow-neutral-black/30 py-3 border-b border-neutral-200/50 dark:border-neutral-700/50'
+          ? 'bg-deep-charcoal/95 dark:bg-deep-charcoal/95 backdrop-blur-md shadow-lg shadow-neon-orange/5 py-3 border-b border-metallic/10'
           : 'bg-transparent py-5'
       }`}
     >
@@ -79,7 +79,7 @@ const Navbar: React.FC = () => {
           {/* Logo */}
           <Link
             href={locale === 'zh' ? '/zh' : '/'}
-            className="flex items-center text-2xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker group transition-smooth"
+            className="flex items-center text-2xl font-bold font-heading text-white group transition-smooth"
           >
             <div className="w-10 h-10 mr-2 relative group-hover:scale-110 transition-transform duration-300">
               <Image
@@ -90,11 +90,11 @@ const Navbar: React.FC = () => {
                 className="object-contain"
               />
             </div>
-            <span className="bg-gradient-to-r from-primary to-primary-dark dark:from-dark-primary dark:to-dark-primary-dark bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
+            <span className="gradient-text group-hover:neon-text transition-all duration-300">
               Miso
-            </span><span className="text-neutral-darker dark:text-dark-neutral-darker">Tech</span>
-            <span className="text-xs ml-2 text-neutral-dark dark:text-dark-neutral-dark font-normal hidden sm:inline-block opacity-70 group-hover:opacity-100 transition-opacity">
-              Decode the Stack
+            </span><span className="text-metallic group-hover:text-white transition-colors duration-300">Tech</span>
+            <span className="text-xs ml-2 text-metallic font-normal hidden sm:inline-block opacity-70 group-hover:opacity-100 transition-opacity font-mono">
+              &lt;Decode /&gt;
             </span>
           </Link>
 
@@ -105,17 +105,17 @@ const Navbar: React.FC = () => {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-base font-medium transition-all duration-300 relative group py-2 ${
+                  className={`text-sm font-medium transition-all duration-300 relative group py-2 px-3 rounded-lg font-mono tracking-wide ${
                     isActiveLink(link.href)
-                      ? 'text-primary dark:text-dark-primary'
-                      : 'text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary'
+                      ? 'text-neon-orange bg-neon-orange/5 border border-neon-orange/20'
+                      : 'text-metallic hover:text-white hover:bg-metallic/5'
                   }`}
                 >
                   {link.name}
-                  {/* Underline animation */}
-                  <span className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary to-primary-dark dark:from-dark-primary dark:to-dark-primary-dark transition-all duration-300 ${
-                    isActiveLink(link.href) ? 'w-full' : 'w-0 group-hover:w-full'
-                  }`}></span>
+                  {/* Active indicator */}
+                  {isActiveLink(link.href) && (
+                    <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-neon-orange rounded-full animate-pulse"></span>
+                  )}
                 </Link>
               ))}
             </nav>
@@ -136,11 +136,11 @@ const Navbar: React.FC = () => {
             <LanguageSwitcher />
             <ThemeToggle />
             <button
-              className="p-2 rounded-md text-neutral-dark dark:text-dark-neutral-dark hover:text-primary dark:hover:text-dark-primary hover:bg-neutral-light dark:hover:bg-dark-neutral-light"
+              className="p-2 rounded-lg text-metallic hover:text-neon-orange hover:bg-metallic/5 transition-colors duration-300 border border-transparent hover:border-neon-orange/20"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             >
-              <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} className="h-6 w-6" />
+              <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -154,7 +154,7 @@ const Navbar: React.FC = () => {
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="md:hidden mt-4 pb-4 overflow-hidden"
           >
-            <nav className="flex flex-col space-y-2">
+            <nav className="flex flex-col space-y-1">
               {navLinks.map((link, index) => (
                 <motion.div
                   key={link.name}
@@ -164,10 +164,10 @@ const Navbar: React.FC = () => {
                 >
                   <Link
                     href={link.href}
-                    className={`block text-base font-medium transition-all duration-300 hover:text-primary dark:hover:text-dark-primary px-3 py-2.5 rounded-lg ${
+                    className={`block text-sm font-medium transition-all duration-300 px-4 py-3 rounded-lg font-mono tracking-wide ${
                       isActiveLink(link.href)
-                        ? 'text-primary dark:text-dark-primary bg-primary/10 dark:bg-dark-primary/10'
-                        : 'text-neutral-dark dark:text-dark-neutral-dark hover:bg-neutral-light/50 dark:hover:bg-dark-neutral-light/50'
+                        ? 'text-neon-orange bg-neon-orange/5 border border-neon-orange/20'
+                        : 'text-metallic hover:text-white hover:bg-metallic/5'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
