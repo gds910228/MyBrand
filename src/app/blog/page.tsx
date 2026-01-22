@@ -12,8 +12,8 @@ import EnhancedTagCloud from '@/components/EnhancedTagCloud';
 // 博客列表页面（英文）
 // 支持查询参数：?tag=xxx&page=1&pageSize=9&sort=desc|asc
 
-// ISR 缓存配置：每小时重新验证一次
-export const revalidate = 3600;
+// ISR 缓存配置：每5分钟重新验证一次，确保获取最新的Notion签名URL
+export const revalidate = 300;
 
 export default async function BlogPage({
   searchParams,

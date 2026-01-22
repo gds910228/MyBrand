@@ -1,5 +1,5 @@
-// ISR 缓存配置：每小时重新验证一次
-export const revalidate = 3600;
+// ISR 缓存配置：每5分钟重新验证一次，确保获取最新的Notion签名URL
+export const revalidate = 300;
 
 import { Metadata } from 'next';
 import Image from 'next/image';
