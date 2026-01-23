@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? 'bg-deep-charcoal/95 dark:bg-deep-charcoal/95 backdrop-blur-md shadow-lg shadow-neon-orange/5 py-3 border-b border-metallic/10'
+          ? 'bg-white/95 dark:bg-deep-charcoal/95 backdrop-blur-md shadow-lg shadow-neon-orange/5 py-3 border-b border-neutral-200 dark:border-metallic/10'
           : 'bg-transparent py-5'
       }`}
     >
@@ -79,7 +79,7 @@ const Navbar: React.FC = () => {
           {/* Logo */}
           <Link
             href={locale === 'zh' ? '/zh' : '/'}
-            className="flex items-center text-2xl font-bold font-heading text-white group transition-smooth"
+            className="flex items-center text-2xl font-bold font-heading text-neutral-darker dark:text-white group transition-smooth"
           >
             <div className="w-10 h-10 mr-2 relative group-hover:scale-110 transition-transform duration-300">
               <Image
@@ -92,8 +92,8 @@ const Navbar: React.FC = () => {
             </div>
             <span className="gradient-text group-hover:neon-text transition-all duration-300">
               Miso
-            </span><span className="text-metallic group-hover:text-white transition-colors duration-300">Tech</span>
-            <span className="text-xs ml-2 text-metallic font-normal hidden sm:inline-block opacity-70 group-hover:opacity-100 transition-opacity font-mono">
+            </span><span className="text-neutral-dark dark:text-metallic group-hover:text-neutral-darker dark:group-hover:text-white transition-colors duration-300">Tech</span>
+            <span className="text-xs ml-2 text-neutral-medium dark:text-metallic font-normal hidden sm:inline-block opacity-70 group-hover:opacity-100 transition-opacity font-mono">
               &lt;Decode /&gt;
             </span>
           </Link>
@@ -107,8 +107,8 @@ const Navbar: React.FC = () => {
                   href={link.href}
                   className={`text-sm font-medium transition-all duration-300 relative group py-2 px-3 rounded-lg font-mono tracking-wide ${
                     isActiveLink(link.href)
-                      ? 'text-neon-orange bg-neon-orange/5 border border-neon-orange/20'
-                      : 'text-metallic hover:text-white hover:bg-metallic/5'
+                      ? 'text-neon-orange bg-neon-orange/5 dark:bg-neon-orange/10 border border-neon-orange/20'
+                      : 'text-neutral-dark dark:text-metallic hover:text-neon-orange dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-metallic/5'
                   }`}
                 >
                   {link.name}
@@ -136,7 +136,7 @@ const Navbar: React.FC = () => {
             <LanguageSwitcher />
             <ThemeToggle />
             <button
-              className="p-2 rounded-lg text-metallic hover:text-neon-orange hover:bg-metallic/5 transition-colors duration-300 border border-transparent hover:border-neon-orange/20"
+              className="p-2 rounded-lg text-neutral-dark dark:text-metallic hover:text-neon-orange dark:hover:text-neon-orange hover:bg-neutral-100 dark:hover:bg-metallic/5 transition-colors duration-300 border border-transparent hover:border-neon-orange/20"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             >
@@ -166,8 +166,8 @@ const Navbar: React.FC = () => {
                     href={link.href}
                     className={`block text-sm font-medium transition-all duration-300 px-4 py-3 rounded-lg font-mono tracking-wide ${
                       isActiveLink(link.href)
-                        ? 'text-neon-orange bg-neon-orange/5 border border-neon-orange/20'
-                        : 'text-metallic hover:text-white hover:bg-metallic/5'
+                        ? 'text-neon-orange bg-neon-orange/5 dark:bg-neon-orange/10 border border-neon-orange/20'
+                        : 'text-neutral-dark dark:text-metallic hover:text-neon-orange dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-metallic/5'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >

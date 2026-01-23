@@ -78,9 +78,20 @@ module.exports = {
           dark: '#121212',
         },
         'metallic': {
-          DEFAULT: '#C0C0C0',
-          light: '#D4D4D4',
-          dark: '#A0A0A0',
+          DEFAULT: '#6B7280',
+          light: '#9CA3AF',
+          dark: '#C0C0C0',
+        },
+        // Light mode colors
+        'surface': {
+          DEFAULT: '#FFFFFF',
+          light: '#F9FAFB',
+          dark: '#1E1E1E',
+        },
+        'surface-alt': {
+          DEFAULT: '#F9FAFB',
+          light: '#F3F4F6',
+          dark: '#252525',
         },
         // Legacy colors (for compatibility)
         primary: {

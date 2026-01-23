@@ -48,7 +48,7 @@ export default async function LatestPosts({ locale = 'en' }: LatestPostsProps) {
   console.log('[LatestPosts] 最新的3篇文章:', latestPosts.map(p => p.title));
 
   return (
-    <Section id="latest-posts" bgColor="bg-neutral-light">
+    <Section id="latest-posts" bgColor="bg-neutral-light dark:bg-deep-charcoal">
       <SectionHeading
         title={locale === 'zh' ? '最新文章' : 'Latest Articles'}
         subtitle={

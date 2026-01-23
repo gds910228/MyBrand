@@ -35,11 +35,11 @@ const SectionHeading: React.FC<SectionHeadingProps> = ({
 
   return (
     <div className={`${marginClasses[size]} ${centered ? 'text-center' : ''} ${className}`}>
-      <h2 className="text-3xl md:text-4xl font-bold font-heading text-neutral-darker dark:text-dark-neutral-darker mb-4">
+      <h2 className="text-3xl md:text-4xl font-bold font-heading text-neutral-darker dark:text-white mb-4">
         {title}
       </h2>
       {subtitle && (
-        <p className="text-lg text-neutral-dark dark:text-dark-neutral-dark max-w-3xl mx-auto">
+        <p className="text-lg text-neutral-dark dark:text-metallic max-w-3xl mx-auto">
           {subtitle}
         </p>
       )}

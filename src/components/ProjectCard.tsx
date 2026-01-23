@@ -125,12 +125,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <div className="p-6">
         {/* 标题和元数据 */}
         <div className="mb-3">
-          <h3 className="text-xl font-bold font-heading text-white mb-2 group-hover:text-neon-orange transition-colors line-clamp-2">
+          <h3 className="text-xl font-bold font-heading text-neutral-darker dark:text-white mb-2 group-hover:text-neon-orange transition-colors line-clamp-2">
             {title}
           </h3>
 
           {/* 项目元信息 */}
-          <div className="flex flex-wrap items-center gap-3 text-xs text-metallic mb-3 font-mono">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-medium dark:text-metallic mb-3 font-mono">
             {year && (
               <span className="inline-flex items-center gap-1">
                 <FontAwesomeIcon icon={faCalendar} className="w-3 h-3 text-electric-blue" />
@@ -148,7 +148,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
 
         {/* 描述 */}
-        <p className="text-metallic mb-4 text-sm line-clamp-3 min-h-[60px]">
+        <p className="text-neutral-dark dark:text-metallic mb-4 text-sm line-clamp-3 min-h-[60px]">
           {truncatedDescription}
         </p>
 
@@ -172,7 +172,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         )}
 
         {/* 底部操作栏 */}
-        <div className="flex items-center justify-between pt-4 border-t border-metallic/10">
+        <div className="flex items-center justify-between pt-4 border-t border-neutral-200 dark:border-metallic/10">
           {/* GitHub 链接 */}
           {githubUrl && (
             <a
@@ -180,7 +180,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               aria-label="View on GitHub"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-metallic/5 hover:bg-metallic/10 text-white transition-all duration-200 hover:scale-105 border border-metallic/20 hover:border-metallic/30"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-100 dark:bg-metallic/5 hover:bg-neutral-200 dark:hover:bg-metallic/10 text-neutral-darker dark:text-white transition-all duration-200 hover:scale-105 border border-neutral-200 dark:border-metallic/20 hover:border-neutral-300 dark:hover:border-metallic/30"
               title={locale === 'zh' ? '在 GitHub 上查看' : 'View on GitHub'}
             >
               <FontAwesomeIcon icon={faGithub} className="w-4 h-4" />

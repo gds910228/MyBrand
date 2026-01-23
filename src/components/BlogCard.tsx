@@ -87,7 +87,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
           </div>
         )}
 
-        <h3 className="text-xl font-bold font-heading text-white mb-2 group-hover:text-neon-orange transition-colors">
+        <h3 className="text-xl font-bold font-heading text-neutral-darker dark:text-white mb-2 group-hover:text-neon-orange transition-colors">
           {title}
         </h3>
 
@@ -100,7 +100,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
                 return (
                   <svg
                     key={i}
-                    className={`w-4 h-4 ${filled ? 'text-warning' : 'text-metallic/30'}`}
+                    className={`w-4 h-4 ${filled ? 'text-warning' : 'text-neutral-300 dark:text-metallic/30'}`}
                     viewBox="0 0 20 20"
                     fill="currentColor"
                     aria-hidden="true"
@@ -110,18 +110,18 @@ const BlogCard: React.FC<BlogCardProps> = ({
                 );
               })}
             </div>
-            <span className="text-xs text-metallic font-mono">
+            <span className="text-xs text-neutral-medium dark:text-metallic font-mono">
               {score.toFixed(1)}/5
             </span>
           </div>
         )}
 
-        <p className="text-metallic mb-4 flex-grow text-sm line-clamp-3">
+        <p className="text-neutral-dark dark:text-metallic mb-4 flex-grow text-sm line-clamp-3">
           {excerpt}
         </p>
 
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-metallic/10">
-          <span className="text-xs text-metallic font-mono">
+        <div className="flex items-center justify-between mt-auto pt-4 border-t border-neutral-200 dark:border-metallic/10">
+          <span className="text-xs text-neutral-medium dark:text-metallic font-mono">
             {formattedDate}
           </span>
 

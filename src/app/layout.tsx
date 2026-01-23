@@ -58,7 +58,7 @@ export default function RootLayout({
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4217180014733990"
           crossOrigin="anonymous"></script>
       </head>
-      <body className="min-h-screen flex flex-col antialiased text-metallic bg-deep-charcoal transition-colors duration-200">
+      <body className="min-h-screen flex flex-col antialiased text-neutral-dark dark:text-metallic bg-white dark:bg-deep-charcoal transition-colors duration-200">
         <ThemeProvider>
           <Navbar />
           <main className="flex-grow pt-20">{children}</main>

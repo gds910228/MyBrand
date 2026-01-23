@@ -42,7 +42,7 @@ const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ locale = 'en' }) =>
   const featuredProjects = (projects || []).filter((p) => !!p.featured);
 
   return (
-    <Section id="featured-projects" bgColor="bg-white">
+    <Section id="featured-projects" bgColor="bg-white dark:bg-deep-charcoal">
       <SectionHeading
         title={locale === 'zh' ? "精选项目" : "Featured Projects"}
         subtitle={

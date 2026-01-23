@@ -33,7 +33,7 @@ const Hero: React.FC<HeroProps> = ({
   const titleParts = title.split('|').map(part => part.trim());
 
   return (
-    <div className="relative overflow-hidden bg-deep-charcoal bg-noise-overlay">
+    <div className="relative overflow-hidden bg-white dark:bg-deep-charcoal bg-noise-overlay">
       {/* Industrial tech background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Grid overlay */}
@@ -131,7 +131,7 @@ const Hero: React.FC<HeroProps> = ({
               </span>
             </motion.div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold font-heading leading-tight tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold font-heading leading-tight tracking-tight text-neutral-darker dark:text-white">
               {useGradientTitle && titleParts.length > 1 ? (
                 <>
                   <span className="gradient-text">{titleParts[0]}</span>
@@ -143,12 +143,12 @@ const Hero: React.FC<HeroProps> = ({
                   ))}
                 </>
               ) : (
-                <span className="text-white">{title}</span>
+                <span>{title}</span>
               )}
             </h1>
 
             <motion.p
-              className="mt-6 sm:mt-8 text-lg sm:text-xl md:text-2xl text-metallic leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light"
+              className="mt-6 sm:mt-8 text-lg sm:text-xl md:text-2xl text-neutral-dark dark:text-metallic leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -253,12 +253,12 @@ const Hero: React.FC<HeroProps> = ({
 
             {/* Floating label */}
             <motion.div
-              className="absolute bottom-4 left-4 z-20 px-3 py-1.5 bg-deep-charcoal/80 backdrop-blur-sm border border-metallic/20 rounded"
+              className="absolute bottom-4 left-4 z-20 px-3 py-1.5 bg-white/80 dark:bg-deep-charcoal/80 backdrop-blur-sm border border-neutral-200 dark:border-metallic/20 rounded"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8, duration: 0.4 }}
             >
-              <span className="text-xs font-mono text-metallic">
+              <span className="text-xs font-mono text-neutral-dark dark:text-metallic">
                 <span className="text-neon-orange">●</span> LIVE
               </span>
             </motion.div>
@@ -267,7 +267,7 @@ const Hero: React.FC<HeroProps> = ({
       </div>
 
       {/* Bottom fade gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-deep-charcoal to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-deep-charcoal to-transparent"></div>
     </div>
   );
 };
