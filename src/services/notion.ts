@@ -1017,7 +1017,7 @@ export async function getBlogPostById(id: string) {
       slug:
         props.slug?.rich_text?.[0]?.plain_text ||
         props.Slug?.rich_text?.[0]?.plain_text ||
-        undefined,
+        title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
     };
   } catch (error) {
     console.error('Error fetching blog post from Notion:', error);

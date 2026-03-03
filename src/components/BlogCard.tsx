@@ -59,7 +59,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
       viewport={{ once: true }}
       transition={{ duration: transitions.smooth.duration / 1000, ease: easing.easeOut }}
       whileHover={{ y: -8, scale: 1.01 }}
-      className="tech-card rounded-xl overflow-hidden h-full flex flex-col"
+      className="group tech-card rounded-xl overflow-hidden h-full flex flex-col"
     >
       <div className="relative h-48 w-full overflow-hidden">
         <FallbackImage
@@ -70,7 +70,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         {/* 工业风格覆盖层 */}
-        <div className="absolute inset-0 bg-gradient-to-t from-deep-charcoal via-transparent to-transparent opacity-60"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-deep-charcoal via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none"></div>
       </div>
 
       <div className="p-6 flex flex-col flex-grow">
@@ -127,7 +127,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
 
           <Link
             href={linkHref}
-            className="inline-block text-neon-orange font-medium hover:text-electric-blue text-sm font-mono flex items-center gap-2 group/link"
+            className="inline-block text-neon-orange font-medium hover:text-electric-blue text-sm font-mono flex items-center gap-2 group/link relative z-10"
           >
             {locale === 'zh' ? '阅读更多' : 'Read More'}
             <svg

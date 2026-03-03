@@ -31,6 +31,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   // 优先通过 slug + 语言精确查询；若失败则按 id 回退
   let project = await getProjectBySlug(slugParam, { language: 'English' });
   if (!project) {
+    // 尝试中文版本
+    project = await getProjectBySlug(slugParam, { language: 'Chinese' });
+  }
+  if (!project) {
     const normalizedId = normalizeNotionId(slugParam);
     if (normalizedId) {
       project = await getProjectById(normalizedId);

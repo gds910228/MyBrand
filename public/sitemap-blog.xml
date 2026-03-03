@@ -2,6 +2,12 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- 去重后的博客条目（中英文各一条） -->
   <url>
+    <loc>https://www.misitebo.win/zh/blog/openclaw-lobsterai-beginner-no-code-guide</loc>
+    <lastmod>2026-02-23T16:00:00Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.misitebo.win/zh/blog/n8n-ai-news-agent-tutorial</loc>
     <lastmod>2026-01-14T16:00:00Z</lastmod>
     <changefreq>monthly</changefreq>

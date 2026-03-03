@@ -29,15 +29,20 @@ import { format } from 'date-fns';
 
 // 生成元数据
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const posts = await getAllBlogPosts({ language: 'English' });
-  const post = posts.find(p => p.slug === params.slug);
-  
+  // 并行获取英文和中文文章
+  const [postsEn, postsZh] = await Promise.all([
+    getAllBlogPosts({ language: 'English' }),
+    getAllBlogPosts({ language: 'Chinese' })
+  ]);
+
+  const post = postsEn.find(p => p.slug === params.slug) || postsZh.find(p => p.slug === params.slug);
+
   if (!post) {
     return {
       title: 'Post Not Found',
     };
   }
-  
+
   return {
     title: post.title,
     description: post.excerpt,
@@ -63,8 +68,14 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
   try {
     console.log(`[BlogPost] Loading post with slug: ${params.slug}`);
 
-    const posts = await getAllBlogPosts({ language: 'English' });
-    const post = posts.find(p => p.slug === params.slug);
+    // 并行获取英文和中文文章以提高性能
+    const [postsEn, postsZh] = await Promise.all([
+      getAllBlogPosts({ language: 'English' }),
+      getAllBlogPosts({ language: 'Chinese' })
+    ]);
+
+    // 先找英文，再找中文
+    let post = postsEn.find(p => p.slug === params.slug) || postsZh.find(p => p.slug === params.slug);
 
     if (!post) {
       console.log(`[BlogPost] Post not found with slug: ${params.slug}`);

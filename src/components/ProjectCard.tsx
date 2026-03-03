@@ -100,7 +100,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         />
 
         {/* 工业风格覆盖层 */}
-        <div className="absolute inset-0 bg-gradient-to-t from-deep-charcoal via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-deep-charcoal via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
         {/* 状态徽章 */}
         {status && (
@@ -191,7 +191,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           {/* 查看详情链接 */}
           <Link
             href={linkHref}
-            className="flex items-center gap-2 text-neon-orange font-medium hover:text-electric-blue text-sm group/link font-mono"
+            className="flex items-center gap-2 text-neon-orange font-medium hover:text-electric-blue text-sm group/link font-mono relative z-10"
           >
             {locale === 'zh' ? '查看详情' : 'View Details'}
             <FontAwesomeIcon
