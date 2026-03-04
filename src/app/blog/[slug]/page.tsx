@@ -74,6 +74,9 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
       getAllBlogPosts({ language: 'Chinese' })
     ]);
 
+    // 合并所有文章
+    const posts = [...postsEn, ...postsZh];
+
     // 先找英文，再找中文
     let post = postsEn.find(p => p.slug === params.slug) || postsZh.find(p => p.slug === params.slug);
 
