@@ -61,8 +61,13 @@ const ABOUT_PAGE_ID = process.env.NOTION_ABOUT_PAGE_ID || '';
 const BLOG_PARENT_PAGE_ID = process.env.NOTION_BLOG_PARENT_PAGE_ID || '';
 
 // 评论数据库ID - 添加连字符以匹配Notion API期望的格式
-const COMMENTS_DATABASE_ID = process.env.NOTION_COMMENTS_DATABASE_ID 
+const COMMENTS_DATABASE_ID = process.env.NOTION_COMMENTS_DATABASE_ID
   ? process.env.NOTION_COMMENTS_DATABASE_ID.replace(/^(\w{8})(\w{4})(\w{4})(\w{4})(\w{12})$/, '$1-$2-$3-$4-$5')
+  : '';
+
+// 询价数据库ID - 同样规范化连字符
+const INQUIRIES_DATABASE_ID = process.env.NOTION_INQUIRIES_DATABASE_ID
+  ? process.env.NOTION_INQUIRIES_DATABASE_ID.replace(/^(\w{8})(\w{4})(\w{4})(\w{4})(\w{12})$/, '$1-$2-$3-$4-$5')
   : '';
 
  // 简易缓存（内存，默认60秒）
@@ -1462,4 +1467,133 @@ function buildCommentTree(comments: CommentType[]): CommentType[] {
   });
   
   return commentTree;
-} 
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Project Inquiry (services-page lead capture)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface InquiryPayload {
+  name: string;
+  email: string;
+  company?: string;
+  backupContact?: string;
+  serviceType: string;    // option code, e.g. 'ai-app'
+  budget: string;         // option code, e.g. '1500-7500'
+  timeline: string;       // option code, e.g. 'this-month'
+  description: string;
+  referral?: string;      // option code, e.g. 'x-twitter'
+  locale: 'en' | 'zh';
+}
+
+// Maps the form's option codes to the Notion DB's Select option labels.
+// Keep these in sync with the schema documented in the services plan file.
+const INQUIRY_SERVICE_TYPE_LABELS: Record<string, string> = {
+  'ai-app': 'AI Application',
+  'enterprise': 'Enterprise System',
+  'mvp': 'Product MVP',
+  'advisory': 'Advisory',
+  'other': 'Other',
+};
+
+const INQUIRY_BUDGET_LABELS: Record<string, string> = {
+  'under-1500': '< $1.5k',
+  '1500-7500': '$1.5k – $7.5k',
+  '7500-30000': '$7.5k – $30k',
+  'over-30000': '$30k+',
+  'tbd': 'TBD',
+};
+
+const INQUIRY_TIMELINE_LABELS: Record<string, string> = {
+  'urgent': 'Urgent',
+  'this-month': 'Within 1 month',
+  'this-quarter': '1 – 3 months',
+  'flexible': 'Flexible',
+};
+
+const INQUIRY_REFERRAL_LABELS: Record<string, string> = {
+  'referral': 'Referral',
+  'x-twitter': 'X/Twitter',
+  'jike': 'Jike',
+  'search': 'Search',
+  'blog': 'Blog',
+  'linkedin': 'LinkedIn',
+  'other': 'Other',
+};
+
+/**
+ * Write a project inquiry to the Notion Inquiries database.
+ *
+ * Graceful fallback: if NOTION_API_KEY or NOTION_INQUIRIES_DATABASE_ID is
+ * unset, this resolves to { ok: false, skipped: true } without throwing —
+ * callers can still treat the submission as successful (EmailJS is the
+ * primary channel; Notion is the pipeline ledger).
+ *
+ * @returns `{ ok: true, id }` on write, `{ ok: false, ... }` on skip/error.
+ */
+export const addInquiry = async (
+  inquiry: InquiryPayload,
+): Promise<{ ok: true; id: string } | { ok: false; skipped?: boolean; error?: string }> => {
+  if (!process.env.NOTION_API_KEY || !INQUIRIES_DATABASE_ID) {
+    console.warn('[addInquiry] NOTION_API_KEY or NOTION_INQUIRIES_DATABASE_ID not set — skipping Notion write.');
+    return { ok: false, skipped: true };
+  }
+
+  try {
+    const properties: any = {
+      Name: {
+        title: [{ text: { content: inquiry.name } }],
+      },
+      Email: {
+        email: inquiry.email,
+      },
+      Company: {
+        rich_text: inquiry.company
+          ? [{ text: { content: inquiry.company } }]
+          : [],
+      },
+      BackupContact: {
+        rich_text: inquiry.backupContact
+          ? [{ text: { content: inquiry.backupContact } }]
+          : [],
+      },
+      ServiceType: {
+        select: { name: INQUIRY_SERVICE_TYPE_LABELS[inquiry.serviceType] || 'Other' },
+      },
+      Budget: {
+        select: { name: INQUIRY_BUDGET_LABELS[inquiry.budget] || 'TBD' },
+      },
+      Timeline: {
+        select: { name: INQUIRY_TIMELINE_LABELS[inquiry.timeline] || 'Flexible' },
+      },
+      Description: {
+        rich_text: [{ text: { content: inquiry.description } }],
+      },
+      Locale: {
+        select: { name: inquiry.locale },
+      },
+      Status: {
+        select: { name: 'New' },
+      },
+      CreatedAt: {
+        date: { start: new Date().toISOString() },
+      },
+    };
+
+    if (inquiry.referral) {
+      properties.Referral = {
+        select: { name: INQUIRY_REFERRAL_LABELS[inquiry.referral] || 'Other' },
+      };
+    }
+
+    const response = await notion.pages.create({
+      parent: { database_id: INQUIRIES_DATABASE_ID },
+      properties,
+    });
+
+    return { ok: true, id: response.id };
+  } catch (error: any) {
+    console.error('[addInquiry] Error writing inquiry to Notion:', error?.message || error);
+    return { ok: false, error: error?.message || 'Unknown Notion write error' };
+  }
+};

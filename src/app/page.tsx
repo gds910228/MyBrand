@@ -12,12 +12,19 @@ export default function HomePage() {
   return (
     <>
       <Hero
-        title="MisoTech"
-        subtitle="Decode the Stack"
-        ctaText="View Our Solutions"
-        ctaLink="/projects"
+        title="Ship AI Products. | Not Just Demos."
+        subtitle="Archer — ex-Big-Tech senior engineer with 10+ years of full-stack delivery for Fortune 500 retail / automotive / QSR clients. Now solo, building AI applications, enterprise systems, and product MVPs."
+        ctaText="Hire Me →"
+        ctaLink="/services"
+        secondaryCtaText="See Case Studies"
+        secondaryCtaLink="/projects"
         imageSrc="/images/hero-image.jpg"
-        imageAlt="MisoTech - Professional Tech Solutions"
+        imageAlt="MisoTech — Available for Hire"
+        stats={[
+          { value: '10+', label: 'YEARS SHIPPING', color: 'orange' },
+          { value: 'F500', label: 'CLIENT BACKGROUND', color: 'blue' },
+          { value: 'AI', label: 'FIRST ARCHITECTURE', color: 'green' },
+        ]}
       />
       <FeaturedProjects locale={defaultLocale} />
       <LatestPosts locale={defaultLocale} />
@@ -26,4 +33,4 @@ export default function HomePage() {
       />
     </>
   );
-} 
+}

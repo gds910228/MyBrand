@@ -6,6 +6,14 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { transitions, easing } from '@/styles/animations';
 
+type HeroStatColor = 'orange' | 'blue' | 'green';
+
+interface HeroStat {
+  value: string;
+  label: string;
+  color?: HeroStatColor;
+}
+
 interface HeroProps {
   title: string;
   subtitle: string;
@@ -16,7 +24,21 @@ interface HeroProps {
   imageSrc: string;
   imageAlt: string;
   useGradientTitle?: boolean;
+  stats?: HeroStat[];
 }
+
+// Preserves the original numbers when callers don't pass `stats` — safe migration.
+const DEFAULT_STATS: HeroStat[] = [
+  { value: '50+', label: 'PROJECTS', color: 'orange' },
+  { value: '100%', label: 'QUALITY', color: 'blue' },
+  { value: '24/7', label: 'SUPPORT', color: 'green' },
+];
+
+const STAT_COLOR_CLASS: Record<HeroStatColor, string> = {
+  orange: 'text-neon-orange',
+  blue: 'text-electric-blue',
+  green: 'text-acid-green',
+};
 
 const Hero: React.FC<HeroProps> = ({
   title,
@@ -28,6 +50,7 @@ const Hero: React.FC<HeroProps> = ({
   imageSrc,
   imageAlt,
   useGradientTitle = true,
+  stats = DEFAULT_STATS,
 }) => {
   // Split title for gradient effect
   const titleParts = title.split('|').map(part => part.trim());
@@ -190,25 +213,35 @@ const Hero: React.FC<HeroProps> = ({
             </motion.div>
 
             {/* Tech stats */}
-            <motion.div
-              className="mt-12 grid grid-cols-3 gap-6 border-t border-metallic/10 pt-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-            >
-              <div className="text-center lg:text-left">
-                <div className="text-2xl sm:text-3xl font-bold font-heading text-neon-orange">50+</div>
-                <div className="text-xs font-mono text-metallic mt-1">PROJECTS</div>
-              </div>
-              <div className="text-center lg:text-left">
-                <div className="text-2xl sm:text-3xl font-bold font-heading text-electric-blue">100%</div>
-                <div className="text-xs font-mono text-metallic mt-1">QUALITY</div>
-              </div>
-              <div className="text-center lg:text-left">
-                <div className="text-2xl sm:text-3xl font-bold font-heading text-acid-green">24/7</div>
-                <div className="text-xs font-mono text-metallic mt-1">SUPPORT</div>
-              </div>
-            </motion.div>
+            {stats.length > 0 && (
+              <motion.div
+                className={`mt-12 grid gap-6 border-t border-metallic/10 pt-8 ${
+                  stats.length === 2
+                    ? 'grid-cols-2'
+                    : stats.length === 4
+                      ? 'grid-cols-2 sm:grid-cols-4'
+                      : 'grid-cols-3'
+                }`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+              >
+                {stats.map((stat, i) => (
+                  <div key={i} className="text-center lg:text-left">
+                    <div
+                      className={`text-2xl sm:text-3xl font-bold font-heading ${
+                        STAT_COLOR_CLASS[stat.color ?? 'orange']
+                      }`}
+                    >
+                      {stat.value}
+                    </div>
+                    <div className="text-xs font-mono text-metallic mt-1">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            )}
           </motion.div>
 
           {/* Image with industrial styling */}

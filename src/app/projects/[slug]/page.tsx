@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Section from '@/components/Section';
 import ContactCTA from '@/components/ContactCTA';
+import CaseStudyCTA from '@/components/CaseStudyCTA';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
@@ -161,6 +162,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         </div>
       </Section>
 
+      <CaseStudyCTA locale="en" />
       <ContactCTA />
     </>
   );

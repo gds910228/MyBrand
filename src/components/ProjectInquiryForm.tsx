@@ -150,19 +150,21 @@ const ProjectInquiryForm: React.FC<ProjectInquiryFormProps> = ({
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
-    try {
-      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-      const serviceID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-      const templateID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+    const serviceID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const templateID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
 
+    const { subject, message } = composeMessageBody();
+
+    // Build the two delivery promises. We use Promise.allSettled so that if
+    // either channel fails (e.g. Notion DB not yet configured, or EmailJS
+    // key rotated), the other still delivers and the user sees success.
+    const emailPromise: Promise<unknown> = (async () => {
       if (!publicKey || !serviceID || !templateID) {
-        throw new Error('Missing EmailJS configuration');
+        throw new Error('EmailJS not configured');
       }
-
-      const { subject, message } = composeMessageBody();
-
       emailjs.init({ publicKey });
-      await emailjs.send(serviceID, templateID, {
+      return emailjs.send(serviceID, templateID, {
         from_name: form.name,
         reply_to: form.email,
         subject,
@@ -170,19 +172,63 @@ const ProjectInquiryForm: React.FC<ProjectInquiryFormProps> = ({
         to_email: recipientEmail,
         to_name: 'MisoTech',
       });
+    })();
 
+    const notionPromise: Promise<unknown> = fetch('/api/inquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: form.name,
+        email: form.email,
+        company: form.company,
+        backupContact: form.backupContact,
+        serviceType: form.serviceType,
+        budget: form.budget,
+        timeline: form.timeline,
+        description: form.description,
+        referral: form.referral,
+        locale,
+      }),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const text = await r.text().catch(() => '');
+        throw new Error(`/api/inquiries returned ${r.status}: ${text}`);
+      }
+      const payload = await r.json();
+      // The endpoint always returns 200; payload.ok=false means Notion
+      // was unreachable / unconfigured. Treat as a soft failure for the
+      // overall delivery (EmailJS may still have won).
+      if (payload?.ok === false && !payload.skipped) {
+        throw new Error(`Notion write failed: ${payload.error || 'unknown'}`);
+      }
+      return payload;
+    });
+
+    const [emailResult, notionResult] = await Promise.allSettled([
+      emailPromise,
+      notionPromise,
+    ]);
+
+    if (emailResult.status === 'rejected') {
+      console.warn('[ProjectInquiryForm] EmailJS delivery failed:', emailResult.reason);
+    }
+    if (notionResult.status === 'rejected') {
+      console.warn('[ProjectInquiryForm] Notion delivery failed:', notionResult.reason);
+    }
+
+    // Success if EITHER channel landed — the inquiry was captured somewhere.
+    if (emailResult.status === 'fulfilled' || notionResult.status === 'fulfilled') {
       setForm(INITIAL_STATE);
       setTouched({});
       setErrors({});
       setSubmitStatus('success');
       setTimeout(() => setSubmitStatus('idle'), 8000);
-    } catch (err) {
-      console.error('Project inquiry submission failed:', err);
+    } else {
       setSubmitStatus('error');
       setTimeout(() => setSubmitStatus('idle'), 8000);
-    } finally {
-      setIsSubmitting(false);
     }
+
+    setIsSubmitting(false);
   };
 
   // ── Reusable UI primitives (scoped to this component) ──────────────────────

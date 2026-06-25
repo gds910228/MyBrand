@@ -200,6 +200,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             />
           </Link>
         </div>
+
+        {/* "Build similar" hire CTA — links into the services inquiry form */}
+        <Link
+          href={locale === 'zh' ? '/zh/services#inquiry' : '/services#inquiry'}
+          className="mt-3 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border border-neon-orange/20 bg-neon-orange/5 hover:bg-neon-orange/10 hover:border-neon-orange/50 text-neon-orange text-xs font-mono tracking-wide transition-all duration-300 group/hire"
+          title={locale === 'zh' ? '类似项目询价' : 'Inquire for a similar project'}
+        >
+          <span>{locale === 'zh' ? '类似项目？立即询价' : 'Build something similar'}</span>
+          <span className="transition-transform duration-200 group-hover/hire:translate-x-1">→</span>
+        </Link>
       </div>
     </motion.div>
   );

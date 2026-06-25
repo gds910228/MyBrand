@@ -7,18 +7,25 @@ export default function ZhHomePage() {
   return (
     <>
       <Hero
-        title="MisoTech"
-        subtitle="解码技术栈"
-        ctaText="查看我们的解决方案"
-        ctaLink="/zh/projects"
-        imageSrc="/images/hero-image.jpg" 
-        imageAlt="MisoTech - 专业技术解决方案" 
+        title="让 AI 真正落地， | 而不只是停留在 Demo"
+        subtitle="Archer——前大厂高级工程师，10+ 年全栈交付经验，曾为多家世界 500 强零售、汽车、餐饮客户主导核心业务系统。现独立开发者，专注 AI 应用、企业系统与产品 MVP。"
+        ctaText="立即合作 →"
+        ctaLink="/zh/services"
+        secondaryCtaText="查看案例"
+        secondaryCtaLink="/zh/projects"
+        imageSrc="/images/hero-image.jpg"
+        imageAlt="MisoTech — 接单中"
+        stats={[
+          { value: '10+', label: '年交付经验', color: 'orange' },
+          { value: 'F500', label: '世界 500 强背景', color: 'blue' },
+          { value: 'AI', label: '优先架构', color: 'green' },
+        ]}
       />
       <FeaturedProjects locale="zh" />
       <LatestPosts locale="zh" />
-      <ContactCTA 
+      <ContactCTA
         padding="py-24"
       />
     </>
   );
-} 
+}
