@@ -3,6 +3,11 @@ import FeaturedProjects from '@/components/FeaturedProjects';
 import LatestPosts from '@/components/LatestPosts';
 import ContactCTA from '@/components/ContactCTA';
 
+// ISR 缓存配置：每 60 秒重新验证一次。
+// 不加这个的话，整页会被 Next.js 静态化，部署后 LatestPosts 永远不更新。
+// 必须和 /src/app/page.tsx 保持一致。
+export const revalidate = 60;
+
 export default function ZhHomePage() {
   return (
     <>
