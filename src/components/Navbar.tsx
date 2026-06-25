@@ -16,6 +16,7 @@ import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 const navLinksEn = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
+  { name: 'Services', href: '/services' },
   { name: 'Projects', href: '/projects' },
   { name: 'Blog', href: '/blog' },
   { name: 'Contact', href: '/contact' },
@@ -26,6 +27,7 @@ const navLinksEn = [
 const navLinksZh = [
   { name: '首页', href: '/zh' },
   { name: '关于', href: '/zh/about' },
+  { name: '服务', href: '/zh/services' },
   { name: '项目', href: '/zh/projects' },
   { name: '博客', href: '/zh/blog' },
   { name: '联系', href: '/zh/contact' },
