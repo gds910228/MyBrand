@@ -62,27 +62,19 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 // 博客文章详情页面（中文）
 export default async function BlogPostDetailPageZh({ params }: { params: { slug: string } }) {
   try {
-    console.log(`[BlogPost-ZH] Loading post with slug: ${params.slug}`);
-
     const posts = await getAllBlogPosts({ language: 'Chinese' });
     const post = posts.find(p => p.slug === params.slug);
 
     if (!post) {
-      console.log(`[BlogPost-ZH] Post not found with slug: ${params.slug}`);
       notFound();
     }
-
-    console.log(`[BlogPost-ZH] Found post: ${post.title}, fetching full content...`);
 
     // 获取完整的博客文章内容
     const fullPost = await getBlogPostById(post.id);
 
     if (!fullPost) {
-      console.log(`[BlogPost-ZH] Full post content not found for ID: ${post.id}`);
       notFound();
     }
-
-    console.log(`[BlogPost-ZH] Successfully loaded full post content`);
 
     // 格式化日期（中文）
     const formattedDate = format(new Date(fullPost.date), 'yyyy年MM月dd日', { locale: zhCN });

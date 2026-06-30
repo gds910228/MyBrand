@@ -66,8 +66,6 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 // 博客文章详情页面
 export default async function BlogPostDetailPage({ params }: { params: { slug: string } }) {
   try {
-    console.log(`[BlogPost] Loading post with slug: ${params.slug}`);
-
     // 并行获取英文和中文文章以提高性能
     const [postsEn, postsZh] = await Promise.all([
       getAllBlogPosts({ language: 'English' }),
@@ -81,21 +79,15 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
     let post = postsEn.find(p => p.slug === params.slug) || postsZh.find(p => p.slug === params.slug);
 
     if (!post) {
-      console.log(`[BlogPost] Post not found with slug: ${params.slug}`);
       notFound();
     }
-
-    console.log(`[BlogPost] Found post: ${post.title}, fetching full content...`);
 
     // 获取完整的博客文章内容
     const fullPost = await getBlogPostById(post.id);
 
     if (!fullPost) {
-      console.log(`[BlogPost] Full post content not found for ID: ${post.id}`);
       notFound();
     }
-
-    console.log(`[BlogPost] Successfully loaded full post content`);
 
     // 格式化日期
     const formattedDate = format(new Date(fullPost.date), 'MMMM d, yyyy');

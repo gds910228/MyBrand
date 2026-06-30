@@ -6,8 +6,6 @@ export async function GET(request: Request) {
   const query = searchParams.get('q');
   const language = searchParams.get('language') || 'English';
 
-  console.log(`[API] Search request: query="${query}", language="${language}"`);
-
   if (!query?.trim()) {
     return NextResponse.json({ results: [], count: 0 });
   }
@@ -29,8 +27,6 @@ export async function GET(request: Request) {
                      (postsResult.status === 'fulfilled' ? postsResult.value : []);
     const projectData = Array.isArray(projectsResult) ? projectsResult :
                         (projectsResult.status === 'fulfilled' ? projectsResult.value : []);
-
-    console.log(`[API] Loaded ${blogPosts.length} posts, ${projectData.length} projects`);
 
     // Optimized search: only get full content for highly relevant posts first
     // Start with basic search on metadata to filter candidates
@@ -70,8 +66,6 @@ export async function GET(request: Request) {
 
       return titleMatch || excerptMatch || tagsMatch || techMatch;
     });
-
-    console.log(`[API] Pre-filtered ${preFiltered.length} candidates out of ${candidates.length}`);
 
     // Get full content only for top candidates (limit to 10 for performance)
     const postsWithContent = await Promise.all(
@@ -196,8 +190,6 @@ export async function GET(request: Request) {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     })
     .slice(0, 20); // Limit results for performance
-
-    console.log(`[API] Search complete: found ${searchResults.length} results for "${query}"`);
 
     return NextResponse.json({
       results: searchResults,

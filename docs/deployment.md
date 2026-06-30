@@ -1,5 +1,8 @@
 # 部署方案与步骤
 
+## 首页拉取最新文章
+https://misitebo.win/api/revalidate?secret=REVALIDATE_SECRET_ARCHER_2026
+
 ## 部署平台对比
 
 | 平台 | 优点 | 缺点 | 适用场景 |

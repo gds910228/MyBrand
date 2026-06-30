@@ -53,8 +53,6 @@ function LanguageSwitcherContent() {
     if (qs) {
       newPath = `${newPath}?${qs}`;
     }
-    
-    console.log(`切换语言：${currentLocale} -> ${newLocale}，新路径：${newPath}`);
 
     // 博客详情页：预检目标语言同 slug 页面，不存在则回退到对应语言的博客列表
     const isBlogDetail = /^\/(zh\/)?blog\/[^\/?#]+$/.test(pathname);

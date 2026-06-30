@@ -39,9 +39,6 @@ const BlogCoverImage: React.FC<BlogCoverImageProps> = ({
     errorRef.current = true;
     setHasError(true);
 
-    console.error('[BlogCoverImage] 图片加载失败:', currentSrc.substring(0, 100));
-    console.log('[BlogCoverImage] 回退到占位图');
-
     setCurrentSrc('/images/covers/placeholder.svg');
   }, [currentSrc]);
 

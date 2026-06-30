@@ -45,11 +45,8 @@ const FallbackImage: React.FC<FallbackImageProps> = ({
     errorRef.current = true;
     setHasError(true);
 
-    console.warn(`[FallbackImage] 图片加载失败: ${currentSrc.substring(0, 100)}...`);
-
     // 无论是什么类型的URL，加载失败都直接回退到占位图
     if (currentSrc !== fallbackSrc) {
-      console.log(`[FallbackImage] 回退到占位图: ${fallbackSrc}`);
       setCurrentSrc(fallbackSrc);
     }
   }, [currentSrc, fallbackSrc]);

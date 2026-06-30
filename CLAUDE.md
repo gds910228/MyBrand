@@ -51,11 +51,6 @@ npm test             # Run tests (currently placeholder)
 
 ## Testing & Debugging
 
-### Debug Tools
-- `debug-notion.js` - Notion API debugging script
-- `debug-notion-v2.js` - Enhanced Notion API debugging
-- `/api/test-email` - Email functionality testing endpoint
-
 ### Test Current Setup
 Use `DISABLE_NOTION_CACHE=true` in `.env.local` to disable Notion data caching for real-time preview updates during development.
 
@@ -124,7 +119,10 @@ NEXT_PUBLIC_GA_ID=your_google_analytics_id
 ## API Routes
 
 - `/api/comments` - CRUD operations for blog comments
-- `/api/test-email` - Email functionality testing endpoint
+- `/api/inquiries` - Project inquiry submissions (writes to Notion)
+- `/api/projects` - Project list data
+- `/api/search` - Site-wide search across blog posts and projects
+- `/api/revalidate` - On-demand ISR revalidation (secret-protected)
 
 ## Performance Optimizations
 
@@ -165,7 +163,7 @@ The Notion integration (`/src/services/notion.ts`) includes:
 
 1. **Content Updates**: Primary content managed through Notion databases
 2. **Local Development**: Use `npm run dev:env` for full environment setup
-3. **Testing**: Email functionality via `/api/test-email` endpoint
+3. **Testing**: Use `DISABLE_NOTION_CACHE=true` for real-time Notion preview during development
 4. **Deployment**: Static generation with dynamic API routes
 5. **Analytics**: Vercel Analytics and Google Analytics integrated
 

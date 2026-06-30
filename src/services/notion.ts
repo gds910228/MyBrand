@@ -620,14 +620,8 @@ export async function getAllBlogPosts(options?: { language?: string; limit?: num
             if (pageAny.cover) {
               if (pageAny.cover.type === 'external') {
                 coverImage = validateImageUrl(pageAny.cover.external.url);
-                if (coverImage) {
-                  console.log(`[Notion] 从页面封面获取图片: ${coverImage}`);
-                }
               } else if (pageAny.cover.type === 'file') {
                 coverImage = validateImageUrl(pageAny.cover.file.url);
-                if (coverImage) {
-                  console.log(`[Notion] 从页面文件获取图片: ${coverImage}`);
-                }
               }
             }
 
@@ -635,9 +629,6 @@ export async function getAllBlogPosts(options?: { language?: string; limit?: num
             if (!coverImage && props.CoverImage?.files?.[0]) {
               const f = props.CoverImage.files[0];
               coverImage = validateImageUrl(f?.file?.url || f?.external?.url || '');
-              if (coverImage) {
-                console.log(`[Notion] 从数据库CoverImage获取图片: ${coverImage}`);
-              }
             }
 
             // 3. 兼容 Text/URL 类型 CoverImage，支持本地文件名映射到 /images/covers/*
@@ -651,10 +642,8 @@ export async function getAllBlogPosts(options?: { language?: string; limit?: num
               if (coverText) {
                 if (/^https?:\/\//i.test(coverText)) {
                   coverImage = coverText;
-                  console.log(`[Notion] 从文本URL获取图片: ${coverImage}`);
                 } else {
                   coverImage = `/images/covers/${coverText}`;
-                  console.log(`[Notion] 映射本地图片: ${coverImage}`);
                 }
               }
             }
@@ -662,7 +651,6 @@ export async function getAllBlogPosts(options?: { language?: string; limit?: num
             // 4. 如果都没有找到，使用默认占位图
             if (!coverImage) {
               coverImage = '/images/covers/placeholder.svg';
-              console.log(`[Notion] 使用默认占位图: ${coverImage}`);
             }
 
             // 标签
