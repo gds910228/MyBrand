@@ -49,6 +49,7 @@ export async function getSearchDocuments(locale: Locale): Promise<SearchDoc[]> {
       keywords: Array.isArray(post.tags) ? post.tags.filter(Boolean) : [],
       date: post.date || post.lastEditedTime || new Date(0).toISOString(),
       readTime: post.readTime || undefined,
+      language: post.language || undefined,
     });
   }
 
@@ -63,8 +64,11 @@ export async function getSearchDocuments(locale: Locale): Promise<SearchDoc[]> {
       excerpt: project.description || project.subtitle || '',
       keywords: Array.isArray(project.technologies) ? project.technologies.filter(Boolean) : [],
       date: project.date || project.createdTime || new Date(0).toISOString(),
+      language: project.language || undefined,
     });
   }
 
-  return docs;
+  // 按当前语言过滤：保留匹配当前语言的内容 + 未标注语言的中性内容（如跨语言的技术类项目）；
+  // 两种语言互斥标注的内容不再交叉出现，保持与站内博客/项目列表一致的语言口径。
+  return docs.filter((d) => !d.language || d.language === language);
 }

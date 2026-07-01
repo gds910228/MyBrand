@@ -29,6 +29,8 @@ export interface SearchDoc {
   date: string;
   /** 仅 blog 有。 */
   readTime?: string;
+  /** 内容语言（'English' | 'Chinese'），未标注则为空（视为中性、跨语言可见）。 */
+  language?: string;
 }
 
 /** 客户端 / 服务端检索后返回给 UI 的结果项。 */

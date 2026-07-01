@@ -9,6 +9,7 @@ import Container from './Container';
 import ThemeToggle from './ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import SearchButton from './SearchButton';
+import CommandPalette from './CommandPalette';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -38,6 +39,7 @@ const navLinksZh = [
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const pathname = usePathname();
 
   // 根据路径确定当前语言
@@ -58,6 +60,18 @@ const Navbar: React.FC = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
+  }, []);
+
+  // 全局 ⌘K / Ctrl+K 唤起命令面板（单一监听，避免多个 SearchButton 重复注册）。
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setIsSearchOpen((v) => !v);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // 检查链接是否活跃
@@ -123,7 +137,7 @@ const Navbar: React.FC = () => {
             </nav>
 
             {/* Search Button */}
-            <SearchButton locale={locale} />
+            <SearchButton locale={locale} showHint onOpen={() => setIsSearchOpen(true)} />
 
             {/* Language Switcher */}
             <LanguageSwitcher />
@@ -134,7 +148,7 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Menu Button and Theme Toggle */}
           <div className="md:hidden flex items-center space-x-2">
-            <SearchButton locale={locale} />
+            <SearchButton locale={locale} onOpen={() => setIsSearchOpen(true)} />
             <LanguageSwitcher />
             <ThemeToggle />
             <button
@@ -181,6 +195,13 @@ const Navbar: React.FC = () => {
           </motion.div>
         )}
       </Container>
+
+      {/* 单一命令面板实例（供桌面/移动触发器与 ⌘K 共用） */}
+      <CommandPalette
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        locale={locale}
+      />
     </header>
   );
 };
