@@ -85,9 +85,14 @@ NEXT_PUBLIC_GA_ID=your_google_analytics_id
 - **Fallback**: Local JSON data when Notion API unavailable
 
 ### Content Structure
-- Projects: `/src/data/projects.ts` (local fallback)
-- Blog posts: `/src/data/blog.ts` (local fallback)
-- Comments: Local storage with Notion sync capability
+Local data/fallback files in `/src/data`:
+- `blog.ts` - Blog post fallback data
+- `comments.ts` - Comment data helpers
+- `experience.ts` - About-page experience timeline
+- `services.ts` - Services page offerings
+- `skills.ts` - Skills data
+
+Note: Projects have no local fallback file — they are sourced from Notion (with the `/api/projects` route).
 
 ## Routing & Internationalization
 

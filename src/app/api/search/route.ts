@@ -1,208 +1,63 @@
 import { NextResponse } from 'next/server';
-import { getAllBlogPosts, getAllProjects, getBlogPostById } from '@/services/notion';
+import { getSearchDocuments } from '@/services/searchData';
+import { createSearchIndex, runSearch } from '@/lib/searchIndex';
+import { locales, type Locale } from '@/i18n/locales';
+
+/**
+ * 服务端兜底搜索。
+ *
+ * GET /api/search?q=...&locale=en|zh   （兼容旧参数 ?language=English|Chinese）
+ *
+ * 作用：
+ * - 供 /search 页在禁用 JS / 首屏 SSR 时返回结果（命令面板走客户端 /api/search/index）。
+ * - 与客户端共用 src/lib/searchIndex 的同一套 MiniSearch 配置，口径一致。
+ *
+ * 相比旧实现，移除了「对前 10 篇博客逐篇 getBlogPostById 拉全文」的 N+1 逻辑，
+ * 改为对列表元数据建一次内存索引后检索，请求数显著下降、有相关性排序与拼写容错。
+ */
+export const revalidate = 600;
+
+function resolveLocale(searchParams: URLSearchParams): Locale {
+  const localeParam = searchParams.get('locale') as Locale | null;
+  if (localeParam && locales.includes(localeParam)) return localeParam;
+  // 兼容旧的 language=English|Chinese
+  const language = searchParams.get('language');
+  if (language === 'Chinese') return 'zh';
+  return 'en';
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q');
-  const language = searchParams.get('language') || 'English';
+  const locale = resolveLocale(searchParams);
 
   if (!query?.trim()) {
-    return NextResponse.json({ results: [], count: 0 });
+    return NextResponse.json({ results: [], count: 0, query: '' });
   }
 
   try {
-    // Server-side data fetching with all environment variables available
-    const [postsResult, projectsResult] = await Promise.allSettled([
-      getAllBlogPosts({ language }).catch(err => {
-        console.error('[API] Failed to load blog posts:', err);
-        return [];
-      }),
-      getAllProjects({}).catch(err => {
-        console.error('[API] Failed to load projects:', err);
-        return [];
-      })
-    ]);
+    const documents = await getSearchDocuments(locale);
+    const index = createSearchIndex(documents);
+    const hits = runSearch(index, query, 20);
 
-    const blogPosts = Array.isArray(postsResult) ? postsResult :
-                     (postsResult.status === 'fulfilled' ? postsResult.value : []);
-    const projectData = Array.isArray(projectsResult) ? projectsResult :
-                        (projectsResult.status === 'fulfilled' ? projectsResult.value : []);
+    // 兼容旧响应形状：保留 results/count/query，字段补齐前端已用的键。
+    const results = hits.map((h) => ({
+      id: h.refId,
+      slug: h.slug,
+      title: h.title,
+      excerpt: h.excerpt,
+      type: h.type,
+      date: h.date,
+      score: h.score,
+      ...(h.type === 'blog'
+        ? { tags: h.keywords, readTime: h.readTime }
+        : { technologies: h.keywords }),
+    }));
 
-    // Optimized search: only get full content for highly relevant posts first
-    // Start with basic search on metadata to filter candidates
-    const lowercaseQuery = query.toLowerCase();
-
-    // Quick initial filtering based on metadata only
-    const candidates = [
-      ...blogPosts.map(post => ({
-        id: post.id,
-        slug: post.slug,
-        title: post.title,
-        excerpt: post.excerpt,
-        type: 'blog' as const,
-        date: post.date,
-        tags: post.tags,
-        readTime: post.readTime,
-        content: [] as any[]
-      })),
-      ...projectData.map(project => ({
-        id: project.id,
-        slug: project.slug,
-        title: project.title,
-        excerpt: project.description,
-        type: 'project' as const,
-        date: project.date || project.createdTime || new Date().toISOString(),
-        technologies: project.technologies,
-        content: [] as any[]
-      }))
-    ];
-
-    // Pre-filter based on metadata to reduce API calls
-    const preFiltered = candidates.filter(item => {
-      const titleMatch = item.title.toLowerCase().includes(lowercaseQuery);
-      const excerptMatch = item.excerpt?.toLowerCase().includes(lowercaseQuery);
-      const tagsMatch = 'tags' in item && item.tags?.some((tag: string) => tag.toLowerCase().includes(lowercaseQuery));
-      const techMatch = 'technologies' in item && item.technologies?.some((tech: string) => tech.toLowerCase().includes(lowercaseQuery));
-
-      return titleMatch || excerptMatch || tagsMatch || techMatch;
-    });
-
-    // Get full content only for top candidates (limit to 10 for performance)
-    const postsWithContent = await Promise.all(
-      preFiltered
-        .filter(item => item.type === 'blog')
-        .slice(0, 10)
-        .map(async (post) => {
-          try {
-            const fullPost = await getBlogPostById(post.id);
-            return {
-              ...post,
-              content: fullPost?.content || []
-            };
-          } catch (error) {
-            console.warn(`[API] Failed to load full content for post ${post.id}:`, error);
-            return post;
-          }
-        })
-    );
-
-    // Combine content-aware posts with other candidates
-    const combinedContent = [
-      ...postsWithContent,
-      ...preFiltered.filter(item => item.type !== 'blog' || !postsWithContent.find(p => p.id === item.id))
-    ];
-
-    // Extract text from Notion content blocks
-    const extractTextFromNotionContent = (content: any[]): string => {
-      if (!content || !Array.isArray(content)) return '';
-
-      return content.map(block => {
-        if (block.type === 'paragraph' && block.paragraph?.rich_text) {
-          return block.paragraph.rich_text.map((text: any) => text.plain_text || '').join('');
-        }
-        if (block.type === 'heading_1' && block.heading_1?.rich_text) {
-          return block.heading_1.rich_text.map((text: any) => text.plain_text || '').join('');
-        }
-        if (block.type === 'heading_2' && block.heading_2?.rich_text) {
-          return block.heading_2.rich_text.map((text: any) => text.plain_text || '').join('');
-        }
-        if (block.type === 'heading_3' && block.heading_3?.rich_text) {
-          return block.heading_3.rich_text.map((text: any) => text.plain_text || '').join('');
-        }
-        if (block.type === 'bulleted_list_item' && block.bulleted_list_item?.rich_text) {
-          return block.bulleted_list_item.rich_text.map((text: any) => text.plain_text || '').join('');
-        }
-        if (block.type === 'numbered_list_item' && block.numbered_list_item?.rich_text) {
-          return block.numbered_list_item.rich_text.map((text: any) => text.plain_text || '').join('');
-        }
-        if (block.type === 'quote' && block.quote?.rich_text) {
-          return block.quote.rich_text.map((text: any) => text.plain_text || '').join('');
-        }
-        return '';
-      }).join(' ');
-    };
-
-    // Enhanced search with better scoring
-    const calculateSearchScore = (item: any, query: string, contentText: string): number => {
-      const queryWords = query.toLowerCase().split(/\s+/).filter(word => word.length > 0);
-      let score = 0;
-      const titleLower = item.title.toLowerCase();
-      const excerptLower = (item.excerpt || '').toLowerCase();
-      const contentLower = contentText.toLowerCase();
-
-      // Title matches (highest priority)
-      queryWords.forEach(word => {
-        // Exact title match gets very high score
-        if (titleLower === word) score += 50;
-        // Title contains exact word
-        else if (titleLower.includes(word)) score += 25;
-        // Title contains partial match
-        else if (titleLower.includes(word.substring(0, Math.floor(word.length / 2)))) score += 10;
-      });
-
-      // Content matches
-      queryWords.forEach(word => {
-        // Count occurrences in content
-        const contentMatches = (contentLower.match(new RegExp(word, 'g')) || []).length;
-        score += Math.min(contentMatches * 3, 15); // Cap content points
-
-        // Exact content phrase match
-        if (contentLower.includes(word)) score += 8;
-      });
-
-      // Excerpt matches
-      queryWords.forEach(word => {
-        if (excerptLower.includes(word)) score += 12;
-      });
-
-      // Tag matches
-      item.tags?.forEach((tag: string) => {
-        queryWords.forEach(word => {
-          if (tag.toLowerCase().includes(word)) score += 6;
-        });
-      });
-
-      // Technology matches (for projects)
-      item.technologies?.forEach((tech: string) => {
-        queryWords.forEach(word => {
-          if (tech.toLowerCase().includes(word)) score += 6;
-        });
-      });
-
-      // Bonus for recent content (within last 30 days)
-      const itemDate = new Date(item.date);
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      if (itemDate > thirtyDaysAgo) score += 5;
-
-      return score;
-    };
-
-    const searchResults = combinedContent.map(item => {
-      const contentText = extractTextFromNotionContent(item.content || []);
-      const score = calculateSearchScore(item, query, contentText);
-      return { ...item, score };
-    })
-    .filter(item => item.score > 0)
-    .sort((a, b) => {
-      // Sort by score first, then by date
-      if (a.score !== b.score) return b.score - a.score;
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    })
-    .slice(0, 20); // Limit results for performance
-
-    return NextResponse.json({
-      results: searchResults,
-      count: searchResults.length,
-      query
-    });
-
+    return NextResponse.json({ results, count: results.length, query });
   } catch (error) {
     console.error('[API] Search error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json(
-      { error: 'Search failed', message: errorMessage },
-      { status: 500 }
-    );
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ error: 'Search failed', message }, { status: 500 });
   }
 }
