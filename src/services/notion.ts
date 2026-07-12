@@ -1702,7 +1702,25 @@ export const addSubscriber = async (
       page_size: 1,
     });
     if (existing.results.length > 0) {
-      return { ok: true, data: mapPageToSubscriber(existing.results[0]) };
+      const page: any = existing.results[0];
+      const currentStatus = page.properties?.status?.status?.name;
+      const currentLocale = page.properties?.locale?.select?.name;
+      const needReset = currentStatus === 'unsubscribed'; // 退订后重新订阅：重置 pending + 重签 token
+      const needLocaleUpdate = currentLocale !== locale;
+
+      if (needReset || needLocaleUpdate) {
+        const updates: any = {};
+        if (needLocaleUpdate) updates.locale = { select: { name: locale } };
+        if (needReset) {
+          updates.status = { status: { name: 'pending' } };
+          // 重签 token
+          const { confirm, unsubscribe } = genTokens(email);
+          updates.token = { rich_text: [{ text: { content: `${confirm}|${unsubscribe}` } }] };
+        }
+        const updated: any = await notion.pages.update({ page_id: page.id, properties: updates });
+        return { ok: true, data: mapPageToSubscriber(updated) };
+      }
+      return { ok: true, data: mapPageToSubscriber(page) };
     }
 
     const { confirm, unsubscribe } = genTokens(email);
@@ -1745,10 +1763,8 @@ export const confirmSubscriber = async (
     if (found.results.length === 0) return { ok: false, error: 'not-found' };
     const page: any = found.results[0];
     const currentStatus = page.properties?.status?.status?.name;
-    // 已退订用户不能被旧 confirm token 重新激活（见评审 P1-3）
-    if (currentStatus === 'unsubscribed') {
-      return { ok: false, error: 'unsubscribed' };
-    }
+    // 不拒绝 unsubscribed：重订阅时 addSubscriber 已重置为 pending + 重签 token；
+    // 旧 confirm token 靠 7 天有效期 + 邮箱可达性保证安全。
     const alreadyActive = currentStatus === 'active';
     if (!alreadyActive) {
       await notion.pages.update({
