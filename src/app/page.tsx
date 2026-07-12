@@ -3,6 +3,7 @@ import FeaturedProjects from '@/components/FeaturedProjects';
 import LatestPosts from '@/components/LatestPosts';
 import Hero from '@/components/Hero';
 import ContactCTA from '@/components/ContactCTA';
+import SubscribeSection from '@/components/SubscribeSection';
 
 // ISR 缓存配置：每 60 秒重新验证一次。
 // 首页底部 LatestPosts 是 Server Component，吃这里的 revalidate；
@@ -30,6 +31,7 @@ export default function HomePage() {
       />
       <FeaturedProjects locale={defaultLocale} />
       <LatestPosts locale={defaultLocale} />
+      <SubscribeSection />
       <ContactCTA
         padding="py-24"
       />

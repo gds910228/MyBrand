@@ -45,7 +45,7 @@
 | | `.harness/skills/requesting-code-review/` | 派 reviewer subagent | 阶段 2/4/6 |
 | | `.harness/skills/receiving-code-review/` | 接收评审、技术研判 | 阶段 2/4/6 |
 | | `.harness/skills/writing-skills/` | 补写缺口 skill | 缺口 skill 需求时 |
-| | `.harness/skills/finishing-a-development-branch/` | 分支完成/合并 | 阶段 7 |
+| | `.harness/skills/finishing-a-development-branch/` | 分支完成/合并 | 本项目在 main 开发，暂不调度 |
 | | `.harness/skills/using-superpowers/` | 框架路由 | 会话起始自检 |
 | **Wiki（L3 按需）** | `wiki/` | 业务上下文、FAQ | Agent 自主查阅（阶段六待填） |
 | **变更记录** | `.harness/changes/<变更类型>-<需求>-<日期>/` | 全流程追溯 | 每个需求自动创建 |
@@ -103,14 +103,14 @@
 - **Entry**：spec APPROVED。
 - **Skill**：`executing-plans`（先 `writing-plans` 拆任务为原子 task）。
 - **动作**：
-  1. 从 `main` 切 feature 分支：`feat/<简述>` 或 `fix/<简述>`。
+  1. 在 `main` 分支直接开发（本项目默认不切 feature 分支）。
   2. 按 plan 逐任务实现，每个任务一个原子提交，提交信息半角冒号规范。
   3. 遵守 Rules 全部硬性约束（见「项目编码规范」）。
   4. 动 Notion 字段须防空；页面变更同步 EN/ZH；不内联 Notion SDK 于页面。
 - **产出**：代码 + 提交；`coding/coding_report_v1.md`（记录改动文件、关键决策）。
 - **Quality Gate**：`npm run lint` 无 error（**可程序化验证**，执行并贴输出）。
 - **Rollback**：lint 失败 → 修复，不进阶段 4。
-- **summary.md 更新**：记录 feature 分支名、改动文件数。
+- **summary.md 更新**：记录改动文件数。
 
 ### 阶段 4 - 编码评审
 - **Entry**：编码完成、lint 通过。
@@ -140,13 +140,13 @@
 - **Rollback**：不通过 → 回阶段 5。
 - **注**：B 路径（跳过）则本阶段一并跳过。
 
-### 阶段 7 - 代码推送
+### 阶段 7 - 代码提交
 - **Entry**：阶段 4/6 通过（或 B 路径跳过测试阶段）。
-- **Skill**：`finishing-a-development-branch`。
+- **Skill**：无（本项目直接在 main 提交，不走 finishing-a-development-branch）。
 - **动作**：
   1. 确认所有提交信息遵循半角冒号规范。
-  2. push feature 分支。
-- **Quality Gate**：`git status` 干净（无未提交）；feature 分支已 push（**可程序化验证**）。
+  2. 在 `main` 分支提交（原子提交，一次一逻辑变更）。
+- **Quality Gate**：`git status` 干净（无未提交）（**可程序化验证**）。
 - **Rollback**：有未提交改动 → 回阶段 3 收尾。
 
 ### 阶段 8 - CI 验证
@@ -165,7 +165,7 @@
 - **Entry**：阶段 8 等价门禁通过。
 - **⚠️ 项目现状**：**无自动化部署流水线**。本阶段**手动**。
 - **务实处理**：
-  1. 合并 feature → `main`（或开 PR 后合并）。
+  1. 确认改动已在 `main` 提交（阶段7）。
   2. 触发生产部署（Vercel 自动部署 main，或手动）。
   3. **ISR 内容变更**（Notion 数据/博客/项目列表）→ 调用 `/api/revalidate?path=/<受影响路径>&secret=$REVALIDATE_SECRET`。**注意：`REVALIDATE_SECRET` 未配置时端点拒绝运行**，须先确认 `.env.local`/生产环境已配置。
   4. 端到端验证：访问受影响页面 **EN + ZH 两套**，确认渲染正确、无 500。

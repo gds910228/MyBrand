@@ -92,5 +92,53 @@
   },
   "language": {
     "switchTo": "切换到{locale}"
+  },
+  "subscribe": {
+    "sectionTitle": "订阅更新",
+    "sectionDesc": "当我发布新文章时收到通知。不发垃圾邮件,随时可退订。",
+    "emailPlaceholder": "你的邮箱地址",
+    "subscribeButton": "订阅",
+    "subscribing": "订阅中...",
+    "success": "确认邮件已发送!请查收邮箱激活订阅。",
+    "error": "出错了,请稍后重试。",
+    "invalidEmail": "请输入有效的邮箱地址。",
+    "demoMode": "演示模式:邮件仅在服务端记录(未配置密钥)。",
+    "push": {
+      "title": "浏览器通知",
+      "desc": "在浏览器中接收即时推送通知。",
+      "subscribeButton": "开启通知",
+      "unsubscribeButton": "关闭通知",
+      "unsupported": "你的浏览器不支持推送通知。",
+      "permissionDenied": "通知权限被拒绝。",
+      "enabled": "通知已开启。",
+      "disabled": "通知已关闭。"
+    },
+    "confirm": {
+      "title": "订阅已确认",
+      "desc": "你的邮箱订阅已激活。你将收到新文章通知。",
+      "demoDesc": "演示模式:Notion 未配置,仅模拟确认。",
+      "backHome": "返回首页",
+      "invalid": "此确认链接无效或已过期。",
+      "already": "你的订阅已处于激活状态。"
+    },
+    "unsubscribe": {
+      "title": "已退订",
+      "desc": "你已成功退订。不会再收到后续邮件。",
+      "demoDesc": "演示模式:Notion 未配置,仅模拟退订。",
+      "resubscribe": "重新订阅",
+      "invalid": "此退订链接无效。"
+    },
+    "email": {
+      "confirmSubject": "确认你订阅 MisoTech",
+      "confirmGreeting": "你好,",
+      "confirmIntro": "请确认你的订阅,以接收 MisoTech 的新文章通知。",
+      "confirmButton": "确认订阅",
+      "confirmIgnore": "如果你没有发起此请求,可安全忽略本邮件。",
+      "notifyGreeting": "你好,",
+      "notifyIntro": "MisoTech 刚发布了一篇新文章:",
+      "notifyReadMore": "阅读文章",
+      "notifyFooter": "你收到此邮件是因为订阅了 MisoTech。",
+      "unsubscribeLink": "退订"
+    }
   }
 } 

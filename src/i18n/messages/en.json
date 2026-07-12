@@ -92,5 +92,53 @@
   },
   "language": {
     "switchTo": "Switch to {locale}"
+  },
+  "subscribe": {
+    "sectionTitle": "Subscribe to Updates",
+    "sectionDesc": "Get notified when I publish new articles. No spam, unsubscribe anytime.",
+    "emailPlaceholder": "Your email address",
+    "subscribeButton": "Subscribe",
+    "subscribing": "Subscribing...",
+    "success": "Confirmation email sent! Check your inbox to activate your subscription.",
+    "error": "Something went wrong. Please try again later.",
+    "invalidEmail": "Please enter a valid email address.",
+    "demoMode": "Demo mode: emails are logged server-side only (no keys configured).",
+    "push": {
+      "title": "Browser Notifications",
+      "desc": "Get instant push notifications in your browser.",
+      "subscribeButton": "Enable Notifications",
+      "unsubscribeButton": "Disable Notifications",
+      "unsupported": "Your browser doesn't support push notifications.",
+      "permissionDenied": "Notification permission was denied.",
+      "enabled": "Notifications enabled.",
+      "disabled": "Notifications disabled."
+    },
+    "confirm": {
+      "title": "Subscription Confirmed",
+      "desc": "Your email subscription is now active. You'll receive new article notifications.",
+      "demoDesc": "Demo mode: Notion not configured, simulated confirmation.",
+      "backHome": "Back to Home",
+      "invalid": "This confirmation link is invalid or expired.",
+      "already": "Your subscription was already active."
+    },
+    "unsubscribe": {
+      "title": "Unsubscribed",
+      "desc": "You've been unsubscribed. You won't receive further emails.",
+      "demoDesc": "Demo mode: Notion not configured, simulated unsubscribe.",
+      "resubscribe": "Subscribe Again",
+      "invalid": "This unsubscribe link is invalid."
+    },
+    "email": {
+      "confirmSubject": "Confirm your subscription to MisoTech",
+      "confirmGreeting": "Hi,",
+      "confirmIntro": "Please confirm your subscription to receive new article notifications from MisoTech.",
+      "confirmButton": "Confirm Subscription",
+      "confirmIgnore": "If you didn't request this, you can safely ignore this email.",
+      "notifyGreeting": "Hi,",
+      "notifyIntro": "A new article was just published on MisoTech:",
+      "notifyReadMore": "Read Article",
+      "notifyFooter": "You're receiving this because you subscribed to MisoTech.",
+      "unsubscribeLink": "Unsubscribe"
+    }
   }
 } 

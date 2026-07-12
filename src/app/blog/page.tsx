@@ -8,6 +8,7 @@ import { getAllBlogPosts } from '@/services/notion';
 import { format } from 'date-fns';
 import BlogViewManager from '@/components/BlogViewManager';
 import EnhancedTagCloud from '@/components/EnhancedTagCloud';
+import SubscribeSection from '@/components/SubscribeSection';
 
 // 博客列表页面（英文）
 // 支持查询参数：?tag=xxx&page=1&pageSize=9&sort=desc|asc
@@ -352,6 +353,7 @@ export default async function BlogPage({
           )}
         </Container>
       </Section>
+      <SubscribeSection />
     </>
   );
 }

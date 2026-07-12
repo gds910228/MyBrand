@@ -1,4 +1,5 @@
 import { Client } from '@notionhq/client';
+import crypto from 'crypto';
 
 /**
  * 验证和清理图片URL
@@ -68,6 +69,11 @@ const COMMENTS_DATABASE_ID = process.env.NOTION_COMMENTS_DATABASE_ID
 // 询价数据库ID - 同样规范化连字符
 const INQUIRIES_DATABASE_ID = process.env.NOTION_INQUIRIES_DATABASE_ID
   ? process.env.NOTION_INQUIRIES_DATABASE_ID.replace(/^(\w{8})(\w{4})(\w{4})(\w{4})(\w{12})$/, '$1-$2-$3-$4-$5')
+  : '';
+
+// 订阅数据库 ID（邮件订阅 + Web Push，角度2）。复用同一连字符规范化。
+const SUBSCRIBERS_DATABASE_ID = process.env.NOTION_SUBSCRIBERS_DATABASE_ID
+  ? process.env.NOTION_SUBSCRIBERS_DATABASE_ID.replace(/^(\w{8})(\w{4})(\w{4})(\w{4})(\w{12})$/, '$1-$2-$3-$4-$5')
   : '';
 
  // 简易缓存（内存，默认60秒）
@@ -1583,5 +1589,381 @@ export const addInquiry = async (
   } catch (error: any) {
     console.error('[addInquiry] Error writing inquiry to Notion:', error?.message || error);
     return { ok: false, error: error?.message || 'Unknown Notion write error' };
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Subscribers (邮件订阅 + Web Push，角度2)
+//  字段结构与实际 Notion 库对齐（camelCase）：name(title)/email/status/locale/
+//  createdAt(created_time)/token(rich_text)/pushSubscription(rich_text)
+//  降级模式同 addInquiry：无 NOTION_API_KEY/订阅库 ID 时返回 { ok:false, skipped:true }
+// ═══════════════════════════════════════════════════════════════════════════
+
+export type SubscriberStatus = 'pending' | 'active' | 'unsubscribed';
+export type Locale = 'en' | 'zh';
+
+export interface SubscriberType {
+  id: string;
+  email: string | null;
+  locale: Locale | null;
+  status: SubscriberStatus;
+  token: string;          // 确认 token（HMAC 签名）
+  unsubscribeToken: string; // 退订 token（独立）
+  pushSubscription: string | null; // JSON 文本
+  createdAt: string;
+}
+
+type SubscriberOk<T> = { ok: true; data: T };
+type SubscriberSkip = { ok: false; skipped: true };
+type SubscriberErr = { ok: false; skipped?: false; error: string };
+type SubscriberResult<T> = SubscriberOk<T> | SubscriberSkip | SubscriberErr;
+
+// —— token 生成（HMAC-SHA256 签名，见 spec §8）——
+// 密钥用 REVALIDATE_SECRET 复用（项目已有），不引入新 env。
+const TOKEN_SECRET = process.env.REVALIDATE_SECRET || '';
+const TOKEN_TTL_CONFIRM_MS = 7 * 24 * 60 * 60 * 1000;   // 7 天
+const TOKEN_TTL_UNSUB_MS = 30 * 24 * 60 * 60 * 1000;   // 30 天
+
+function b64url(input: string | Buffer): string {
+  return Buffer.from(input as any).toString('base64url');
+}
+
+function signToken(payload: { action: string; email: string; nonce: string; exp: number }): string {
+  if (!TOKEN_SECRET) throw new Error('REVALIDATE_SECRET not configured for token signing');
+  const body = b64url(JSON.stringify(payload));
+  const sig = crypto.createHmac('sha256', TOKEN_SECRET).update(body).digest('base64url');
+  return `${body}.${sig}`;
+}
+
+function verifyToken(token: string, action: 'confirm' | 'unsubscribe'): { valid: boolean; email?: string; reason?: string } {
+  if (!TOKEN_SECRET) return { valid: false, reason: 'no-secret' };
+  try {
+    const [body, sig] = token.split('.');
+    if (!body || !sig) return { valid: false, reason: 'malformed' };
+    const expected = crypto.createHmac('sha256', TOKEN_SECRET).update(body).digest('base64url');
+    // 常量时间比较，防时序侧信道
+    const sigBuf = Buffer.from(sig);
+    const expectedBuf = Buffer.from(expected);
+    if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
+      return { valid: false, reason: 'bad-signature' };
+    }
+    const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'));
+    if (payload.action !== action) return { valid: false, reason: 'wrong-action' };
+    if (Date.now() > payload.exp) return { valid: false, reason: 'expired' };
+    return { valid: true, email: payload.email };
+  } catch {
+    return { valid: false, reason: 'invalid' };
+  }
+}
+
+function genTokens(email: string): { confirm: string; unsubscribe: string } {
+  const nonce = b64url(crypto.randomBytes(16));
+  return {
+    confirm: signToken({ action: 'confirm', email, nonce, exp: Date.now() + TOKEN_TTL_CONFIRM_MS }),
+    unsubscribe: signToken({ action: 'unsubscribe', email, nonce: b64url(crypto.randomBytes(16)), exp: Date.now() + TOKEN_TTL_UNSUB_MS }),
+  };
+}
+
+// 从 Notion page 提取 Subscriber
+function mapPageToSubscriber(page: any): SubscriberType {
+  const p = page.properties || {};
+  const tokenField = p.token?.rich_text?.[0]?.plain_text || '';
+  // token 字段存 "confirm|unsubscribe" 拼接（见 addSubscriber），读取侧切分
+  const [confirm, unsubscribe] = tokenField.split('|');
+  return {
+    id: page.id,
+    email: p.email?.email || null,
+    locale: (p.locale?.select?.name as Locale) || null,
+    status: (p.status?.status?.name as SubscriberStatus) || 'pending',
+    token: confirm || '',
+    unsubscribeToken: unsubscribe || '',
+    pushSubscription: p.pushSubscription?.rich_text?.[0]?.plain_text || null,
+    createdAt: p.createdAt?.created_time || page.created_time,
+  };
+}
+
+/**
+ * 邮件订阅：落库 status=pending，生成双 token。
+ * 幂等：同 email 已存在则不重复建，返回既有记录。
+ */
+export const addSubscriber = async (
+  email: string,
+  locale: Locale,
+): Promise<SubscriberResult<SubscriberType>> => {
+  if (!process.env.NOTION_API_KEY || !SUBSCRIBERS_DATABASE_ID) {
+    console.warn('[addSubscriber] NOTION_API_KEY or SUBSCRIBERS_DATABASE_ID not set - skipping.');
+    return { ok: false, skipped: true };
+  }
+  try {
+    // 幂等：先查是否已存在
+    const existing = await notion.databases.query({
+      database_id: SUBSCRIBERS_DATABASE_ID,
+      filter: { property: 'email', email: { equals: email } },
+      page_size: 1,
+    });
+    if (existing.results.length > 0) {
+      return { ok: true, data: mapPageToSubscriber(existing.results[0]) };
+    }
+
+    const { confirm, unsubscribe } = genTokens(email);
+    // token 字段存 "confirm|unsubscribe" 拼接，读取侧按需切分
+    const tokenField = `${confirm}|${unsubscribe}`;
+
+    const response = await notion.pages.create({
+      parent: { database_id: SUBSCRIBERS_DATABASE_ID },
+      properties: {
+        name: { title: [{ text: { content: email } }] },
+        email: { email },
+        status: { status: { name: 'pending' } },
+        locale: { select: { name: locale } },
+        token: { rich_text: [{ text: { content: tokenField } }] },
+        pushSubscription: { rich_text: [] },
+      },
+    });
+    return { ok: true, data: mapPageToSubscriber(response) };
+  } catch (error: any) {
+    console.error('[addSubscriber] Error:', error?.message || error);
+    return { ok: false, error: error?.message || 'Unknown error' };
+  }
+};
+
+/** 确认订阅：校验 confirm token -> status=active */
+export const confirmSubscriber = async (
+  token: string,
+): Promise<SubscriberResult<{ activated: boolean }>> => {
+  if (!process.env.NOTION_API_KEY || !SUBSCRIBERS_DATABASE_ID) {
+    return { ok: false, skipped: true };
+  }
+  const v = verifyToken(token, 'confirm');
+  if (!v.valid) return { ok: false, error: `invalid-token: ${v.reason}` };
+  try {
+    const found = await notion.databases.query({
+      database_id: SUBSCRIBERS_DATABASE_ID,
+      filter: { property: 'email', email: { equals: v.email! } },
+      page_size: 1,
+    });
+    if (found.results.length === 0) return { ok: false, error: 'not-found' };
+    const page: any = found.results[0];
+    const currentStatus = page.properties?.status?.status?.name;
+    // 已退订用户不能被旧 confirm token 重新激活（见评审 P1-3）
+    if (currentStatus === 'unsubscribed') {
+      return { ok: false, error: 'unsubscribed' };
+    }
+    const alreadyActive = currentStatus === 'active';
+    if (!alreadyActive) {
+      await notion.pages.update({
+        page_id: page.id,
+        properties: { status: { status: { name: 'active' } } },
+      });
+    }
+    return { ok: true, data: { activated: !alreadyActive } };
+  } catch (error: any) {
+    console.error('[confirmSubscriber] Error:', error?.message || error);
+    return { ok: false, error: error?.message || 'Unknown error' };
+  }
+};
+
+/** 退订：校验 unsubscribe token -> status=unsubscribed */
+export const unsubscribe = async (
+  token: string,
+): Promise<SubscriberResult<{ unsubscribed: boolean }>> => {
+  if (!process.env.NOTION_API_KEY || !SUBSCRIBERS_DATABASE_ID) {
+    return { ok: false, skipped: true };
+  }
+  const v = verifyToken(token, 'unsubscribe');
+  if (!v.valid) return { ok: false, error: `invalid-token: ${v.reason}` };
+  try {
+    const found = await notion.databases.query({
+      database_id: SUBSCRIBERS_DATABASE_ID,
+      filter: { property: 'email', email: { equals: v.email! } },
+      page_size: 1,
+    });
+    if (found.results.length === 0) return { ok: false, error: 'not-found' };
+    const page: any = found.results[0];
+    await notion.pages.update({
+      page_id: page.id,
+      properties: { status: { status: { name: 'unsubscribed' } } },
+    });
+    return { ok: true, data: { unsubscribed: true } };
+  } catch (error: any) {
+    console.error('[unsubscribe] Error:', error?.message || error);
+    return { ok: false, error: error?.message || 'Unknown error' };
+  }
+};
+
+/**
+ * 列出订阅者（分页，每页100）。
+ * 无 key/库 -> 返回空数组（notify 静默 no-op）。
+ */
+export const listSubscribers = async (
+  opts?: { status?: SubscriberStatus; locale?: Locale; hasPush?: boolean },
+): Promise<SubscriberType[]> => {
+  if (!process.env.NOTION_API_KEY || !SUBSCRIBERS_DATABASE_ID) {
+    return [];
+  }
+  try {
+    const filters: any[] = [];
+    if (opts?.status) filters.push({ property: 'status', status: { equals: opts.status } });
+    if (opts?.locale) filters.push({ property: 'locale', select: { equals: opts.locale } });
+    if (opts?.hasPush) filters.push({ property: 'pushSubscription', rich_text: { is_not_empty: true } });
+
+    const all: any[] = [];
+    let cursor: string | undefined;
+    do {
+      const res: any = await notion.databases.query({
+        database_id: SUBSCRIBERS_DATABASE_ID,
+        filter: filters.length > 1 ? { and: filters } : filters.length === 1 ? filters[0] : undefined,
+        page_size: 100,
+        start_cursor: cursor,
+      });
+      all.push(...res.results);
+      cursor = res.has_more ? res.next_cursor : undefined;
+    } while (cursor);
+
+    return all.map(mapPageToSubscriber);
+  } catch (error: any) {
+    console.error('[listSubscribers] Error:', error?.message || error);
+    return [];
+  }
+};
+
+/**
+ * 注册 Web Push 订阅（解耦：不依赖先订阅 email，见 spec §9）。
+ * pushSubscription 以 endpoint 为唯一键去重：
+ *  - 已有同 endpoint 的行 -> 更新 pushSubscription
+ *  - 无 -> 新建一行（仅 push + status=active，无 email）
+ */
+export const addPushSubscription = async (
+  pushSubscription: PushSubscriptionJSON,
+  locale?: Locale,
+): Promise<SubscriberResult<{ id: string }>> => {
+  if (!process.env.NOTION_API_KEY || !SUBSCRIBERS_DATABASE_ID) {
+    console.warn('[addPushSubscription] Notion not configured - skipping.');
+    return { ok: false, skipped: true };
+  }
+  const endpoint = pushSubscription.endpoint;
+  if (!endpoint) {
+    return { ok: false, error: 'missing-endpoint' };
+  }
+  try {
+    const subJson = JSON.stringify(pushSubscription);
+
+    // 查是否已有同 endpoint 的行（pushSubscription 字段含 endpoint 子串）
+    const found = await notion.databases.query({
+      database_id: SUBSCRIBERS_DATABASE_ID,
+      filter: { property: 'pushSubscription', rich_text: { contains: endpoint } },
+      page_size: 1,
+    });
+
+    if (found.results.length > 0) {
+      const page: any = found.results[0];
+      await notion.pages.update({
+        page_id: page.id,
+        properties: { pushSubscription: { rich_text: [{ text: { content: subJson } }] } },
+      });
+      return { ok: true, data: { id: page.id } };
+    }
+
+    const response = await notion.pages.create({
+      parent: { database_id: SUBSCRIBERS_DATABASE_ID },
+      properties: {
+        name: { title: [{ text: { content: `push-${endpoint.slice(-12)}` } }] },
+        status: { status: { name: 'active' } },
+        locale: { select: { name: locale || 'en' } },
+        pushSubscription: { rich_text: [{ text: { content: subJson } }] },
+      },
+    });
+    return { ok: true, data: { id: response.id } };
+  } catch (error: any) {
+    console.error('[addPushSubscription] Error:', error?.message || error);
+    return { ok: false, error: error?.message || 'Unknown error' };
+  }
+};
+
+/** 清除失效的 push 订阅（web-push 返回 410/404 时调用） */
+export const clearPushSubscription = async (
+  endpoint: string,
+): Promise<SubscriberResult<{ cleared: boolean }>> => {
+  if (!process.env.NOTION_API_KEY || !SUBSCRIBERS_DATABASE_ID) {
+    return { ok: false, skipped: true };
+  }
+  try {
+    const found = await notion.databases.query({
+      database_id: SUBSCRIBERS_DATABASE_ID,
+      filter: { property: 'pushSubscription', rich_text: { contains: endpoint } },
+      page_size: 1,
+    });
+    if (found.results.length === 0) return { ok: true, data: { cleared: false } };
+    const page: any = found.results[0];
+    await notion.pages.update({
+      page_id: page.id,
+      properties: { pushSubscription: { rich_text: [] } },
+    });
+    return { ok: true, data: { cleared: true } };
+  } catch (error: any) {
+    console.error('[clearPushSubscription] Error:', error?.message || error);
+    return { ok: false, error: error?.message || 'Unknown error' };
+  }
+};
+
+/**
+ * 硬删除订阅者（archived）。需求#1 点名的 removeSubscriber。
+ * @param identifier email 或 token（confirm/unsubscribe 均可）
+ */
+export const removeSubscriber = async (
+  identifier: string,
+): Promise<SubscriberResult<{ removed: boolean }>> => {
+  if (!process.env.NOTION_API_KEY || !SUBSCRIBERS_DATABASE_ID) {
+    return { ok: false, skipped: true };
+  }
+  try {
+    // identifier 可能是 email 或 token。若是 token，先解出 email
+    let email = identifier;
+    if (identifier.includes('.')) {
+      const v1 = verifyToken(identifier, 'confirm');
+      const v2 = verifyToken(identifier, 'unsubscribe');
+      const emailFromToken = v1.valid ? v1.email : v2.valid ? v2.email : null;
+      if (emailFromToken) email = emailFromToken;
+    }
+    const found = await notion.databases.query({
+      database_id: SUBSCRIBERS_DATABASE_ID,
+      filter: { property: 'email', email: { equals: email } },
+      page_size: 1,
+    });
+    if (found.results.length === 0) return { ok: true, data: { removed: false } };
+    await notion.pages.update({ page_id: found.results[0].id, archived: true });
+    return { ok: true, data: { removed: true } };
+  } catch (error: any) {
+    console.error('[removeSubscriber] Error:', error?.message || error);
+    return { ok: false, error: error?.message || 'Unknown error' };
+  }
+};
+
+/**
+ * 按 slug 取博客文章（用于 notify 流，见 spec §10）。
+ * 仓库无 getBlogPostBySlug，此为 notify 专用精简版：取 title/excerpt/slug。
+ */
+export const getBlogPostBySlugForNotify = async (
+  slug: string,
+): Promise<SubscriberResult<{ slug: string; title: string; excerpt: string }>> => {
+  if (!process.env.NOTION_API_KEY || !BLOG_DATABASE_ID) {
+    return { ok: false, skipped: true };
+  }
+  try {
+    // 同时查 English 和 Chinese（与 blog/[slug]/page.tsx 一致），合并后 find
+    const [enPosts, zhPosts] = await Promise.all([
+      getAllBlogPosts({ language: 'English' }),
+      getAllBlogPosts({ language: 'Chinese' }),
+    ]);
+    const posts = [...enPosts, ...zhPosts];
+    const post = posts.find((p: any) => p.slug === slug);
+    if (!post) return { ok: false, error: 'post-not-found' };
+    return {
+      ok: true,
+      data: { slug: post.slug, title: post.title || 'Untitled', excerpt: post.excerpt || '' },
+    };
+  } catch (error: any) {
+    console.error('[getBlogPostBySlugForNotify] Error:', error?.message || error);
+    return { ok: false, error: error?.message || 'Unknown error' };
   }
 };
