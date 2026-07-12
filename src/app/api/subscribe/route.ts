@@ -8,6 +8,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // POST /api/subscribe  { email, locale }
 // Node runtime（web-push/email 间接依赖 Node crypto）。
+export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIp(request);

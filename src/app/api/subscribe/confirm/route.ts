@@ -5,6 +5,7 @@ import { rateLimited, getClientIp } from '@/lib/rateLimit';
 // GET /api/subscribe/confirm?token=...&locale=en|zh
 // 校验签名 token -> 置 status=active -> 重定向到确认成功页。
 // Node runtime。限流防 token 枚举（spec §8）。
+export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   try {
     const ip = getClientIp(request);

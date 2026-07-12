@@ -5,6 +5,7 @@ import { rateLimited, getClientIp } from '@/lib/rateLimit';
 // GET /api/unsubscribe?token=...&locale=en|zh
 // 校验签名 token -> 置 status=unsubscribed -> 重定向到退订确认页。
 // Node runtime。限流防 token 枚举（spec §8）。
+export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   try {
     const ip = getClientIp(request);

@@ -5,18 +5,30 @@ import { listSubscribers, clearPushSubscription, type SubscriberType, type Local
  * Web Push 服务层（角度2）。
  * 降级：无 VAPID Key 时，notifyAllSubscribers 降级为 console.log，不发送。
  * 失败隔离：单订阅失败不影响其他；410/404 永久失效直接清理，瞬态错误重试一次。
+ *
+ * 注意：setVapidDetails 延迟到首次调用（lazy init），避免 build 期模块加载时
+ * 在无环境变量的环境（如 Vercel build）触发异常。
  */
 
-const PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
-const PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
-const SUBJECT = process.env.VAPID_SUBJECT || 'mailto:noreply@misotech.dev';
-
-const configured = !!(PUBLIC_KEY && PRIVATE_KEY);
-if (configured) {
-  webpush.setVapidDetails(SUBJECT, PUBLIC_KEY, PRIVATE_KEY);
-}
-
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+let vapidReady = false;
+
+function ensureVapid(): boolean {
+  if (vapidReady) return true;
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
+  const privateKey = process.env.VAPID_PRIVATE_KEY || '';
+  const subject = process.env.VAPID_SUBJECT || 'mailto:noreply@misotech.dev';
+  if (!publicKey || !privateKey) return false;
+  try {
+    webpush.setVapidDetails(subject, publicKey, privateKey);
+    vapidReady = true;
+    return true;
+  } catch (e) {
+    console.error('[push] setVapidDetails failed:', e);
+    return false;
+  }
+}
 
 interface NotifyPost {
   slug: string;
@@ -35,7 +47,7 @@ function buildPayload(post: NotifyPost, locale: Locale): { title: string; body: 
     ? `${SITE_URL}/zh/blog/${post.slug}`
     : `${SITE_URL}/blog/${post.slug}`;
   const title = locale === 'zh' ? 'MisoTech 新文章' : 'MisoTech New Article';
-  const body = post.excerpt ? `${post.title} — ${post.excerpt.slice(0, 80)}` : post.title;
+  const body = post.excerpt ? `${post.title} - ${post.excerpt.slice(0, 80)}` : post.title;
   return { title, body, url };
 }
 
@@ -65,7 +77,7 @@ async function sendOne(
  * 无 VAPID Key 时打印 + 返回 skipped。
  */
 export async function notifyAllSubscribers(post: NotifyPost): Promise<PushNotifyCount> {
-  if (!configured) {
+  if (!ensureVapid()) {
     console.log('[push:demo] notify ->', post.title, '\n  (无 VAPID Key，仅打印)');
     return { pushOk: 0, pushFail: 0, pushSkipped: 0 };
   }

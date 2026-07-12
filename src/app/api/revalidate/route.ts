@@ -26,6 +26,7 @@ import { sendNewPostEmail } from '@/services/email';
 //   GET /api/revalidate?path=/&path=/zh&secret=...
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // web-push 依赖 Node crypto，不可用 Edge runtime
 
 export async function GET(request: NextRequest) {
   const secretEnv = process.env.REVALIDATE_SECRET;

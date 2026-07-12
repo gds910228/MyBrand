@@ -5,6 +5,7 @@ import { addPushSubscription } from '@/services/notion';
 // 注册 Web Push 订阅，落库（解耦，不依赖先订阅 email）。
 // VAPID 公钥前端直读 NEXT_PUBLIC_VAPID_PUBLIC_KEY，不单独建下发接口。
 // Node runtime。
+export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
