@@ -34,7 +34,11 @@ export async function POST(request: NextRequest) {
 
     // 发确认邮件（无 RESEND_API_KEY 时内部降级打印）
     const confirmToken = result.data.token;
-    await sendConfirmEmail(email, confirmToken, locale);
+    const emailResult = await sendConfirmEmail(email, confirmToken, locale);
+    if (!emailResult.ok && !emailResult.skipped) {
+      // 邮件发送失败但不影响订阅落库（订阅已成功），记录便于排查
+      console.error('[subscribe] confirm email failed:', emailResult.error);
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error: any) {
