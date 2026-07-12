@@ -4,9 +4,11 @@ import React, { useState, useEffect } from 'react';
 
 interface PostItem {
   slug: string;
-  title: string;
+  titleEn: string;
+  titleZh: string;
+  hasEn: boolean;
+  hasZh: boolean;
   date: string;
-  language: string;
 }
 
 interface NotifyResult {
@@ -159,20 +161,25 @@ export default function AdminNotifyPage() {
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    {post.language && (
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
-                        {post.language}
-                      </span>
-                    )}
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
+                      {post.hasEn && post.hasZh ? '中英' : post.hasZh ? '中' : '英'}
+                    </span>
                     {isNotified && (
                       <span className="text-xs px-1.5 py-0.5 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
                         已通知
                       </span>
                     )}
                   </div>
-                  <h3 className="font-medium text-neutral-900 dark:text-neutral-100 truncate">
-                    {post.title}
-                  </h3>
+                  {post.hasZh && (
+                    <h3 className="font-medium text-neutral-900 dark:text-neutral-100 truncate">
+                      {post.titleZh}
+                    </h3>
+                  )}
+                  {post.hasEn && (
+                    <h3 className={`text-sm text-neutral-600 dark:text-neutral-400 truncate ${post.hasZh ? 'mt-0.5' : 'font-medium text-neutral-900 dark:text-neutral-100'}`}>
+                      {post.titleEn}
+                    </h3>
+                  )}
                   <p className="text-xs text-neutral-500 mt-1">
                     {post.date?.slice(0, 10)} · slug: {post.slug}
                   </p>

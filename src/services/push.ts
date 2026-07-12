@@ -8,6 +8,8 @@ import { listSubscribers, clearPushSubscription, type SubscriberType, type Local
  *
  * 注意：setVapidDetails 延迟到首次调用（lazy init），避免 build 期模块加载时
  * 在无环境变量的环境（如 Vercel build）触发异常。
+ *
+ * 双语：一篇文章可能有中英两份内容，按订阅者 locale 选对应 title/excerpt。
  */
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
@@ -30,10 +32,17 @@ function ensureVapid(): boolean {
   }
 }
 
-interface NotifyPost {
-  slug: string;
+/** 文章内容（单语言）。 */
+interface PostContent {
   title: string;
   excerpt: string;
+}
+
+/** 双语文章：中英各可能存在（同一 slug 两条 Notion 记录）。 */
+export interface BilingualPost {
+  slug: string;
+  en?: PostContent;
+  zh?: PostContent;
 }
 
 export interface PushNotifyCount {
@@ -42,12 +51,20 @@ export interface PushNotifyCount {
   pushSkipped: number;
 }
 
-function buildPayload(post: NotifyPost, locale: Locale): { title: string; body: string; url: string } {
+/** 按订阅者 locale 选文章内容；某语言缺失则 fallback 到另一语言。 */
+function pickContent(post: BilingualPost, locale: Locale): PostContent {
+  const primary = locale === 'zh' ? post.zh : post.en;
+  const fallback = locale === 'zh' ? post.en : post.zh;
+  return primary || fallback || { title: 'Untitled', excerpt: '' };
+}
+
+function buildPayload(post: BilingualPost, locale: Locale): { title: string; body: string; url: string } {
+  const content = pickContent(post, locale);
   const url = locale === 'zh'
     ? `${SITE_URL}/zh/blog/${post.slug}`
     : `${SITE_URL}/blog/${post.slug}`;
   const title = locale === 'zh' ? 'MisoTech 新文章' : 'MisoTech New Article';
-  const body = post.excerpt ? `${post.title} - ${post.excerpt.slice(0, 80)}` : post.title;
+  const body = content.excerpt ? `${content.title} - ${content.excerpt.slice(0, 80)}` : content.title;
   return { title, body, url };
 }
 
@@ -75,10 +92,11 @@ async function sendOne(
  * 给所有有 pushSubscription 的订阅者推新文章通知。
  * 单失败隔离；永久失效清理；瞬态错误重试一次。返回计数。
  * 无 VAPID Key 时打印 + 返回 skipped。
+ * 按订阅者 locale 选文章内容（双语）。
  */
-export async function notifyAllSubscribers(post: NotifyPost): Promise<PushNotifyCount> {
+export async function notifyAllSubscribers(post: BilingualPost): Promise<PushNotifyCount> {
   if (!ensureVapid()) {
-    console.log('[push:demo] notify ->', post.title, '\n  (无 VAPID Key，仅打印)');
+    console.log('[push:demo] notify ->', post.slug, '\n  (无 VAPID Key，仅打印)');
     return { pushOk: 0, pushFail: 0, pushSkipped: 0 };
   }
 

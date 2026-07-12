@@ -1945,22 +1945,26 @@ export const removeSubscriber = async (
  */
 export const getBlogPostBySlugForNotify = async (
   slug: string,
-): Promise<SubscriberResult<{ slug: string; title: string; excerpt: string }>> => {
+): Promise<SubscriberResult<{ slug: string; en?: { title: string; excerpt: string }; zh?: { title: string; excerpt: string } }>> => {
   if (!process.env.NOTION_API_KEY || !BLOG_DATABASE_ID) {
     return { ok: false, skipped: true };
   }
   try {
-    // 同时查 English 和 Chinese（与 blog/[slug]/page.tsx 一致），合并后 find
+    // 同时查 English 和 Chinese（一篇文章可能中英各一条记录，slug 相同）
     const [enPosts, zhPosts] = await Promise.all([
       getAllBlogPosts({ language: 'English' }),
       getAllBlogPosts({ language: 'Chinese' }),
     ]);
-    const posts = [...enPosts, ...zhPosts];
-    const post = posts.find((p: any) => p.slug === slug);
-    if (!post) return { ok: false, error: 'post-not-found' };
+    const enPost = enPosts.find((p: any) => p.slug === slug);
+    const zhPost = zhPosts.find((p: any) => p.slug === slug);
+    if (!enPost && !zhPost) return { ok: false, error: 'post-not-found' };
     return {
       ok: true,
-      data: { slug: post.slug, title: post.title || 'Untitled', excerpt: post.excerpt || '' },
+      data: {
+        slug,
+        en: enPost ? { title: enPost.title || 'Untitled', excerpt: enPost.excerpt || '' } : undefined,
+        zh: zhPost ? { title: zhPost.title || 'Untitled', excerpt: zhPost.excerpt || '' } : undefined,
+      },
     };
   } catch (error: any) {
     console.error('[getBlogPostBySlugForNotify] Error:', error?.message || error);
