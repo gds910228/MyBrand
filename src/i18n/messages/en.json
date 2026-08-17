@@ -140,5 +140,47 @@
       "notifyFooter": "You're receiving this because you subscribed to MisoTech.",
       "unsubscribeLink": "Unsubscribe"
     }
+  },
+  "admin": {
+    "content": {
+      "title": "Content Management",
+      "loginTitle": "Admin Console",
+      "passwordPlaceholder": "Admin token (ADMIN_TOKEN)",
+      "login": "Sign in",
+      "logout": "Sign out",
+      "subtitle": "All posts including drafts and scheduled items. Changes refresh ISR caches immediately.",
+      "refresh": "Refresh list",
+      "publishDue": "Publish due posts now",
+      "publishDueRunning": "Publishing…",
+      "colTitle": "Title",
+      "colStatus": "Status",
+      "colScheduledAt": "Scheduled At",
+      "colCreatedAt": "Created At",
+      "colLanguage": "Lang",
+      "colActions": "Actions",
+      "status": {
+        "draft": "Draft",
+        "scheduled": "Scheduled",
+        "published": "Published"
+      },
+      "setStatus": "Set status",
+      "setSchedule": "Set schedule",
+      "clearSchedule": "Clear",
+      "saveSchedule": "Save",
+      "cancel": "Cancel",
+      "copyPreview": "Copy preview link",
+      "copied": "Copied!",
+      "empty": "No posts found",
+      "loading": "Loading posts…",
+      "loadFailed": "Failed to load",
+      "actionFailed": "Action failed",
+      "publishDueResult": "Published {processed}, failed {failed}, skipped {skipped}",
+      "scheduledMissingHint": "scheduledAt field missing in Notion — add a date property named scheduledAt",
+      "notScheduledHint": "scheduled without time will never auto-publish",
+      "langEn": "EN",
+      "langZh": "中",
+      "hasEn": "EN",
+      "hasZh": "ZH"
+    }
   }
-} 
+}

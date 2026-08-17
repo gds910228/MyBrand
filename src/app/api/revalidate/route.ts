@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { notifyNewPost } from '@/services/notify';
+import { revalidateBlogPaths, revalidatePaths } from '@/services/revalidate';
 
 // On-demand ISR revalidation endpoint.
 //
@@ -17,6 +17,10 @@ import { notifyNewPost } from '@/services/notify';
 //   新增（角度2）：?notify=<slug> 在 revalidate 后给订阅者发 Web Push + 邮件。
 //   GET /api/revalidate?path=/blog&notify=<slug>&secret=...
 //   （通知逻辑抽到 src/services/notify.ts，管理页 /admin/notify 也复用）
+//
+//   新增（内容状态机）：?slug=<slug>（可重复）展开为博客双语列表 +
+//   该文双语详情 + sitemap，供状态变更/定时发布后按篇刷新。
+//   GET /api/revalidate?slug=<slug>&secret=...
 //
 // If `REVALIDATE_SECRET` env var is unset, the endpoint refuses to run
 // (otherwise anyone on the internet could hammer your Notion quota).
@@ -42,20 +46,25 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Invalid secret' }, { status: 401 });
   }
 
-  // Allow ?path=/&path=/zh repeats; default to homepage + ZH homepage + both blog lists.
-  const paths = searchParams.getAll('path');
-  const targets = paths.length > 0 ? paths : ['/', '/zh', '/blog', '/zh/blog'];
+  // ?slug= 优先按篇展开(博客双语列表+详情+sitemap);否则沿用 ?path= 重复参数;
+  // 两者都缺省时回退默认路径(首页双语 + 博客双语列表)。
+  const slugs = searchParams.getAll('slug').filter(Boolean);
+  let revalidated: string[];
+  let errors: { path: string; error: string }[];
 
-  const revalidated: string[] = [];
-  const errors: { path: string; error: string }[] = [];
-
-  for (const p of targets) {
-    try {
-      revalidatePath(p);
-      revalidated.push(p);
-    } catch (err: any) {
-      errors.push({ path: p, error: err?.message || String(err) });
-    }
+  if (slugs.length > 0) {
+    const blogResult = revalidateBlogPaths(slugs);
+    // ?slug= 与 ?path= 可同时使用:path 部分单独执行
+    const extraPaths = searchParams.getAll('path').filter(Boolean);
+    const extraResult = extraPaths.length > 0 ? revalidatePaths(extraPaths) : { revalidated: [], errors: [] };
+    revalidated = [...blogResult.revalidated, ...extraResult.revalidated];
+    errors = [...blogResult.errors, ...extraResult.errors];
+  } else {
+    const paths = searchParams.getAll('path');
+    const targets = paths.length > 0 ? paths : ['/', '/zh', '/blog', '/zh/blog'];
+    const result = revalidatePaths(targets);
+    revalidated = result.revalidated;
+    errors = result.errors;
   }
 
   // ── 角度2：新文章通知（可选 ?notify=<slug>）──────────────────────

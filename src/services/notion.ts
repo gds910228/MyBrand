@@ -1,5 +1,6 @@
 import { Client } from '@notionhq/client';
 import crypto from 'crypto';
+import { isPubliclyVisible, normalizeStatus } from '@/lib/contentStatus';
 
 /**
  * 验证和清理图片URL
@@ -79,6 +80,14 @@ const SUBSCRIBERS_DATABASE_ID = process.env.NOTION_SUBSCRIBERS_DATABASE_ID
  // 简易缓存（内存，默认60秒）
 const BLOG_LIST_CACHE_TTL_MS = process.env.DISABLE_NOTION_CACHE ? 0 : 60 * 1000;
 const blogListCache = new Map<string, { data: any[]; expiry: number }>();
+
+/**
+ * 失效博客列表缓存（内容状态变更/定时发布后调用）。
+ * 注意:仅清理当前实例内存缓存,serverless 多实例下其它实例最迟 60s TTL 自愈。
+ */
+export function invalidateBlogListCache(): void {
+  blogListCache.clear();
+}
 
  // 数据库字段探测缓存：是否存在 Language 属性
 let blogDbHasLanguageProp: boolean | null = null;
@@ -567,9 +576,10 @@ export async function getAllBlogPosts(options?: { language?: string; limit?: num
 
       const includeLanguageFilter = !!(options?.language && blogDbHasLanguageProp);
 
-      const filters: any[] = [
-        { property: 'Status', select: { equals: 'Published' } },
-      ];
+      // 状态过滤收口在应用侧(见 src/lib/contentStatus.ts):
+      // Notion 查询不再带 Status 过滤——大小写不敏感统一处理、Status 属性缺失不致查询 400、
+      // 「无 status 视为 published」兼容旧数据。此处仅保留 Language 过滤。
+      const filters: any[] = [];
       if (includeLanguageFilter) {
         filters.push({ property: 'Language', select: { equals: options!.language! } });
       }
@@ -584,7 +594,7 @@ export async function getAllBlogPosts(options?: { language?: string; limit?: num
 
       const response = await notion.databases.query({
         database_id: BLOG_DATABASE_ID,
-        filter: filters.length > 1 ? { and: filters } : filters[0],
+        filter: filters.length > 1 ? { and: filters } : filters.length === 1 ? filters[0] : undefined,
         sorts: [{ property: 'PublishDate', direction: 'descending' }],
         page_size: options?.limit || 100, // 默认最多100条
       });
@@ -757,6 +767,8 @@ export async function getAllBlogPosts(options?: { language?: string; limit?: num
               language:
                 props.Language?.select?.name || undefined,
               status: props.Status?.select?.name || undefined,
+              // 定时发布时间(date 属性,缺失/为空 → null,防空)
+              scheduledAt: props.scheduledAt?.date?.start || null,
             };
           } catch (e) {
             console.error('Error mapping blog page:', e);
@@ -765,7 +777,11 @@ export async function getAllBlogPosts(options?: { language?: string; limit?: num
         })
       );
 
-      const result = posts.filter((p): p is NonNullable<typeof p> => !!p);
+      // 应用侧状态过滤:仅 published 对公开面可见(无 status 旧数据兜底 published,
+      // 未知状态值按 draft 隐藏,见 src/lib/contentStatus.ts)
+      const result = posts
+        .filter((p): p is NonNullable<typeof p> => !!p)
+        .filter((p) => isPubliclyVisible(p.status));
       // 写入缓存
       blogListCache.set(cacheKey, { data: result, expiry: Date.now() + BLOG_LIST_CACHE_TTL_MS });
       return result;
@@ -1012,7 +1028,10 @@ export async function getBlogPostById(id: string) {
       comparisonData: parsedComparisonData,
 
       language: props.Language?.select?.name || undefined,
-      status: props.Status?.select?.name || undefined,
+      // 状态归一化为小写枚举(draft/scheduled/published;空→published,未知→draft)
+      status: normalizeStatus(props.Status?.select?.name),
+      // 定时发布时间(date 属性,缺失/为空 → null,防空)
+      scheduledAt: props.scheduledAt?.date?.start || null,
       slug:
         props.slug?.rich_text?.[0]?.plain_text ||
         props.Slug?.rich_text?.[0]?.plain_text ||

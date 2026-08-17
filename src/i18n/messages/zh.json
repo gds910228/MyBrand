@@ -140,5 +140,47 @@
       "notifyFooter": "你收到此邮件是因为订阅了 MisoTech。",
       "unsubscribeLink": "退订"
     }
+  },
+  "admin": {
+    "content": {
+      "title": "内容管理",
+      "loginTitle": "管理后台",
+      "passwordPlaceholder": "管理令牌(ADMIN_TOKEN)",
+      "login": "登录",
+      "logout": "退出",
+      "subtitle": "列出全部文章(含草稿/定时)。状态变更会立即刷新 ISR 缓存。",
+      "refresh": "刷新列表",
+      "publishDue": "立即发布到期文章",
+      "publishDueRunning": "发布中…",
+      "colTitle": "标题",
+      "colStatus": "状态",
+      "colScheduledAt": "定时时间",
+      "colCreatedAt": "创建时间",
+      "colLanguage": "语言",
+      "colActions": "操作",
+      "status": {
+        "draft": "草稿",
+        "scheduled": "定时",
+        "published": "已发布"
+      },
+      "setStatus": "改状态",
+      "setSchedule": "设定时",
+      "clearSchedule": "清除",
+      "saveSchedule": "保存",
+      "cancel": "取消",
+      "copyPreview": "复制预览链接",
+      "copied": "已复制!",
+      "empty": "暂无文章",
+      "loading": "加载文章列表…",
+      "loadFailed": "加载失败",
+      "actionFailed": "操作失败",
+      "publishDueResult": "已发布 {processed} 篇,失败 {failed} 篇,跳过 {skipped} 篇",
+      "scheduledMissingHint": "Notion 缺少 scheduledAt 字段——请新增名为 scheduledAt 的 date 属性",
+      "notScheduledHint": "定时文章未设时间将永远不会自动发布",
+      "langEn": "EN",
+      "langZh": "中",
+      "hasEn": "英",
+      "hasZh": "中"
+    }
   }
-} 
+}

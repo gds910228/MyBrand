@@ -1,0 +1,9 @@
+{
+  "$comment": "可选示例:复制为 vercel.json 即生效。Vercel Cron 触发时自动携带 Authorization: Bearer $CRON_SECRET(环境变量需已配置),无需把 secret 写进 path。每小时: '0 * * * *';每天: '0 0 * * *'(按需改 schedule)。",
+  "crons": [
+    {
+      "path": "/api/cron/publish",
+      "schedule": "0 * * * *"
+    }
+  ]
+}

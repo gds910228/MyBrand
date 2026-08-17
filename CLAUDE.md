@@ -73,7 +73,17 @@ NEXT_PUBLIC_SITE_URL=http://localhost:4000
 # Development
 DISABLE_NOTION_CACHE=true  # Disable Notion data caching for real-time preview updates
 NEXT_PUBLIC_GA_ID=your_google_analytics_id
+
+# Content state machine (draft/scheduled/published) + scheduled publishing
+# All three are optional with documented degradation:
+PREVIEW_TOKEN=your_preview_secret   # draft preview HMAC key; unset → process-random key + console prints preview URL
+CRON_SECRET=your_cron_secret        # /api/cron/publish auth; unset → endpoint refuses with 401
+ADMIN_TOKEN=your_admin_token        # /admin/content + /api/admin/content/* auth; unset → localhost-only + console warning
 ```
+
+Notion blog database manual fields (content state machine):
+- `Status` select needs option `Scheduled` added (existing: `Draft`, `Published`)
+- Add date property `scheduledAt` (stores ISO scheduled publish time)
 
 ## Content Management
 
