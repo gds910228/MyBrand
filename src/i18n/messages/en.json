@@ -141,7 +141,114 @@
       "unsubscribeLink": "Unsubscribe"
     }
   },
+  "comments": {
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "content": "Comment",
+      "contentPlaceholder": "Write your comment…",
+      "nameRequired": "Please enter your name",
+      "emailRequired": "Please enter your email",
+      "emailInvalid": "Please enter a valid email address",
+      "contentRequired": "Please enter a comment",
+      "submit": "Submit Comment",
+      "submitReply": "Submit Reply",
+      "submitting": "Submitting…",
+      "cancel": "Cancel"
+    },
+    "list": {
+      "reply": "Reply",
+      "empty": "No comments yet. Be the first to comment!",
+      "anonymous": "Anonymous"
+    },
+    "section": {
+      "title": "Leave a Comment",
+      "replyTo": "Reply to Comment",
+      "count": "Comments ({count})",
+      "loading": "Loading comments…",
+      "loadFailed": "Failed to load comments",
+      "successApproved": "Your comment has been posted.",
+      "successPending": "Your comment has been submitted and will appear after the site owner reviews it.",
+      "rateLimited": "You are commenting too fast. Please wait a minute and try again.",
+      "submitFailed": "Failed to submit your comment. Please try again.",
+      "retry": "Retry"
+    },
+    "notifyEmail": {
+      "subjectPending": "New comment awaiting review on MisoTech",
+      "subjectSpam": "Likely spam comment caught on MisoTech",
+      "greeting": "Hi site owner,",
+      "intro": "A new comment was held for moderation:",
+      "post": "Post",
+      "author": "Author",
+      "email": "Email",
+      "content": "Content",
+      "status": "Status",
+      "score": "Spam score",
+      "reasons": "Reasons",
+      "reviewButton": "Open moderation panel",
+      "footer": "Sent by the MisoTech comment moderation system."
+    }
+  },
   "admin": {
+    "comments": {
+      "title": "Comment Moderation",
+      "loginTitle": "Admin Console",
+      "passwordPlaceholder": "Admin token (ADMIN_TOKEN)",
+      "login": "Sign in",
+      "logout": "Sign out",
+      "subtitle": "Review pending and spam comments. Approving a comment makes it visible on the site immediately.",
+      "refresh": "Refresh list",
+      "langEn": "EN",
+      "langZh": "中",
+      "tabs": {
+        "all": "All",
+        "pending": "Pending",
+        "spam": "Spam",
+        "approved": "Approved"
+      },
+      "colContent": "Comment",
+      "colPost": "Post",
+      "colAuthor": "Author",
+      "colCreatedAt": "Created",
+      "colStatus": "Status",
+      "colScore": "Score",
+      "colReasons": "Reasons",
+      "colActions": "Actions",
+      "status": {
+        "pending": "Pending",
+        "spam": "Spam",
+        "approved": "Approved"
+      },
+      "actions": {
+        "approve": "Approve",
+        "markSpam": "Mark spam",
+        "toPending": "Hold (pending)"
+      },
+      "loading": "Loading comments…",
+      "empty": "No comments in this view",
+      "loadFailed": "Failed to load",
+      "actionFailed": "Action failed",
+      "cappedNote": "Showing the newest {limit} comments only",
+      "slugLabel": "slug",
+      "replyToLabel": "reply-to",
+      "countsCappedSuffix": "+",
+      "fieldMissingHint": "Notion comments DB is missing the ModerationStatus field. Add ModerationStatus/SpamScore/SpamReasons per the spec, then retry.",
+      "reasonLabels": {
+        "links": "Too many links",
+        "suspicious_link": "Suspicious link",
+        "link_density": "Link-heavy content",
+        "keyword": "Blocklist keyword",
+        "caps": "Excessive capitals",
+        "repeat_chars": "Repeated characters",
+        "repeat_lines": "Repeated lines",
+        "too_short": "Too short / meaningless",
+        "email_tld": "Suspicious email TLD",
+        "email_domain": "Disposable email",
+        "freq": "Frequent submissions"
+      }
+    },
     "content": {
       "title": "Content Management",
       "loginTitle": "Admin Console",

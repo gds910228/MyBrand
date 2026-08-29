@@ -32,6 +32,12 @@ export function getClientIp(request: NextRequest): string {
   );
 }
 
+/** 测试专用：清空全部限流桶。 */
+export function resetRateLimitForTest(): void {
+  buckets.clear();
+  lastCleanup = 0;
+}
+
 /** 返回 true 表示已被限流。 */
 export function rateLimited(ip: string): boolean {
   const now = Date.now();

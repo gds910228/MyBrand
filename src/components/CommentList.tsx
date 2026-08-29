@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import type { CommentType } from '@/services/notion';
+import { getCommentMessages } from '@/lib/commentMessages';
 
 interface CommentListProps {
   comments: CommentType[];
@@ -13,13 +14,15 @@ interface CommentListProps {
 }
 
 const CommentList: React.FC<CommentListProps> = ({ comments, onReply, locale = 'en' }) => {
+  const t = getCommentMessages(locale);
+
   // 格式化日期
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return formatDistanceToNow(date, { 
+      return formatDistanceToNow(date, {
         addSuffix: true,
-        locale: locale === 'zh' ? zhCN : undefined
+        locale: locale === 'zh' ? zhCN : undefined,
       });
     } catch (error) {
       console.error('Error formatting date:', error);
@@ -34,10 +37,10 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, locale = '
       console.error('Comment author is undefined:', comment);
       return null;
     }
-    
-    const authorName = comment.author.name || 'Anonymous';
+
+    const authorName = comment.author.name || t.list.anonymous;
     const authorAvatar = comment.author.avatar;
-    
+
     return (
       <div key={comment.id} className={`${isReply ? 'ml-12 mt-4' : 'mt-6'}`}>
         <div className="flex items-start">
@@ -55,7 +58,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, locale = '
               </div>
             )}
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="bg-neutral-light dark:bg-dark-bg-secondary rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium text-neutral-darker dark:text-dark-neutral-darker">
@@ -65,7 +68,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, locale = '
                   {formatDate(comment.createdAt)}
                 </span>
               </div>
-              <p className="text-neutral-dark dark:text-dark-neutral-dark">
+              <p className="text-neutral-dark dark:text-dark-neutral-dark break-words">
                 {comment.content}
               </p>
             </div>
@@ -73,15 +76,15 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, locale = '
               onClick={() => onReply(comment.id, comment.parentId)}
               className="mt-2 text-sm text-primary dark:text-dark-primary font-medium hover:underline"
             >
-              {locale === 'zh' ? '回复' : 'Reply'}
+              {t.list.reply}
             </button>
           </div>
         </div>
-        
+
         {/* 渲染回复 */}
         {comment.replies && comment.replies.length > 0 && (
           <div className="mt-2">
-            {comment.replies.map(reply => renderComment(reply, true))}
+            {comment.replies.map((reply) => renderComment(reply, true))}
           </div>
         )}
       </div>
@@ -92,15 +95,15 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, locale = '
     <div className="mt-4">
       {comments.length === 0 ? (
         <p className="text-neutral-dark dark:text-dark-neutral-dark italic">
-          {locale === 'zh' ? '还没有评论。成为第一个评论的人！' : 'No comments yet. Be the first to comment!'}
+          {t.list.empty}
         </p>
       ) : (
         <div>
-          {comments.map(comment => renderComment(comment))}
+          {comments.map((comment) => renderComment(comment))}
         </div>
       )}
     </div>
   );
 };
 
-export default CommentList; 
+export default CommentList;

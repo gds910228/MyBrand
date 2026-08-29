@@ -107,6 +107,125 @@ export async function sendConfirmEmail(
   }
 }
 
+// ── 评论审核通知（feat-comment-moderation，spec §1.5）─────────────────────────
+
+/** HTML 转义用户可控字段（评论作者名/邮箱/内容均来自提交者，含垃圾提交者）。 */
+export function escapeHtml(input: string): string {
+  return String(input ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+export interface CommentModerationEmailPayload {
+  postId: string;
+  authorName: string;
+  authorEmail: string;
+  content: string;
+  status: 'pending' | 'spam';
+  score: number;
+  reasons: string[];
+}
+
+interface CommentNotifyStrings {
+  subjectPending: string;
+  subjectSpam: string;
+  greeting: string;
+  intro: string;
+  post: string;
+  author: string;
+  email: string;
+  content: string;
+  status: string;
+  score: string;
+  reasons: string;
+  reviewLink: string;
+  reviewButton: string;
+  footer: string;
+}
+
+function loadCommentNotifyStrings(locale: Locale): CommentNotifyStrings {
+  const messages = locale === 'zh' ? zhMessages : enMessages;
+  return ((messages as any).comments?.notifyEmail ||
+    (enMessages as any).comments.notifyEmail) as CommentNotifyStrings;
+}
+
+/**
+ * 发送评论待审/垃圾评论通知邮件给站长。
+ * 降级：无 RESEND_API_KEY 或无 COMMENT_NOTIFY_TO → console.log 完整信息 + skipped。
+ * 用户输入字段全部 escapeHtml；链接只由 postId/SITE_URL 构造。
+ */
+export async function sendCommentModerationEmail(
+  to: string | undefined,
+  payload: CommentModerationEmailPayload,
+  locale: Locale,
+): Promise<EmailResult> {
+  const t = loadCommentNotifyStrings(locale);
+  const subject = payload.status === 'spam' ? t.subjectSpam : t.subjectPending;
+  const html = buildCommentModerationHtml(locale, payload);
+  const adminLink = `${SITE_URL}/admin/comments`;
+  const excerpt = payload.content.slice(0, 200);
+
+  if (!resend || !to) {
+    console.log(
+      `[email:demo] comment moderation (${payload.status}, score=${payload.score}) ->`,
+      to || '(COMMENT_NOTIFY_TO not configured)',
+      '\n  subject:', subject,
+      '\n  postId:', payload.postId,
+      '\n  author:', payload.authorName, `<${payload.authorEmail}>`,
+      '\n  reasons:', payload.reasons.join(', '),
+      '\n  excerpt:', excerpt,
+      '\n  admin:', adminLink,
+    );
+    return { ok: false, skipped: true };
+  }
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM,
+      to,
+      subject,
+      html,
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, id: data?.id };
+  } catch (error: any) {
+    console.error('[sendCommentModerationEmail] Error:', error?.message || error);
+    return { ok: false, error: error?.message || 'Unknown error' };
+  }
+}
+
+/** 组装站长通知邮件 HTML（导出以便测试断言转义）。用户输入全部 escapeHtml。 */
+export function buildCommentModerationHtml(locale: Locale, payload: CommentModerationEmailPayload): string {
+  const t = loadCommentNotifyStrings(locale);
+  const safePostId = encodeURIComponent(payload.postId);
+  const excerpt = payload.content.slice(0, 200);
+  const adminLink = `${SITE_URL}/admin/comments`;
+  const postUrlEn = `${SITE_URL}/blog/${safePostId}`;
+  const postUrlZh = `${SITE_URL}/zh/blog/${safePostId}`;
+
+  return `<!DOCTYPE html><html><body style="font-family:system-ui,Arial,sans-serif;max-width:640px;margin:0 auto;padding:24px;color:#222;">
+  <p>${t.greeting}</p>
+  <p>${t.intro}</p>
+  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
+    <tr><td style="padding:6px 12px;color:#888;width:110px;">${t.status}</td><td style="padding:6px 12px;"><b>${escapeHtml(payload.status)}</b></td></tr>
+    <tr><td style="padding:6px 12px;color:#888;">${t.score}</td><td style="padding:6px 12px;">${payload.score}</td></tr>
+    <tr><td style="padding:6px 12px;color:#888;">${t.reasons}</td><td style="padding:6px 12px;">${escapeHtml(payload.reasons.join(', ') || '-')}</td></tr>
+    <tr><td style="padding:6px 12px;color:#888;">${t.post}</td><td style="padding:6px 12px;">${escapeHtml(payload.postId)}<br><a href="${postUrlEn}">${postUrlEn}</a><br><a href="${postUrlZh}">${postUrlZh}</a></td></tr>
+    <tr><td style="padding:6px 12px;color:#888;">${t.author}</td><td style="padding:6px 12px;">${escapeHtml(payload.authorName)}</td></tr>
+    <tr><td style="padding:6px 12px;color:#888;">${t.email}</td><td style="padding:6px 12px;">${escapeHtml(payload.authorEmail)}</td></tr>
+    <tr><td style="padding:6px 12px;color:#888;">${t.content}</td><td style="padding:6px 12px;">${escapeHtml(excerpt)}</td></tr>
+  </table>
+  <p style="margin:24px 0;">
+    <a href="${adminLink}" style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;">${t.reviewButton}</a>
+  </p>
+  <p style="color:#aaa;font-size:12px;">${adminLink}</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
+  <p style="color:#888;font-size:13px;">${t.footer}</p>
+</body></html>`;
+}
+
 /** 发送新文章通知邮件。 */
 export async function sendNewPostEmail(
   email: string,

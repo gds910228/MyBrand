@@ -1,6 +1,18 @@
 import { Client } from '@notionhq/client';
 import crypto from 'crypto';
 import { isPubliclyVisible, normalizeStatus } from '@/lib/contentStatus';
+import {
+  getLocalCommentsByPostId,
+  addLocalComment,
+  setLocalCommentStatus,
+  getAllLocalCommentsForAdmin,
+} from '@/data/comments';
+import { filterApprovedTree } from '@/lib/commentTree';
+import { mapNotionCommentProps, NOTION_STATUS_OPTION } from '@/lib/notionCommentMapper';
+import type { CommentStatus, CommentType, NewCommentInput, AdminCommentList } from '@/types/comment';
+
+// 评论域共享类型统一出自 src/types/comment；此处 re-export 保持既有 import 路径兼容。
+export type { CommentType, CommentStatus, AdminCommentItem, AdminCommentList, NewCommentInput, ModerationResult } from '@/types/comment';
 
 /**
  * 验证和清理图片URL
@@ -34,20 +46,7 @@ function validateImageUrl(url: string): string {
   return isImageUrl ? trimmedUrl : '';
 }
 
-// 评论类型定义
-export interface CommentType {
-  id: string;
-  postId: string;
-  parentId: string | null;
-  author: {
-    name: string;
-    email: string;
-    avatar?: string | null;
-  };
-  content: string;
-  createdAt: string;
-  replies?: CommentType[];
-}
+// 评论类型见 src/types/comment.ts（上方 re-export 保持兼容）。
 
 // 初始化Notion客户端
 const notion = new Client({
@@ -94,57 +93,60 @@ let blogDbHasLanguageProp: boolean | null = null;
 // Projects 数据库字段探测缓存：是否存在 Language 属性
 let projectsDbHasLanguageProp: boolean | null = null;
 
-// Notion评论页面类型
-interface NotionCommentPage {
-  properties: {
-    name: { title: Array<{ plain_text: string }> };
-    email: { email: string };
-    content: { rich_text: Array<{ plain_text: string }> };
-    createdAt: { date: { start: string } | null };
-    postId: { rich_text: Array<{ plain_text: string }> };
-    parentId: { rich_text: Array<{ plain_text: string }> };
-  };
+// 评论库治理字段探测缓存（feat-comment-moderation）：null=未探测。
+// 字段未建好时写入走旧 schema（审核在 Notion 路径不生效，spam 默认可见），并醒目告警。
+interface CommentsDbProps extends CommentsDbPropsShape {
+  cachedAt: number;
 }
+interface CommentsDbPropsShape {
+  hasStatus: boolean;
+  hasScore: boolean;
+  hasReasons: boolean;
+}
+let commentsDbProps: CommentsDbProps | null = null;
 
-// 本地评论存储
-let localComments: CommentType[] = [
-  {
-    id: 'comment-1',
-    postId: 'post-getting-started-with-nextjs-14',
-    parentId: null,
-    author: {
-      name: 'Alice Johnson',
-      email: 'alice@example.com',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80'
-    },
-    content: 'Great article! I\'ve been trying to learn Next.js and this was very helpful.',
-    createdAt: '2023-10-26T08:30:00Z',
-  },
-  {
-    id: 'comment-2',
-    postId: 'post-getting-started-with-nextjs-14',
-    parentId: 'comment-1',
-    author: {
-      name: 'John Doe',
-      email: 'john@example.com',
-      avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80'
-    },
-    content: 'Thanks Alice! I\'m glad you found it useful. Let me know if you have any questions.',
-    createdAt: '2023-10-26T09:15:00Z',
-  },
-  {
-    id: 'comment-3',
-    postId: 'post-getting-started-with-nextjs-14',
-    parentId: null,
-    author: {
-      name: 'Robert Smith',
-      email: 'robert@example.com',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80'
-    },
-    content: 'I\'m still confused about the App Router. Could you explain more about how it differs from the Pages Router?',
-    createdAt: '2023-10-27T10:45:00Z',
+// 探测失败时做 60s 负缓存，避免 Notion 故障期每个评论请求都付一次 retrieve
+const PROBE_NEGATIVE_TTL_MS = 60 * 1000;
+
+/**
+ * 探测评论库是否含 ModerationStatus/SpamScore/SpamReasons 三字段（按需、进程内缓存）。
+ * 未配置 Key → 全 false（不缓存，调用方直接回落本地兜底层）；探测失败 → 全 false 并负缓存 60s。
+ */
+async function ensureCommentsDbProps(): Promise<CommentsDbPropsShape> {
+  const now = Date.now();
+  if (commentsDbProps && now - commentsDbProps.cachedAt < PROBE_NEGATIVE_TTL_MS) {
+    return commentsDbProps;
   }
-];
+  const fallback: CommentsDbProps = { hasStatus: false, hasScore: false, hasReasons: false, cachedAt: now };
+  if (!process.env.NOTION_API_KEY || !COMMENTS_DATABASE_ID) return fallback;
+  try {
+    const dbMeta: any = await notion.databases.retrieve({ database_id: COMMENTS_DATABASE_ID });
+    const props = dbMeta?.properties || {};
+    const result: CommentsDbProps = {
+      hasStatus: !!props.ModerationStatus,
+      hasScore: !!props.SpamScore,
+      hasReasons: !!props.SpamReasons,
+      cachedAt: now,
+    };
+    commentsDbProps = result;
+    const missing: string[] = [];
+    if (!result.hasStatus) missing.push('ModerationStatus (select)');
+    if (!result.hasScore) missing.push('SpamScore (number)');
+    if (!result.hasReasons) missing.push('SpamReasons (text)');
+    if (missing.length > 0) {
+      console.warn(
+        `[comments] Notion comments DB is missing field(s): ${missing.join(', ')}. ` +
+          'Moderation is NOT fully enforced on the Notion path until the fields are added ' +
+          '(see spec §3 of feat-comment-moderation-20260828).',
+      );
+    }
+    return result;
+  } catch (error: any) {
+    console.error('[comments] Failed to probe comments DB properties:', error?.message || error);
+    commentsDbProps = fallback; // 负缓存 60s
+    return fallback;
+  }
+}
 
 /**
  * 获取所有项目
@@ -1251,13 +1253,11 @@ function renderRichText(richText: any[]) {
 }
 
 /**
- * 根据文章ID获取评论
- * @param postId 文章ID
- * @returns 评论列表
+ * 根据文章ID获取评论（前台口径：仅 approved；pending/spam 顶级与回复均过滤）。
+ * Notion 不可用/未配置 Key → 本地兜底层（src/data/comments，同口径）。
  */
 export const getCommentsByPostId = async (postId: string): Promise<CommentType[]> => {
   try {
-    // 检查是否配置了Notion API密钥和数据库ID
     if (!process.env.NOTION_API_KEY || !COMMENTS_DATABASE_ID) {
       console.log('Notion API key or database ID not configured, using local storage');
       return getLocalCommentsByPostId(postId);
@@ -1265,6 +1265,7 @@ export const getCommentsByPostId = async (postId: string): Promise<CommentType[]
 
     const response = await notion.databases.query({
       database_id: COMMENTS_DATABASE_ID,
+      page_size: 100,
       filter: {
         property: 'PostId',
         rich_text: {
@@ -1273,66 +1274,49 @@ export const getCommentsByPostId = async (postId: string): Promise<CommentType[]
       },
     });
 
-    const comments = response.results.map((page) => {
-      // @ts-ignore - Notion API类型定义不完整
-      const { properties } = page as any;
-      
+    const flat: CommentType[] = response.results.map((page: any) => {
+      const properties = page.properties || {};
+      const mod = mapNotionCommentProps(properties);
       return {
         id: page.id,
-        postId: properties.PostId.rich_text[0]?.plain_text || '',
-        parentId: properties.ParentId.rich_text[0]?.plain_text || null,
+        postId: properties.PostId?.rich_text?.[0]?.plain_text || '',
+        parentId: properties.ParentId?.rich_text?.[0]?.plain_text || null,
         author: {
-          name: properties.AuthorName.rich_text[0]?.plain_text || '',
-          email: properties.AuthorEmail.email || '',
+          name: properties.AuthorName?.rich_text?.[0]?.plain_text || '',
+          email: properties.AuthorEmail?.email || '',
           avatar: properties.AuthorAvatar?.url || null,
         },
-        content: properties.Content.rich_text[0]?.plain_text || '',
-        createdAt: new Date(properties.CreatedAt.date?.start || Date.now()).toISOString(),
+        content: properties.Content?.rich_text?.[0]?.plain_text || '',
+        createdAt: new Date(properties.CreatedAt?.date?.start || Date.now()).toISOString(),
+        status: mod.status,
+        spamScore: mod.spamScore ?? undefined,
+        spamReasons: mod.spamReasons,
         replies: [],
       } as CommentType;
     });
 
-    // 构建评论树
-    const commentMap = new Map<string, CommentType>();
-    const rootComments: CommentType[] = [];
-
-    comments.forEach((comment) => {
-      commentMap.set(comment.id, { ...comment, replies: [] });
-    });
-
-    comments.forEach((comment) => {
-      if (comment.parentId) {
-        const parentComment = commentMap.get(comment.parentId);
-        if (parentComment && parentComment.replies) {
-          parentComment.replies.push(commentMap.get(comment.id) as CommentType);
-        }
-      } else {
-        rootComments.push(commentMap.get(comment.id) as CommentType);
-      }
-    });
-
-    return rootComments;
+    // 先滤 approved 再建树（非变异纯函数；旧数据无状态字段兜底 approved）
+    return filterApprovedTree(flat);
   } catch (error) {
     console.error('Error fetching comments from Notion:', error);
-    // 使用本地存储作为备选方案
     return getLocalCommentsByPostId(postId);
   }
 };
 
 /**
- * 添加评论
- * @param comment 评论数据
- * @returns 添加的评论
+ * 添加评论。payload 可携带审核三字段（status/spamScore/spamReasons）。
+ * Notion 写入按字段探测结果门控（字段未建好 → 写旧 schema + 告警）；
+ * 任意 Notion 失败 → 本地兜底层（评论不丢）。
  */
-export const addComment = async (comment: Omit<CommentType, 'id' | 'createdAt'>): Promise<CommentType> => {
-  try {
-    // 检查是否配置了Notion API密钥和数据库ID
-    if (!process.env.NOTION_API_KEY || !COMMENTS_DATABASE_ID) {
-      console.log('Notion API key or database ID not configured, using local storage');
-      return addLocalComment(comment);
-    }
+export const addComment = async (comment: NewCommentInput): Promise<CommentType> => {
+  if (!process.env.NOTION_API_KEY || !COMMENTS_DATABASE_ID) {
+    console.log('Notion API key or database ID not configured, using local storage');
+    return addLocalComment(comment);
+  }
 
-    // 准备评论数据
+  try {
+    const dbProps = await ensureCommentsDbProps();
+
     const properties: any = {
       AuthorEmail: {
         email: comment.author.email,
@@ -1371,28 +1355,38 @@ export const addComment = async (comment: Omit<CommentType, 'id' | 'createdAt'>)
             ]
           : [],
       },
-    };
-
-    // 根据Notion数据库列类型设置作者名称
-    properties.AuthorName = {
-      rich_text: [
-        {
-          text: {
-            content: comment.author.name || '',
+      AuthorName: {
+        rich_text: [
+          {
+            text: {
+              content: comment.author.name || '',
+            },
           },
-        },
-      ],
+        ],
+      },
+      AuthorAvatar: {
+        url: comment.author.avatar || null,
+      },
     };
 
-    // 如果有头像URL，则添加
-    if (comment.author.avatar) {
-      properties.AuthorAvatar = {
-        url: comment.author.avatar,
+    // 审核治理字段：按探测结果逐字段门控（字段缺失时写旧 schema，评论不丢）
+    if (dbProps.hasStatus && comment.status) {
+      properties.ModerationStatus = {
+        select: { name: NOTION_STATUS_OPTION[comment.status] },
       };
-    } else {
-      // 如果没有头像，使用默认头像或null
-      properties.AuthorAvatar = {
-        url: null,
+    }
+    if (dbProps.hasScore && typeof comment.spamScore === 'number') {
+      properties.SpamScore = { number: comment.spamScore };
+    }
+    if (dbProps.hasReasons && Array.isArray(comment.spamReasons)) {
+      properties.SpamReasons = {
+        rich_text: [
+          {
+            text: {
+              content: comment.spamReasons.join(','),
+            },
+          },
+        ],
       };
     }
 
@@ -1403,7 +1397,6 @@ export const addComment = async (comment: Omit<CommentType, 'id' | 'createdAt'>)
       properties: properties,
     });
 
-    // 返回添加的评论
     return {
       id: response.id,
       postId: comment.postId,
@@ -1411,75 +1404,183 @@ export const addComment = async (comment: Omit<CommentType, 'id' | 'createdAt'>)
       author: comment.author,
       content: comment.content,
       createdAt: new Date().toISOString(),
+      status: comment.status,
+      spamScore: comment.spamScore,
+      spamReasons: comment.spamReasons,
       replies: [],
     };
-  } catch (error) {
-    console.error('Error adding comment to Notion:', error);
-    // 使用本地存储作为备选方案
+  } catch (error: any) {
+    console.error('Error adding comment to Notion:', error?.message || error);
+    // Notion 失败（含字段不匹配 400）→ 本地兜底层，评论不丢
     return addLocalComment(comment);
   }
 };
 
 /**
- * 从本地存储获取评论
+ * 评论状态流转（后台工作台）。
+ * Notion：写 ModerationStatus select（大写选项名）；字段未建好 → 稳定错误码 moderation-field-missing。
+ * 未配置 Key/异常 → 本地兜底层流转。
  */
-function getLocalCommentsByPostId(postId: string): CommentType[] {
-  const allComments = localComments.filter(comment => comment.postId === postId);
-  return buildCommentTree(allComments);
-}
+export const setCommentStatus = async (
+  id: string,
+  status: CommentStatus,
+): Promise<{ ok: boolean; error?: string }> => {
+  if (!id) return { ok: false, error: 'missing-id' };
+  if (status !== 'pending' && status !== 'approved' && status !== 'spam') {
+    return { ok: false, error: 'invalid-status' };
+  }
 
-/**
- * 添加本地评论
- */
-function addLocalComment(comment: Omit<CommentType, 'id' | 'createdAt'>): CommentType {
-  const newComment: CommentType = {
-    id: `comment-${Date.now()}`,
-    postId: comment.postId,
-    parentId: comment.parentId,
-    author: {
-      name: comment.author.name,
-      email: comment.author.email,
-      avatar: comment.author.avatar,
-    },
-    content: comment.content,
-    createdAt: new Date().toISOString(),
-    replies: [],
-  };
+  if (!process.env.NOTION_API_KEY || !COMMENTS_DATABASE_ID) {
+    return setLocalCommentStatus(id, status)
+      ? { ok: true }
+      : { ok: false, error: 'not-found' };
+  }
 
-  localComments.push(newComment);
-  return newComment;
-}
-
-/**
- * 构建评论树
- */
-function buildCommentTree(comments: CommentType[]): CommentType[] {
-  const commentTree: CommentType[] = [];
-  const commentMap = new Map<string, CommentType>();
-  
-  // 首先将所有评论放入Map中
-  comments.forEach(comment => {
-    commentMap.set(comment.id, comment);
-  });
-  
-  // 然后构建评论树
-  comments.forEach(comment => {
-    if (!comment.parentId) {
-      // 这是顶级评论
-      commentTree.push(comment);
-    } else {
-      // 这是回复
-      const parentComment = commentMap.get(comment.parentId);
-      if (parentComment) {
-        if (!parentComment.replies) {
-          parentComment.replies = [];
-        }
-        parentComment.replies.push(commentMap.get(comment.id) as CommentType);
-      }
+  try {
+    const dbProps = await ensureCommentsDbProps();
+    if (!dbProps.hasStatus) {
+      return { ok: false, error: 'moderation-field-missing' };
     }
-  });
-  
-  return commentTree;
+    try {
+      await notion.pages.update({
+        page_id: id,
+        properties: {
+          ModerationStatus: { select: { name: NOTION_STATUS_OPTION[status] } },
+        },
+      });
+    } catch (updateError: any) {
+      const msg: string = updateError?.message || '';
+      // Notion 404/object_not_found（坏 id/已删除）→ 稳定 not-found，不透传上游错误串
+      if (updateError?.code === 'object_not_found' || /object_not_found|404/i.test(msg)) {
+        if (setLocalCommentStatus(id, status)) return { ok: true };
+        return { ok: false, error: 'not-found' };
+      }
+      // 其余 400 疑似字段问题 → 强制重新探测一次；确认字段缺失则返回稳定错误码
+      console.error('[setCommentStatus] Notion update failed:', msg || updateError);
+      commentsDbProps = null;
+      const reprobe = await ensureCommentsDbProps();
+      if (!reprobe.hasStatus) return { ok: false, error: 'moderation-field-missing' };
+      if (setLocalCommentStatus(id, status)) return { ok: true };
+      return { ok: false, error: 'update-failed' };
+    }
+    return { ok: true };
+  } catch (error: any) {
+    console.error('[setCommentStatus] failed, falling back to local:', error?.message || error);
+    // 回落本地（混合部署下本地命中则生效；未命中给出 not-found）
+    if (setLocalCommentStatus(id, status)) return { ok: true };
+    return { ok: false, error: 'not-found' };
+  }
+};
+
+/**
+ * 后台全量评论列表（三态 + 计数）。
+ * 字段已建：tab/计数走 Notion select filter（大写选项名），pending/spam 不受列表窗口限制；
+ * 字段未建：内存过滤（所有行兜底 approved，无 pending 可漏）；
+ * 未配置 Key/异常 → 本地兜底层（计数精确）。
+ */
+export const getAllCommentsForAdmin = async (options?: {
+  status?: CommentStatus | 'all';
+  limit?: number;
+}): Promise<AdminCommentList> => {
+  const statusFilter = options?.status || 'all';
+  const limit = clampCommentLimit(options?.limit);
+
+  if (!process.env.NOTION_API_KEY || !COMMENTS_DATABASE_ID) {
+    return getAllLocalCommentsForAdmin({ status: statusFilter, limit });
+  }
+
+  try {
+    const dbProps = await ensureCommentsDbProps();
+
+    if (!dbProps.hasStatus) {
+      // 字段缺失：所有行兜底 approved（不存在 pending/spam）。
+      // 计数独立于 tab 过滤：拉取一次无 filter 窗口，items 再内存过滤。
+      const res = await notion.databases.query({
+        database_id: COMMENTS_DATABASE_ID,
+        page_size: 100,
+        sorts: [{ property: 'CreatedAt', direction: 'descending' }],
+      });
+      const windowItems = (res.results as any[]).map((page) => mapNotionPageToAdminItem(page));
+      const items =
+        statusFilter === 'all'
+          ? windowItems.slice(0, limit)
+          : windowItems.filter((c) => c.status === statusFilter).slice(0, limit);
+      return {
+        items,
+        counts: { pending: 0, spam: 0, approved: windowItems.length, total: windowItems.length },
+        capped: res.has_more === true || windowItems.length > limit,
+        countsCapped: res.has_more === true,
+      };
+    }
+
+    // 列表查询：all 不加 filter；指定状态走 select filter（大写选项名）
+    const listRes = await notion.databases.query({
+      database_id: COMMENTS_DATABASE_ID,
+      page_size: limit,
+      sorts: [{ property: 'CreatedAt', direction: 'descending' }],
+      ...(statusFilter === 'all'
+        ? {}
+        : { filter: { property: 'ModerationStatus', select: { equals: NOTION_STATUS_OPTION[statusFilter] } } }),
+    });
+    const items = (listRes.results as any[]).map((page) => mapNotionPageToAdminItem(page));
+
+    // 计数：三态各一次 select filter（page_size 100；has_more 时以 100+ 呈现）
+    const countOf = async (st: CommentStatus): Promise<{ count: number; capped: boolean }> => {
+      const r = await notion.databases.query({
+        database_id: COMMENTS_DATABASE_ID,
+        page_size: 100,
+        filter: { property: 'ModerationStatus', select: { equals: NOTION_STATUS_OPTION[st] } },
+      });
+      return { count: r.results.length, capped: r.has_more === true };
+    };
+    const [pendingRes, spamRes, approvedRes] = await Promise.all([
+      countOf('pending'),
+      countOf('spam'),
+      countOf('approved'),
+    ]);
+
+    return {
+      items,
+      counts: {
+        pending: pendingRes.count,
+        spam: spamRes.count,
+        approved: approvedRes.count,
+        total: pendingRes.count + spamRes.count + approvedRes.count,
+      },
+      capped: listRes.has_more === true,
+      countsCapped: pendingRes.capped || spamRes.capped || approvedRes.capped,
+    };
+  } catch (error: any) {
+    console.error('[getAllCommentsForAdmin] Error:', error?.message || error);
+    return getAllLocalCommentsForAdmin({ status: statusFilter, limit });
+  }
+};
+
+function clampCommentLimit(limit?: number): number {
+  const n = Number.isInteger(limit) ? (limit as number) : 50;
+  if (n < 1) return 1;
+  if (n > 100) return 100;
+  return n;
+}
+
+function mapNotionPageToAdminItem(page: any): AdminCommentList['items'][number] {
+  const properties = page.properties || {};
+  const mod = mapNotionCommentProps(properties);
+  return {
+    id: page.id,
+    postId: properties.PostId?.rich_text?.[0]?.plain_text || '',
+    parentId: properties.ParentId?.rich_text?.[0]?.plain_text || null,
+    author: {
+      name: properties.AuthorName?.rich_text?.[0]?.plain_text || '',
+      email: properties.AuthorEmail?.email || '',
+      avatar: properties.AuthorAvatar?.url || null,
+    },
+    content: properties.Content?.rich_text?.[0]?.plain_text || '',
+    createdAt: new Date(properties.CreatedAt?.date?.start || Date.now()).toISOString(),
+    status: mod.status,
+    spamScore: mod.spamScore,
+    spamReasons: mod.spamReasons,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

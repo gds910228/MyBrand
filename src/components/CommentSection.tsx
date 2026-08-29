@@ -1,213 +1,186 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import CommentList from './CommentList';
 import CommentForm from './CommentForm';
 import type { CommentType } from '@/services/notion';
+import { getCommentMessages } from '@/lib/commentMessages';
 
 interface CommentSectionProps {
   postId: string;
   locale?: 'en' | 'zh';
 }
 
+type SubmitFeedback =
+  | { kind: 'approved' }
+  | { kind: 'pending' }
+  | { kind: 'rate_limited' }
+  | { kind: 'error' }
+  | null;
+
 const CommentSection: React.FC<CommentSectionProps> = ({ postId, locale = 'en' }) => {
+  const t = getCommentMessages(locale);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [replyTo, setReplyTo] = useState<{ id: string; parentId: string | null } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<SubmitFeedback>(null);
 
-  // 加载评论
-  const fetchComments = async () => {
+  // 加载评论（前台仅返回 approved；被审评论不占位、不闪烁）
+  const fetchComments = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/comments?postId=${postId}`);
+      const response = await fetch(`/api/comments?postId=${encodeURIComponent(postId)}`);
       if (!response.ok) {
         throw new Error('Failed to fetch comments');
       }
       const data = await response.json();
       setComments(data.comments || []);
       setError(null);
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-      setError(locale === 'zh' ? '加载评论失败' : 'Failed to load comments');
+    } catch (err) {
+      console.error('Error fetching comments:', err);
+      setError(t.section.loadFailed);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [postId, t.section.loadFailed]);
 
   useEffect(() => {
     fetchComments();
-  }, [postId, locale]);
+  }, [fetchComments]);
 
-  // 处理评论提交
-  const handleCommentSubmit = async (data: { name: string; email: string; content: string }) => {
-    try {
-      setIsSubmitting(true);
-      const response = await fetch('/api/comments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          postId,
-          parentId: null,
-          author: {
-            name: data.name,
-            email: data.email,
+  // 评论/回复统一提交：按 moderation 三态反馈；返回是否成功（失败/限流时表单保留输入）
+  const submitComment = useCallback(
+    async (data: { name: string; email: string; content: string }): Promise<boolean> => {
+      try {
+        setIsSubmitting(true);
+        setFeedback(null);
+        const response = await fetch('/api/comments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-          content: data.content,
-        }),
-      });
+          body: JSON.stringify({
+            postId,
+            parentId: replyTo ? replyTo.id : null,
+            author: {
+              name: data.name,
+              email: data.email,
+            },
+            content: data.content,
+            locale,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to submit comment');
-      }
-
-      const newComment = await response.json();
-      
-      // 更新评论列表
-      setComments(prevComments => [...prevComments, newComment]);
-      
-      // 重新获取所有评论以确保数据一致性
-      await fetchComments();
-      
-    } catch (error) {
-      console.error('Error submitting comment:', error);
-      alert(locale === 'zh' ? '提交评论失败' : 'Failed to submit comment');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // 处理回复提交
-  const handleReplySubmit = async (data: { name: string; email: string; content: string }) => {
-    if (!replyTo) return;
-
-    try {
-      setIsSubmitting(true);
-      const response = await fetch('/api/comments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          postId,
-          parentId: replyTo.id,
-          author: {
-            name: data.name,
-            email: data.email,
-          },
-          content: data.content,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit reply');
-      }
-
-      const newReply = await response.json();
-      
-      // 更新评论列表，将回复添加到正确的评论中
-      setComments(prevComments => {
-        const updatedComments = [...prevComments];
-        
-        // 查找父评论
-        const findAndAddReply = (comments: CommentType[]): boolean => {
-          for (let i = 0; i < comments.length; i++) {
-            const comment = comments[i];
-            
-            // 如果是目标评论
-            if (comment.id === replyTo.id) {
-              if (!comment.replies) {
-                comment.replies = [];
-              }
-              
-              // 检查是否已存在相同回复
-              const replyExists = comment.replies.some(
-                r => r.author && r.author.name === newReply.author?.name && 
-                     r.content === newReply.content
-              );
-              
-              if (!replyExists) {
-                comment.replies.push(newReply);
-              }
-              return true;
-            }
-            
-            // 递归检查回复
-            if (comment.replies && findAndAddReply(comment.replies)) {
-              return true;
-            }
-          }
+        if (response.status === 429) {
+          setFeedback({ kind: 'rate_limited' });
           return false;
-        };
-        
-        findAndAddReply(updatedComments);
-        return updatedComments;
-      });
-      
-      // 清除回复状态
-      setReplyTo(null);
-      
-      // 重新获取所有评论以确保数据一致性
-      await fetchComments();
-      
-    } catch (error) {
-      console.error('Error submitting reply:', error);
-      alert(locale === 'zh' ? '提交回复失败' : 'Failed to submit reply');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+        }
 
-  // 处理回复按钮点击
+        const body = await response.json().catch(() => null);
+        if (!response.ok || !body?.ok) {
+          setFeedback({ kind: 'error' });
+          return false;
+        }
+
+        if (body.moderation === 'approved') {
+          setFeedback({ kind: 'approved' });
+        } else {
+          // pending 与 spam 响应同构（防探测），统一提示待审核
+          setFeedback({ kind: 'pending' });
+        }
+
+        // 清回复态并重新拉取（approved 立即出现；pending/spam 不出现，不占位）
+        setReplyTo(null);
+        await fetchComments();
+        return true;
+      } catch (err) {
+        console.error('Error submitting comment:', err);
+        setFeedback({ kind: 'error' });
+        return false;
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [postId, locale, replyTo, fetchComments],
+  );
+
   const handleReplyClick = (commentId: string, parentId: string | null) => {
+    setFeedback(null);
     setReplyTo({ id: commentId, parentId });
   };
 
-  // 处理取消回复
   const handleCancelReply = () => {
     setReplyTo(null);
   };
 
-  // 渲染加载状态
   if (isLoading) {
-    return <p>{locale === 'zh' ? '加载评论中...' : 'Loading comments...'}</p>;
+    return <p>{t.section.loading}</p>;
   }
 
-  // 渲染错误状态
   if (error) {
-    return <p className="text-red-500">{error}</p>;
+    return (
+      <div>
+        <p className="text-red-500 dark:text-red-400">{error}</p>
+        <button
+          onClick={fetchComments}
+          className="mt-2 text-sm text-primary dark:text-dark-primary hover:underline"
+        >
+          {t.section.retry}
+        </button>
+      </div>
+    );
   }
+
+  const feedbackBanner = (() => {
+    if (!feedback) return null;
+    const cls =
+      feedback.kind === 'approved'
+        ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/50'
+        : feedback.kind === 'pending'
+          ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/50'
+          : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900/50';
+    const message =
+      feedback.kind === 'approved'
+        ? t.section.successApproved
+        : feedback.kind === 'pending'
+          ? t.section.successPending
+          : feedback.kind === 'rate_limited'
+            ? t.section.rateLimited
+            : t.section.submitFailed;
+    return (
+      <div className={`mb-4 rounded-lg border px-4 py-3 text-sm ${cls}`} role="status">
+        {message}
+      </div>
+    );
+  })();
 
   return (
     <div className="space-y-8">
       {/* 评论列表 */}
       <div>
-        <h3 className="text-xl font-bold mb-4">
-          {locale === 'zh' ? `评论 (${comments.length})` : `Comments (${comments.length})`}
+        <h3 className="text-xl font-bold mb-4 text-neutral-900 dark:text-neutral-100">
+          {t.section.count.replace('{count}', String(comments.length))}
         </h3>
-        
+
         {comments.length > 0 ? (
           <CommentList comments={comments} onReply={handleReplyClick} locale={locale} />
         ) : (
-          <p className="text-gray-500">
-            {locale === 'zh' ? '暂无评论。成为第一个评论的人！' : 'No comments yet. Be the first to comment!'}
-          </p>
+          <p className="text-gray-500 dark:text-gray-400">{t.list.empty}</p>
         )}
       </div>
 
       {/* 回复表单 */}
       {replyTo && (
         <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <h3 className="text-lg font-medium mb-2">
-            {locale === 'zh' ? '回复评论' : 'Reply to Comment'}
+          <h3 className="text-lg font-medium mb-2 text-neutral-900 dark:text-neutral-100">
+            {t.section.replyTo}
           </h3>
           <CommentForm
             postId={postId}
             parentId={replyTo.id}
-            onSubmit={handleReplySubmit}
+            onSubmit={submitComment}
             onCancel={handleCancelReply}
             isReply={true}
             locale={locale}
@@ -216,15 +189,16 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, locale = 'en' }
         </div>
       )}
 
-      {/* 评论表单 */}
+      {/* 提交反馈 + 评论表单 */}
       <div>
-        <h3 className="text-xl font-bold mb-4">
-          {locale === 'zh' ? '发表评论' : 'Leave a Comment'}
+        {feedbackBanner}
+        <h3 className="text-xl font-bold mb-4 text-neutral-900 dark:text-neutral-100">
+          {t.section.title}
         </h3>
         <CommentForm
           postId={postId}
           parentId={null}
-          onSubmit={handleCommentSubmit}
+          onSubmit={submitComment}
           locale={locale}
           isSubmitting={isSubmitting}
         />
@@ -233,4 +207,4 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, locale = 'en' }
   );
 };
 
-export default CommentSection; 
+export default CommentSection;

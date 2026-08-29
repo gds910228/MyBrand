@@ -141,7 +141,114 @@
       "unsubscribeLink": "退订"
     }
   },
+  "comments": {
+    "form": {
+      "name": "姓名",
+      "namePlaceholder": "你的名字",
+      "email": "邮箱",
+      "emailPlaceholder": "your@email.com",
+      "content": "评论",
+      "contentPlaceholder": "写下你的评论…",
+      "nameRequired": "请输入您的姓名",
+      "emailRequired": "请输入您的邮箱",
+      "emailInvalid": "请输入有效的邮箱地址",
+      "contentRequired": "请输入评论内容",
+      "submit": "提交评论",
+      "submitReply": "提交回复",
+      "submitting": "提交中…",
+      "cancel": "取消"
+    },
+    "list": {
+      "reply": "回复",
+      "empty": "还没有评论。成为第一个评论的人!",
+      "anonymous": "匿名"
+    },
+    "section": {
+      "title": "发表评论",
+      "replyTo": "回复评论",
+      "count": "评论 ({count})",
+      "loading": "加载评论中…",
+      "loadFailed": "加载评论失败",
+      "successApproved": "你的评论已发布。",
+      "successPending": "评论已提交，站长审核通过后将显示。",
+      "rateLimited": "评论过于频繁，请稍等一分钟后再试。",
+      "submitFailed": "评论提交失败，请重试。",
+      "retry": "重试"
+    },
+    "notifyEmail": {
+      "subjectPending": "MisoTech 有新评论待审核",
+      "subjectSpam": "MisoTech 拦截到疑似垃圾评论",
+      "greeting": "站长你好，",
+      "intro": "一条新评论被拦截待审：",
+      "post": "所属文章",
+      "author": "作者",
+      "email": "邮箱",
+      "content": "内容",
+      "status": "状态",
+      "score": "垃圾评分",
+      "reasons": "命中原因",
+      "reviewButton": "打开审核工作台",
+      "footer": "本邮件由 MisoTech 评论审核系统发送。"
+    }
+  },
   "admin": {
+    "comments": {
+      "title": "评论审核",
+      "loginTitle": "管理后台",
+      "passwordPlaceholder": "管理令牌(ADMIN_TOKEN)",
+      "login": "登录",
+      "logout": "退出",
+      "subtitle": "审核待审与垃圾评论。通过后评论立即在前台显示。",
+      "refresh": "刷新列表",
+      "langEn": "EN",
+      "langZh": "中",
+      "tabs": {
+        "all": "全部",
+        "pending": "待审",
+        "spam": "垃圾",
+        "approved": "已通过"
+      },
+      "colContent": "评论",
+      "colPost": "文章",
+      "colAuthor": "作者",
+      "colCreatedAt": "时间",
+      "colStatus": "状态",
+      "colScore": "评分",
+      "colReasons": "命中原因",
+      "colActions": "操作",
+      "status": {
+        "pending": "待审",
+        "spam": "垃圾",
+        "approved": "已通过"
+      },
+      "actions": {
+        "approve": "通过",
+        "markSpam": "标垃圾",
+        "toPending": "打回待审"
+      },
+      "loading": "加载评论列表…",
+      "empty": "该视图暂无评论",
+      "loadFailed": "加载失败",
+      "actionFailed": "操作失败",
+      "cappedNote": "仅显示最新 {limit} 条",
+      "slugLabel": "文章",
+      "replyToLabel": "回复至",
+      "countsCappedSuffix": "+",
+      "fieldMissingHint": "Notion 评论库缺少 ModerationStatus 字段。请按 spec 添加 ModerationStatus/SpamScore/SpamReasons 后重试。",
+      "reasonLabels": {
+        "links": "链接过多",
+        "suspicious_link": "可疑链接",
+        "link_density": "链接占比过高",
+        "keyword": "黑名单关键词",
+        "caps": "全大写过多",
+        "repeat_chars": "连续重复字符",
+        "repeat_lines": "重复行",
+        "too_short": "过短/无意义",
+        "email_tld": "可疑邮箱后缀",
+        "email_domain": "一次性邮箱",
+        "freq": "提交过于频繁"
+      }
+    },
     "content": {
       "title": "内容管理",
       "loginTitle": "管理后台",
