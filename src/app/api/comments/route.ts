@@ -8,6 +8,7 @@ import type { Locale } from '@/services/notion';
 
 // Node runtime（Notion SDK / Resend 走 Node）。
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic'; // GET 用了 request.url，不可静态化
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NAME_MAX = 80;

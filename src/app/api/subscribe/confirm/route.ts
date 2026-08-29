@@ -6,6 +6,7 @@ import { rateLimited, getClientIp } from '@/lib/rateLimit';
 // 校验签名 token -> 置 status=active -> 重定向到确认成功页。
 // Node runtime。限流防 token 枚举（spec §8）。
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic'; // 用了 request.url/headers，不可静态化
 export async function GET(request: NextRequest) {
   try {
     const ip = getClientIp(request);
