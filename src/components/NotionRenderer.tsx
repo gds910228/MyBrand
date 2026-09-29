@@ -144,6 +144,10 @@ const BlockRenderer: React.FC<{ block: any }> = ({ block }) => {
       const captionRich = Array.isArray(block.image.caption) ? block.image.caption : [];
       const captionText = captionRich.map((t: any) => t.plain_text).join('');
       const captionNodes = captionRich.length ? renderRichText(captionRich) : null;
+      // Notion/AWS 签名 URL 约 1 小时过期且签名随 API 调用轮换，走 Vercel 优化器
+      // 会导致缓存键不断变化、永远 miss（打爆免费额度），故直出原图。
+      // 与 FallbackImage/BlogCoverImage 的处理保持一致。
+      const isSignedUrl = imageUrl.includes('amazonaws.com') && imageUrl.includes('X-Amz-Signature');
       return (
         <figure className="my-6">
           <div className="relative overflow-hidden rounded-lg">
@@ -155,6 +159,7 @@ const BlockRenderer: React.FC<{ block: any }> = ({ block }) => {
               className="w-full h-auto rounded-lg transition-transform duration-300 hover:scale-105"
               placeholder="empty"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+              unoptimized={isSignedUrl}
             />
           </div>
           {captionNodes && <figcaption className="text-center text-sm text-neutral-medium dark:text-dark-neutral-medium mt-2">{captionNodes}</figcaption>}

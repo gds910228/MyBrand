@@ -51,6 +51,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, locale = '
                 alt={authorName}
                 fill
                 className="object-cover"
+                sizes="40px"
               />
             ) : (
               <div className="w-full h-full bg-primary text-white flex items-center justify-center text-lg font-medium">

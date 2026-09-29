@@ -16,9 +16,13 @@ const nextConfig = {
       { protocol: 'https', hostname: 'i.ytimg.com' },
       { protocol: 'https', hostname: 'static.moblin.net' }
     ],
-    formats: ['image/webp', 'image/avif'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    // 仅 WebP：AVIF 会使每张图的优化变体数 ×2，免费额度（5K 转换/月）吃不消
+    formats: ['image/webp'],
+    // 裁掉 828/2048/3840：博客场景不需要 2K/4K 变体，减少无谓转换
+    deviceSizes: [640, 750, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // 稳定源图（Unsplash 等）尽量长缓存，减少边缘缓存驱逐后的重复写入
+    minimumCacheTTL: 604800,
   },
   experimental: {
     esmExternals: 'loose'
