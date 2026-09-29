@@ -4,6 +4,10 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
+// whileHover/whileTap 是 motion 专属 props，直接传给 next/link 会透传到
+// 普通 <a> 上，触发 React unknown prop 警告且动画失效 —— 需用 motion 包装。
+const MotionLink = motion.create(Link);
+
 export interface ButtonProps {
   children: React.ReactNode;
   variant?: 'solid' | 'outline' | 'ghost';
@@ -102,9 +106,9 @@ const Button: React.FC<ButtonProps> = ({
 
   if (href) {
     return (
-      <Link href={href} {...sharedProps}>
+      <MotionLink href={href} {...sharedProps}>
         {content}
-      </Link>
+      </MotionLink>
     );
   }
 

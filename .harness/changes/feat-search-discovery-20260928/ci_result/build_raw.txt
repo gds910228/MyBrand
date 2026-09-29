@@ -1,0 +1,109 @@
+
+> brand-website@1.0.0 build
+> next build
+
+   ▲ Next.js 14.1.0
+   - Environments: .env.local
+   - Experiments (use at your own risk):
+     · esmExternals
+
+   Creating an optimized production build ...
+Compiler server unexpectedly exited with code: null and signal: SIGTERM
+Browserslist: browsers data (caniuse-lite) is 16 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Compiler client unexpectedly exited with code: null and signal: SIGTERM
+ ✓ Compiled successfully
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/37) ...
+Projects API error: ex [Error]: Dynamic server usage: Page couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at Object.eP [as staticGenerationBailout] (/mnt/tos/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:29358)
+    at i (/mnt/tos/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34692)
+    at Object.get (/mnt/tos/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34788)
+    at n (/mnt/tos/workspace/.next/server/app/api/projects/route.js:1:783)
+    at /mnt/tos/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:42490
+    at /mnt/tos/workspace/node_modules/next/dist/server/lib/trace/tracer.js:133:36
+    at NoopContextManager.with (/mnt/tos/workspace/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/mnt/tos/workspace/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/mnt/tos/workspace/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/mnt/tos/workspace/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854) {
+  description: "Page couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (9/37) 
+   Generating static pages (18/37) 
+   Generating static pages (27/37) 
+ ✓ Generating static pages (37/37) 
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    168 B           181 kB
+├ ○ /_not-found                          0 B                0 B
+├ ○ /about                               3.5 kB          100 kB
+├ ○ /admin/comments                      8.15 kB        92.4 kB
+├ ○ /admin/content                       8.34 kB        92.6 kB
+├ ○ /admin/notify                        2.11 kB        86.4 kB
+├ ○ /admin/search-analytics              7.09 kB        91.3 kB
+├ λ /api/admin/comments                  0 B                0 B
+├ λ /api/admin/comments/status           0 B                0 B
+├ λ /api/admin/content                   0 B                0 B
+├ λ /api/admin/content/publish-due       0 B                0 B
+├ λ /api/admin/content/schedule          0 B                0 B
+├ λ /api/admin/content/status            0 B                0 B
+├ λ /api/admin/notify                    0 B                0 B
+├ λ /api/admin/posts                     0 B                0 B
+├ λ /api/admin/search-analytics          0 B                0 B
+├ λ /api/comments                        0 B                0 B
+├ λ /api/content/[id]/preview            0 B                0 B
+├ λ /api/cron/publish                    0 B                0 B
+├ λ /api/inquiries                       0 B                0 B
+├ λ /api/projects                        0 B                0 B
+├ λ /api/push/subscribe                  0 B                0 B
+├ λ /api/revalidate                      0 B                0 B
+├ λ /api/search                          0 B                0 B
+├ λ /api/search/index                    0 B                0 B
+├ λ /api/search/suggest                  0 B                0 B
+├ λ /api/subscribe                       0 B                0 B
+├ λ /api/subscribe/confirm               0 B                0 B
+├ λ /api/unsubscribe                     0 B                0 B
+├ λ /blog                                2.81 kB         154 kB
+├ λ /blog/[slug]                         162 B           143 kB
+├ ○ /contact                             2.17 kB         165 kB
+├ ○ /disclaimer                          2.48 kB         131 kB
+├ ○ /privacy                             4.17 kB         133 kB
+├ ○ /projects                            159 B           161 kB
+├ λ /projects/[slug]                     2.98 kB         136 kB
+├ ○ /robots.txt                          0 B                0 B
+├ λ /search                              155 B           128 kB
+├ ○ /services                            146 B           143 kB
+├ ○ /sitemap.xml                         0 B                0 B
+├ ○ /subscribe/confirm                   5.98 kB          97 kB
+├ ○ /unsubscribe                         5.98 kB          97 kB
+├ ○ /zh                                  169 B           181 kB
+├ ○ /zh/about                            3.85 kB         101 kB
+├ λ /zh/blog                             3.93 kB         155 kB
+├ λ /zh/blog/[slug]                      162 B           143 kB
+├ ○ /zh/contact                          1.76 kB         164 kB
+├ ○ /zh/disclaimer                       2.71 kB         131 kB
+├ ○ /zh/privacy                          4.57 kB         133 kB
+├ ○ /zh/projects                         160 B           161 kB
+├ λ /zh/projects/[slug]                  2.98 kB         136 kB
+├ λ /zh/search                           156 B           128 kB
+├ ○ /zh/services                         146 B           143 kB
+├ ○ /zh/subscribe/confirm                5.98 kB          97 kB
+└ ○ /zh/unsubscribe                      5.98 kB          97 kB
++ First Load JS shared by all            84.2 kB
+  ├ chunks/8069-78ab576f4ee26481.js      28.9 kB
+  ├ chunks/fd9d1056-20b837d670faf23d.js  53.4 kB
+  └ other shared chunks (total)          1.96 kB
+
+
+ƒ Middleware                             40.9 kB
+
+○  (Static)   prerendered as static content
+λ  (Dynamic)  server-rendered on demand using Node.js
+
+BUILD_EXIT=0

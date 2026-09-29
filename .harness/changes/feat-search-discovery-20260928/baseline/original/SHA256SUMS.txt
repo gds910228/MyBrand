@@ -1,0 +1,5 @@
+a9c48b0711d90f1dcd0c3d5c426c682a5abbdb9d10d671b1980ee4c3f1d5cc1f  .harness/changes/feat-search-discovery-20260928/baseline/original/api-search-route.original.ts
+37d1652ab6b6d0b0f33918e9e729167c42614c7bd6b08d438f911c7da6e48ff0  .harness/changes/feat-search-discovery-20260928/baseline/original/searchData.original.ts
+0f4c6d118deeb0e9936f5ef60a874e4e8794a11ce7d491cf2a8efbaf2f750c73  .harness/changes/feat-search-discovery-20260928/baseline/original/searchIndex.original.ts
+818c75af11c98ab8cf08f547f3170d39baaf6c02831e11405b8d44cd32c299a0  .harness/changes/feat-search-discovery-20260928/baseline/original/search-page.original.tsx
+38ea7ac483cee019aaebb8b1f3f03aedb2e21ebf9329d5b352a77d0168823bb3  .harness/changes/feat-search-discovery-20260928/baseline/original/SmartRecommendations.original.tsx

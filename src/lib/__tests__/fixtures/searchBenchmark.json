@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "name": "search-quality-benchmark",
+  "description": "全站搜索召回质量基准集（feat-search-discovery-20260928）。同时被单元测试（src/lib/__tests__/searchBenchmark.test.ts）与部署验收（S1-S4）对照使用。验证集为 src/data 本地 fallback 种子数据（空 Notion Key 降级路径）。",
+  "corpus": {
+    "blog": "src/data/blog.ts",
+    "projects": "src/data/projects.ts"
+  },
+  "idConvention": "文档 id = `<type>:<seedId>`，例如 `blog:post-1`、`project:proj-3`。",
+  "semantics": {
+    "expectAnyOf": "结果集中至少命中其中一个 id（召回下界）。空数组表示不作召回要求。",
+    "expectNoneOf": "结果集中不得出现任何一个 id（精确性下界，防误召回）。",
+    "expectTopOf": "结果集第 1 条必须命中其中一个 id（排序质量）。空数组表示不作排序要求。"
+  },
+  "queries": [
+    {
+      "id": "en-1",
+      "category": "en",
+      "locale": "en",
+      "q": "nextjs",
+      "expectAnyOf": ["blog:post-1", "blog:post-10"],
+      "expectNoneOf": ["blog:post-4"],
+      "expectTopOf": [],
+      "note": "英文单词检索 + 标点归一化（Next.js / nextjs 应等价）。"
+    },
+    {
+      "id": "en-2",
+      "category": "en",
+      "locale": "en",
+      "q": "tailwind css",
+      "expectAnyOf": ["blog:post-2"],
+      "expectNoneOf": ["blog:post-6"],
+      "expectTopOf": [],
+      "note": "英文多词 AND 检索。"
+    },
+    {
+      "id": "en-3",
+      "category": "en",
+      "locale": "en",
+      "q": "typescript generics",
+      "expectAnyOf": ["blog:post-11"],
+      "expectNoneOf": ["blog:post-3"],
+      "expectTopOf": [],
+      "note": "英文多词 AND 检索，命中标题中的两个词。"
+    },
+    {
+      "id": "en-4",
+      "category": "en",
+      "locale": "en",
+      "q": "docker",
+      "expectAnyOf": ["project:proj-3", "project:proj-4"],
+      "expectNoneOf": ["blog:post-4"],
+      "expectTopOf": [],
+      "note": "跨内容类型检索：项目 technologies 字段命中。"
+    },
+    {
+      "id": "zh-1",
+      "category": "zh",
+      "locale": "zh",
+      "q": "入门",
+      "expectAnyOf": ["blog:post-1"],
+      "expectNoneOf": ["blog:post-4"],
+      "expectTopOf": [],
+      "note": "中文词，且位于标题中段（「Next.js 14 入门指南」）——旧实现只能词头前缀命中，此处为改造核心验证点。"
+    },
+    {
+      "id": "zh-2",
+      "category": "zh",
+      "locale": "zh",
+      "q": "指南",
+      "expectAnyOf": ["blog:post-1", "blog:post-11"],
+      "expectNoneOf": ["blog:post-4"],
+      "expectTopOf": [],
+      "note": "中文词，位于标题末尾（后缀子串），非词头。"
+    },
+    {
+      "id": "zh-3",
+      "category": "zh",
+      "locale": "zh",
+      "q": "渲染",
+      "expectAnyOf": ["blog:post-10"],
+      "expectNoneOf": ["blog:post-2"],
+      "expectTopOf": [],
+      "note": "中文词，位于标题中段（「Next.js 中的服务端渲染与静态生成」）。"
+    },
+    {
+      "id": "zh-4",
+      "category": "zh",
+      "locale": "zh",
+      "q": "性能优化",
+      "expectAnyOf": ["blog:post-12"],
+      "expectNoneOf": ["blog:post-6"],
+      "expectTopOf": [],
+      "note": "中文多字词（4 字），要求分词后多 token AND 命中。"
+    },
+    {
+      "id": "mix-1",
+      "category": "mixed",
+      "locale": "zh",
+      "q": "Next.js 入门",
+      "expectAnyOf": ["blog:post-1"],
+      "expectNoneOf": ["blog:post-4"],
+      "expectTopOf": [],
+      "note": "中英混合：英文品牌词 + 中文词，两者都须命中同一文档。"
+    },
+    {
+      "id": "mix-2",
+      "category": "mixed",
+      "locale": "zh",
+      "q": "React 性能优化",
+      "expectAnyOf": ["blog:post-12"],
+      "expectNoneOf": ["blog:post-3"],
+      "expectTopOf": [],
+      "note": "中英混合：英文技术词 + 中文多字词。"
+    },
+    {
+      "id": "mix-3",
+      "category": "mixed",
+      "locale": "zh",
+      "q": "TypeScript 泛型",
+      "expectAnyOf": ["blog:post-11"],
+      "expectNoneOf": ["blog:post-5"],
+      "expectTopOf": [],
+      "note": "中英混合：中文词位于标题末尾。"
+    },
+    {
+      "id": "mix-4",
+      "category": "mixed",
+      "locale": "zh",
+      "q": "Tailwind 响应式",
+      "expectAnyOf": ["blog:post-2"],
+      "expectNoneOf": ["blog:post-6"],
+      "expectTopOf": [],
+      "note": "中英混合：英文技术词 + 中文词，中文词位于标题中段。"
+    }
+  ]
+}

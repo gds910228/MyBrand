@@ -288,6 +288,32 @@
       "langZh": "中",
       "hasEn": "英",
       "hasZh": "中"
+    },
+    "searchAnalytics": {
+      "title": "搜索分析",
+      "subtitle": "访客在搜什么，以及他们搜不到什么",
+      "loginTitle": "后台登录",
+      "passwordPlaceholder": "后台 token",
+      "login": "登录",
+      "logout": "退出",
+      "refresh": "刷新",
+      "langEn": "EN",
+      "langZh": "中文",
+      "summaryTitle": "总览",
+      "totalSearches": "搜索总次数",
+      "uniqueQueries": "去重查询词",
+      "zeroResultQueries": "零结果词数",
+      "topQueriesTitle": "热门搜索词",
+      "zeroResultTitle": "零结果词",
+      "colQuery": "查询词",
+      "colCount": "搜索次数",
+      "colZeroCount": "零结果次数",
+      "loading": "加载中…",
+      "empty": "暂无搜索事件记录",
+      "emptyZero": "没有零结果词——每次搜索都有命中",
+      "loadFailed": "加载搜索分析失败",
+      "storageNote": "事件保存在本实例内存中（未配置 Notion Key 或单实例开发环境），重启后计数清零。",
+      "privacyNote": "仅存储查询词、语言、筛选条件与结果数量，不采集 IP 地址、User-Agent 或任何访客标识。"
     }
   }
 }

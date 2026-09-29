@@ -18,7 +18,7 @@ import ProsCons from '@/components/ProsCons';
 import ToolInfoBox from '@/components/ToolInfoBox';
 import ComparisonTable from '@/components/ComparisonTable';
 import ReadingProgress from '@/components/ReadingProgress';
-import RelatedPosts from '@/components/RelatedPosts';
+import SmartRecommendations from '@/components/SmartRecommendations';
 import ShareButtons from '@/components/ShareButtons';
 import TableOfContents from '@/components/TableOfContents';
 import { extractHeadingsFromNotion } from '@/utils/extractHeadings';
@@ -83,7 +83,8 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
     }
 
     // 获取完整的博客文章内容
-    const fullPost = await getBlogPostById(post.id);
+    // 传入语言：本地 fallback 路径按语言展平 { en, zh } 字段（feat-search-discovery-20260928）
+    const fullPost = await getBlogPostById(post.id, { language: 'English' });
 
     if (!fullPost) {
       notFound();
@@ -270,13 +271,20 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
         </Container>
       </Section>
 
-      {/* Related Posts */}
-      <RelatedPosts
-        currentPost={fullPost}
-        allPosts={posts}
-        maxPosts={3}
-        locale="en"
-      />
+      {/* 相关内容推荐（feat-search-discovery-20260928，能力块 F）
+          决策 D-03：以统一检索层的 SmartRecommendations 取代原 RelatedPosts，
+          避免同页出现两个语义重复的「相关内容」区块。RelatedPosts.tsx 文件保留不删。 */}
+      <Section>
+        <Container>
+          <SmartRecommendations
+            type="blog"
+            id={post.id}
+            keywords={(fullPost as any).tags || []}
+            locale="en"
+            maxItems={4}
+          />
+        </Container>
+      </Section>
 
       {/* Comments Section */}
       <Section id="comments-section">

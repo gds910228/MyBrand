@@ -1,0 +1,80 @@
+# 验收矩阵执行记录 — S1..S24
+# baseUrl = http://localhost:3100
+# 时间 = 2026-09-29T00:56:17.787Z
+# 环境 = 空 Notion Key 降级路径（本地 src/data 种子）
+
+[PASS] S1 英文检索 /api/search?q=nextjs
+        HTTP=200 results=4 每项含 title/type/score=true ids=[blog:post-10, blog:post-1, project:proj-1, blog:post-test-image-video]
+
+[PASS] S2 中文检索 q=入门 (locale=zh)
+        HTTP=200 ids=[blog:post-1] 命中 blog:post-1=true
+
+[PASS] S3 中英混合 q="Next.js 入门" (locale=zh)
+        HTTP=200 ids=[blog:post-1] 命中 blog:post-1=true
+
+[PASS] S4 非词头中文子串 q=指南 / 渲染 / 性能优化 (locale=zh)
+        指南→[blog:post-11, blog:post-1, blog:post-7] 渲染→[blog:post-10, project:proj-2, blog:post-12] 性能优化→[blog:post-12]
+
+[PASS] S5 类型过滤 type=blog / type=project；非法 type
+        type=blog n=12 全为blog=true; type=project n=6 全为project=true; type=video → HTTP=400 error="Invalid type: expected one of blog, project"（400 或空结果均可）
+
+[PASS] S6 标签过滤 tag=nextjs
+        HTTP=200 n=1 全部含标签 nextjs=true 样例=[{"id":"blog:post-10","kw":["nextjs","ssr","performance"]}]
+
+[PASS] S7 时间范围 from=2024-01-01&to=2024-12-31
+        HTTP=200 n=10 全部在范围内=true 日期样例=[2024-04-11, 2024-06-15, 2024-01-22, 2024-06-10]
+
+[PASS] S8 组合过滤 type=project&tag=docker&from=2023-01-01&to=2025-12-31
+        HTTP=200 n=2 同时满足全部条件=true ids=[project:proj-4, project:proj-3]
+
+[PASS] S9 排序 sort=newest 按日期降序；默认 relevance
+        newest 日期降序=true 日期=[2024-07-21, 2024-07-08, 2024-06-15, 2024-06-10, 2024-06-05]; relevance 分数降序=true sort字段="relevance"
+
+[PASS] S10 同查询连发两次 id 序列完全一致（EN + ZH）
+        en: [blog:post-10, blog:post-1, project:proj-1, blog:post-test-image-video] === [blog:post-10, blog:post-1, project:proj-1, blog:post-test-image-video] → true; zh 一致=true
+
+[PASS] S11 分页 page=2&pageSize=5 切片与元信息；越界 page 空集不报错
+        total=18 totalPages=4 page=2 pageSize=5 count(本页)=5 切片正确=true; 越界 page=9999 → HTTP=200 results=0
+
+[PASS] S12 容错与安全：XSS 串 / 超长串 / 纯空白 / 纯标点 emoji
+        HTTP: xss=200 long=200 blank=200 weird=200（均非 500=true）; 响应不含未转义 <script>/onerror=true; blank results=0; weird results=0
+
+[PASS] S13 搜索建议基于索引内容（prefix=nex / 渲）
+        EN source=index suggestions=[{"text":"nextjs","count":2},{"text":"Next.js","count":1}]; ZH source=index suggestions=[{"text":"中的服务端渲染与静态生成","count":1},{"text":"渲染","count":1},{"text":"端渲","count":1}]; 空前缀 source=fallback（静态热门词兜底）
+
+[PASS] S14 热门词聚合（每词 2 次已知查询，按增量断言）
+        HTTP=200 totalSearches=41 uniqueQueries=15; 各词增量=[{"q":"nextjs","delta":2},{"q":"typescript","delta":2},{"q":"tailwind","delta":2},{"q":"docker","delta":2}]（期望均为 +2）; topQueries=[{"query":"a","count":14,"zeroResultCount":0},{"query":"nextjs","count":5,"zeroResultCount":0},{"query":"的","count":4,"zeroResultCount":0},{"query":"zzz-nonexistent-query-xyz","count":3,"zeroResultCount":3},{"query":"docker","count":2,"zeroResultCount":0},{"query":"tailwind","count":2,"zeroResultCount":0}]
+
+[PASS] S15 零结果词可见
+        零结果词 "zzz-nonexistent-query-xyz" 增量=+3（期望 +3）; zeroResultQueries=[{"query":"zzz-nonexistent-query-xyz","count":3},{"query":"<script>alert(1)</script>","count":1},{"query":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","count":1},{"query":"、。？！😀","count":1}]
+
+[PASS] S16 短时高频请求触发 429（search 桶 60/60s，独立 IP 10.0.0.16）
+        首次 429 出现在第 61 次请求（桶上限 60）；后续状态码=[200, 200, 200, 200, 200, 429, 429, 429, 429, 429]
+
+[PASS] S17 分析端点鉴权与 /api/admin/comments 一致
+        无 token: /api/admin/search-analytics=401 /api/admin/comments=401（一致=true）; 带 Bearer token: HTTP=200 ok=true
+
+[PASS] S19 URL 即状态：/search?q=a&type=blog 的 SSR HTML 直出过滤后结果
+        /search?q=a&type=blog → HTTP=200 含结果容器=true SSR 内嵌 id=12 全为 blog=true; /search?q=a&type=project → SSR 内嵌 id=6 全为 project=true
+
+[PASS] S20 双语搜索页 /search 与 /zh/search
+        EN HTTP=200 含 "Search Content"=true 含结果容器=true; ZH HTTP=200 含 "搜索内容"=true 含结果容器=true
+
+[PASS] S21 四处详情页 SSR 含相关内容区块且条目非空
+        blog EN: HTTP=200 区块=true 条目=4 ids=[blog:post-5, blog:post-7, blog:post-2, blog:post-test-image-video]
+        blog ZH: HTTP=200 区块=true 条目=4 ids=[blog:post-5, blog:post-7, blog:post-2, blog:post-test-image-video]
+        project EN: HTTP=200 区块=true 条目=4 ids=[project:proj-5, project:proj-2, project:proj-6, project:proj-4]
+        project ZH: HTTP=200 区块=true 条目=4 ids=[project:proj-5, project:proj-2, project:proj-6, project:proj-4]
+
+[PASS] S22 推荐相关性：与原文共享标签/同主题，且含推荐理由字段
+        blog EN 推荐=[blog:post-5, blog:post-7, blog:post-2, blog:post-test-image-video]（同类型，均 blog）; project EN 推荐=[project:proj-5, project:proj-2, project:proj-6, project:proj-4]; EN 推荐理由文案出现=true; ZH 推荐理由文案出现=true
+
+[PASS] S23 回归组：旧参数 language=Chinese|English + 三个既有端点
+        ?language=Chinese → HTTP=200 ids=[blog:post-1]; ?language=English → HTTP=200 ids=[blog:post-10, blog:post-1, project:proj-1]; /api/comments → HTTP=200 含 comments 数组=true 条数=2; /api/projects → HTTP=200 条数=6; /api/admin/comments → HTTP=401（ADMIN_TOKEN 已配置，无 token 预期 401）
+
+[PASS] S24 索引构建有缓存 + 20 次连续请求耗时（含 p95）
+        成功请求数=20/20（无 429）; min=708.2ms avg=760.8ms p95=858.5ms max=858.5ms; 缓存策略=进程内 globalThis 单例（src/lib/searchIndexCache.ts，TTL 5min，按 locale 分桶）；构建次数证据见单元测试 searchService.test.ts「连续请求只构建一次索引」
+
+========================================================================
+SUMMARY: PASS=23 FAIL=0 TOTAL=23
+========================================================================

@@ -66,6 +66,17 @@ export interface BlogPostType {
   categories: string[];
   slug: string;
   featured?: boolean;
+  /**
+   * 标签（feat-search-discovery-20260928 新增，可选）。
+   * 对应 Notion 的 Tags multi_select，是搜索索引 keywords 字段的来源。
+   * 既有文章未标注 tags 时，适配层回落使用 `categories`，故本字段纯增量、不破坏既有数据。
+   */
+  tags?: string[];
+  /** 预计阅读时长（可选，双语）。Notion 侧为文本字段；本地种子显式标注。 */
+  readTime?: {
+    en: string;
+    zh: string;
+  };
 }
 
 // 博客文章数据
@@ -316,6 +327,78 @@ export const blogPosts: BlogPostType[] = [
     updatedAt: '2024-07-21',
     categories: ['tutorial', 'design'],
     slug: 'test-image-and-video',
+    featured: true
+  }
+,
+  // ---------------------------------------------------------------------------
+  // 以下 3 篇为 feat-search-discovery-20260928 新增（T03）。
+  // 目的：为检索质量基准集提供中文非词头子串（渲染 / 性能优化）与英文关键词
+  // （typescript generics）的确定性命中目标，并补齐双语正文。
+  // 既有 10 篇种子保持不变（Rules：不删除 src/data fallback 数据）。
+  // ---------------------------------------------------------------------------
+  {
+    id: 'post-10',
+    title: {
+      en: 'Server-Side Rendering vs Static Generation in Next.js',
+      zh: 'Next.js 中的服务端渲染与静态生成'
+    },
+    excerpt: {
+      en: 'When to render on the server and when to pre-render at build time. A practical comparison of SSR, SSG and ISR with the trade-offs that actually matter in production.',
+      zh: '何时在服务端渲染、何时在构建期预渲染。对比 SSR、SSG 与 ISR，并给出生产环境中真正重要的取舍。'
+    },
+    content: {
+      en: '<h2>Three rendering strategies</h2><p>Next.js gives you three ways to turn data into HTML: render on every request, pre-render once at build time, or pre-render and revalidate on a schedule. The right choice depends on how often the data changes and how much latency your users will tolerate.</p><h2>Server-side rendering</h2><p>Server-side rendering produces HTML per request. It is the right default when the page depends on the request itself, such as a personalised dashboard or anything behind authentication.</p><h2>Static generation and ISR</h2><p>Static generation pre-renders at build time and serves the result from a cache. Incremental static regeneration extends it by rebuilding individual pages in the background after a revalidation window, which is what this site uses for content pages.</p><ul><li>Use SSR for per-request data</li><li>Use SSG for content that rarely changes</li><li>Use ISR when content changes but not per request</li></ul><h2>Choosing in practice</h2><p>Start static. Move a route to server-side rendering only when you can point at a concrete requirement it fails to meet. Every route you keep static is a route that cannot fall over under load.</p>',
+      zh: '<h2>三种渲染策略</h2><p>Next.js 提供三种把数据变成 HTML 的方式：每次请求都渲染、构建期预渲染一次，或预渲染后按周期再验证。正确选择取决于数据变化频率与用户可接受的延迟。</p><h2>服务端渲染</h2><p>服务端渲染按请求产出 HTML，适合页面依赖请求本身的场景，例如个性化仪表盘或任何需要登录的内容。</p><h2>静态生成与 ISR</h2><p>静态生成在构建期预渲染并从缓存提供结果。增量静态再生（ISR）在此基础上扩展：在再验证窗口过后于后台重建单个页面，本站的内容页正是采用这种方式。</p><ul><li>按请求取数用 SSR</li><li>极少变化的内容用 SSG</li><li>内容会变但不必按请求变化时用 ISR</li></ul><h2>实践中的选择</h2><p>先默认静态。只有当你能指出某个具体需求静态方案确实无法满足时，再把该路由改为服务端渲染。每保留一个静态路由，就少一个会在高负载下崩溃的路由。</p>'
+    },
+    coverImage: 'https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&w=1170&q=80',
+    publishedAt: '2024-05-20',
+    categories: ['webdev', 'tutorial'],
+    tags: ['nextjs', 'ssr', 'performance'],
+    readTime: { en: '7 min read', zh: '7 分钟阅读' },
+    slug: 'server-side-rendering-vs-static-generation',
+    featured: true
+  },
+  {
+    id: 'post-11',
+    title: {
+      en: 'A Practical Guide to TypeScript Generics',
+      zh: 'TypeScript 泛型实用指南'
+    },
+    excerpt: {
+      en: 'Generics stop being intimidating once you use them for one job: describing the relationship between inputs and outputs. A practical guide with real examples.',
+      zh: '当你只把泛型用于一件事——描述输入与输出之间的关系——它就不再令人生畏。一份配有真实示例的实用指南。'
+    },
+    content: {
+      en: '<h2>What generics are for</h2><p>A generic is a way to say these two types are the same, but I do not know which one yet. That is the whole idea. Everything else is syntax.</p><h2>Describing relationships</h2><p>Consider a function that takes an array and returns its first element. Without generics it must return a union or any. With a generic it returns exactly the element type of the array you passed in.</p><h2>Constraints</h2><p>Constraints let you require that a type has certain properties while still preserving the specific type. This is how you write a helper that reads an identifier without losing which model it came from.</p><ul><li>Use generics to link input and output types</li><li>Add constraints only when you need to access a property</li><li>Prefer a concrete type when a generic adds nothing</li></ul><h2>When not to use them</h2><p>If a type parameter appears only once in a signature, it is usually not doing any work. Reach for a concrete type instead and the code gets easier to read.</p>',
+      zh: '<h2>泛型解决什么问题</h2><p>泛型是用来表达「这两个类型是同一个，但我还不知道是哪一个」的手段。核心思想仅此而已，其余都是语法。</p><h2>描述类型之间的关系</h2><p>以一个接收数组并返回首元素的函数为例。不用泛型，它只能返回联合类型或 any；用了泛型，它返回的正是你传入数组的元素类型。</p><h2>约束</h2><p>约束让你在保留具体类型的同时，要求该类型具备某些属性。这正是编写「读取标识符但不丢失其来源模型」这类辅助函数的方法。</p><ul><li>用泛型把输入类型与输出类型关联起来</li><li>只在需要访问属性时才加约束</li><li>泛型没有增益时就改用具体类型</li></ul><h2>什么时候不要用</h2><p>如果一个类型参数在签名中只出现一次，它通常没有起作用。此时改用具体类型，代码会更好读。</p>'
+    },
+    coverImage: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&w=1170&q=80',
+    publishedAt: '2024-04-11',
+    categories: ['webdev', 'tutorial'],
+    tags: ['typescript', 'tutorial'],
+    readTime: { en: '6 min read', zh: '6 分钟阅读' },
+    slug: 'practical-guide-to-typescript-generics'
+  },
+  {
+    id: 'post-12',
+    title: {
+      en: 'Performance Optimization for React Applications',
+      zh: 'React 应用性能优化实战'
+    },
+    excerpt: {
+      en: 'Most React performance work is not about memoisation. It is about finding which state update is causing a subtree to re-render, and moving that state down.',
+      zh: '大多数 React 性能工作与记忆化无关，而是要找出是哪个状态更新导致子树重渲染，并把该状态下移。'
+    },
+    content: {
+      en: '<h2>Measure before you optimise</h2><p>Open the profiler and record a slow interaction. Every optimisation you make without a measurement is a guess, and most guesses make the code harder to read without making it faster.</p><h2>The usual culprit</h2><p>By far the most common problem is state that lives too high in the tree. When a component high up holds state that only one leaf needs, every sibling re-renders on each update. Moving that state down usually removes the problem entirely.</p><h2>Memoisation, carefully</h2><p>Memoisation is a tool for when you cannot restructure the tree, not a default. Applied blindly it adds comparison cost and hides the real dependency graph from the next reader.</p><ul><li>Profile first, then optimise</li><li>Move state down before memoising</li><li>Split context so unrelated consumers do not re-render</li><li>Virtualise long lists rather than optimising each row</li></ul><h2>Where to stop</h2><p>Stop when the interaction feels instant. Further optimisation has a cost in complexity that will be paid by whoever reads the component next.</p>',
+      zh: '<h2>先测量再优化</h2><p>打开性能分析器并录制一次卡顿交互。任何没有测量支撑的优化都只是猜测，而大多数猜测只会让代码更难读，并不会更快。</p><h2>最常见的原因</h2><p>最普遍的问题是状态放得过高。当高层组件持有只有某个叶子节点需要的状态时，每次更新都会让所有兄弟节点重渲染。把状态下移通常能彻底解决问题。</p><h2>谨慎使用记忆化</h2><p>记忆化适用于无法调整组件树的场景，而不是默认选项。盲目套用会增加比较开销，并向下一个读者隐藏真实的依赖关系。</p><ul><li>先做性能分析，再谈优化</li><li>优先下移状态，而非记忆化</li><li>拆分 Context，避免无关消费者重渲染</li><li>长列表做虚拟化，而不是逐行优化</li></ul><h2>何时收手</h2><p>当交互感觉即时就应停止。继续优化所带来的复杂度成本，将由下一个读这段代码的人承担。</p>'
+    },
+    coverImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1170&q=80',
+    publishedAt: '2024-07-08',
+    categories: ['webdev', 'ai'],
+    tags: ['react', 'performance', 'optimization'],
+    readTime: { en: '8 min read', zh: '8 分钟阅读' },
+    slug: 'performance-optimization-for-react-applications',
     featured: true
   }
 ]; 

@@ -266,11 +266,29 @@ export default function CommandPalette({ isOpen, onClose, locale }: CommandPalet
               </div>
 
               {/* 底部提示 */}
-              <div className="px-4 py-2 border-t border-neutral-light/60 dark:border-dark-neutral-light/40 text-[11px] text-neutral-dark/50 dark:text-dark-neutral-dark/50 flex items-center justify-between">
+              <div className="px-4 py-2 border-t border-neutral-light/60 dark:border-dark-neutral-light/40 text-[11px] text-neutral-dark/50 dark:text-dark-neutral-dark/50 flex items-center justify-between gap-3">
                 <span>{t.navHint}</span>
-                {!!query.trim() && status === 'ready' && total > 0 && (
-                  <span>{t.resultsFor(total, query.trim())}</span>
-                )}
+                <span className="flex items-center gap-3">
+                  {!!query.trim() && status === 'ready' && total > 0 && (
+                    <span>{t.resultsFor(total, query.trim())}</span>
+                  )}
+                  {/* 跳转搜索页时**携带查询参数**（能力块 G）：搜索页由 URL 驱动，
+                      这样落地页能直接 SSR 出同一查询的结果，且 URL 可分享。 */}
+                  {!!query.trim() && (
+                    <button
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        const base = locale === 'zh' ? '/zh/search' : '/search';
+                        onClose();
+                        router.push(`${base}?q=${encodeURIComponent(query.trim())}`);
+                      }}
+                      className="text-primary dark:text-dark-primary hover:underline whitespace-nowrap"
+                    >
+                      {t.viewAllResults}
+                    </button>
+                  )}
+                </span>
               </div>
             </motion.div>
           </div>

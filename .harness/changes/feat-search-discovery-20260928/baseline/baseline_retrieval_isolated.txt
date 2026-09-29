@@ -1,0 +1,42 @@
+语料规模: en=19 docs, zh=19 docs
+改造前实现: baseline/original/searchIndex.original.ts (默认分词, prefix+fuzzy)
+
+[PASS] en-1 (en) q="nextjs" locale=en
+       hits=1 ids=[blog:post-10]
+       expectAnyOf=[blog:post-1, blog:post-10] -> 满足  | expectNoneOf -> OK
+[PASS] en-2 (en) q="tailwind css" locale=en
+       hits=3 ids=[blog:post-2, project:proj-6, project:proj-1]
+       expectAnyOf=[blog:post-2] -> 满足  | expectNoneOf -> OK
+[PASS] en-3 (en) q="typescript generics" locale=en
+       hits=1 ids=[blog:post-11]
+       expectAnyOf=[blog:post-11] -> 满足  | expectNoneOf -> OK
+[PASS] en-4 (en) q="docker" locale=en
+       hits=2 ids=[project:proj-4, project:proj-3]
+       expectAnyOf=[project:proj-3, project:proj-4] -> 满足  | expectNoneOf -> OK
+[PASS] zh-1 (zh) q="入门" locale=zh
+       hits=1 ids=[blog:post-1]
+       expectAnyOf=[blog:post-1] -> 满足  | expectNoneOf -> OK
+[FAIL] zh-2 (zh) q="指南" locale=zh
+       hits=0 ids=[]
+       expectAnyOf=[blog:post-1, blog:post-11] -> 未满足  | expectNoneOf -> OK
+[FAIL] zh-3 (zh) q="渲染" locale=zh
+       hits=0 ids=[]
+       expectAnyOf=[blog:post-10] -> 未满足  | expectNoneOf -> OK
+[FAIL] zh-4 (zh) q="性能优化" locale=zh
+       hits=0 ids=[]
+       expectAnyOf=[blog:post-12] -> 未满足  | expectNoneOf -> OK
+[PASS] mix-1 (mixed) q="Next.js 入门" locale=zh
+       hits=1 ids=[blog:post-1]
+       expectAnyOf=[blog:post-1] -> 满足  | expectNoneOf -> OK
+[FAIL] mix-2 (mixed) q="React 性能优化" locale=zh
+       hits=0 ids=[]
+       expectAnyOf=[blog:post-12] -> 未满足  | expectNoneOf -> OK
+[PASS] mix-3 (mixed) q="TypeScript 泛型" locale=zh
+       hits=1 ids=[blog:post-11]
+       expectAnyOf=[blog:post-11] -> 满足  | expectNoneOf -> OK
+[FAIL] mix-4 (mixed) q="Tailwind 响应式" locale=zh
+       hits=0 ids=[]
+       expectAnyOf=[blog:post-2] -> 未满足  | expectNoneOf -> OK
+
+===== BASELINE SUMMARY: 7/12 =====
+by category: {"en":{"pass":4,"total":4},"zh":{"pass":1,"total":4},"mixed":{"pass":2,"total":4}}

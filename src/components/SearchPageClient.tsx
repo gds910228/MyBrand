@@ -1,54 +1,130 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faFileAlt, faFolder, faClock, faTags } from '@fortawesome/free-solid-svg-icons';
+import {
+  faSearch,
+  faFileAlt,
+  faFolder,
+  faClock,
+  faTags,
+  faFilter,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 import Section from '@/components/Section';
 import Container from '@/components/Container';
-import { useSearch } from '@/hooks/useSearch';
-import { highlight, searchTexts, popularSearches, type SearchHit } from '@/lib/searchIndex';
+import { highlight, searchTexts, popularSearches } from '@/lib/searchIndex';
+import { useSuggestions } from '@/hooks/useSearch';
 import type { Locale } from '@/i18n/locales';
+import type { ParsedSearchQuery, SearchResultItem, SearchSuggestion } from '@/types/search';
+
+/** 服务端预渲染的结果数据（分页后的当前页 + 元信息）。 */
+export interface SearchPageData {
+  items: SearchResultItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  tookMs: number;
+}
 
 interface SearchPageClientProps {
   locale: Locale;
-  initialQuery: string;
-  /** 服务端预渲染的结果（无 JS / 首屏兜底，命中 ?q= 时已填充）。 */
-  initialHits: SearchHit[];
+  params: ParsedSearchQuery;
+  data: SearchPageData;
+  /** 当前索引中存在的全部标签（供筛选下拉与「清除筛选」判断）。 */
+  tags: string[];
+  /** 服务端参数解析失败的提示（非法 type/sort/date 等）。 */
+  paramError?: string;
 }
 
 /**
- * 搜索页交互层。
- * - JS 可用：用 useSearch（客户端 MiniSearch 索引）做即时搜索，URL ?q= 同步、可分享刷新。
- * - JS 不可用：表单 method=get 提交回服务端，服务端渲染 initialHits（见 page.tsx）。
+ * 搜索页交互层（feat-search-discovery-20260928，能力块 G）。
+ *
+ * **URL 即状态**：q / type / tag / sort / from / to / page 全部由 URL query 驱动，
+ * 结果由服务端按 URL 检索并 SSR 直出（见 `app/search/page.tsx`）。
+ * - 筛选变更 → `router.push`（**写历史**），使浏览器回退能逐步回退筛选状态；
+ * - 输入框打字 → 防抖后 `router.replace`（不写历史），避免每敲一个字符留一条历史；
+ * - 无 JS 时表单 `method="get"` 直接提交回服务端，SSR 依旧给出正确结果。
  */
-export default function SearchPageClient({ locale, initialQuery, initialHits }: SearchPageClientProps) {
+export default function SearchPageClient({
+  locale,
+  params,
+  data,
+  tags,
+  paramError,
+}: SearchPageClientProps) {
   const router = useRouter();
   const t = searchTexts[locale];
   const basePath = locale === 'zh' ? '/zh/search' : '/search';
   const linkPrefix = locale === 'zh' ? '/zh' : '';
 
-  const { query, setQuery, results, total, status, indexReady } = useSearch(locale, {
-    enabled: true,
-    debounceMs: 200,
-    initialQuery,
-  });
+  const [query, setQuery] = useState(params.q);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [dateFrom, setDateFrom] = useState(params.from || '');
+  const [dateTo, setDateTo] = useState(params.to || '');
+  const lastPushed = useRef(params.q);
 
-  // 索引就绪后用客户端结果；之前用服务端兜底结果，避免空闪。
-  const hits: SearchHit[] = indexReady && query.trim() ? results.flat : initialHits;
-  const showResults = !!query.trim();
-  const isSearching = status === 'searching' || status === 'loading-index';
+  const { suggestions } = useSuggestions(locale, query, { enabled: showSuggestions });
 
-  // URL ?q= 同步（仅在索引就绪、查询变化时；用 replace 不污染历史）。
-  const lastSynced = useRef(initialQuery);
+  // 服务端导航后同步输入框（例如浏览器回退改变了 q）。
+  // 评审 P2-1：若用户仍在打字（本地 query 尚未提交），此时服务端回包到达，
+  // 直接用 params.q 覆盖会把用户刚敲的字符吞掉。故仅在「本地无待提交编辑」时同步。
   useEffect(() => {
-    if (!indexReady) return;
-    const q = query.trim();
-    if (q === lastSynced.current) return;
-    lastSynced.current = q;
-    router.replace(q ? `${basePath}?q=${encodeURIComponent(q)}` : basePath, { scroll: false });
-  }, [query, indexReady, basePath, router]);
+    setQuery((current) => (current === lastPushed.current ? params.q : current));
+    setDateFrom(params.from || '');
+    setDateTo(params.to || '');
+    lastPushed.current = params.q;
+  }, [params.q, params.from, params.to]);
+
+  /** 构造新的 URL（保留未变更的维度，变更维度重置 page=1）。 */
+  const buildUrl = (overrides: Partial<Record<string, string | null>>, resetPage = true): string => {
+    const sp = new URLSearchParams();
+    const next: Record<string, string | null | undefined> = {
+      q: params.q || null,
+      type: params.type,
+      tag: params.tag,
+      sort: params.sort === 'relevance' ? null : params.sort,
+      from: params.from,
+      to: params.to,
+      page: params.page > 1 ? String(params.page) : null,
+      ...overrides,
+    };
+    for (const [k, v] of Object.entries(next)) {
+      if (v !== null && v !== undefined && v !== '') sp.set(k, String(v));
+    }
+    if (resetPage) sp.delete('page');
+    const qs = sp.toString();
+    return qs ? `${basePath}?${qs}` : basePath;
+  };
+
+  // 输入框打字：防抖 + replace（不污染历史）
+  useEffect(() => {
+    if (query === lastPushed.current) return;
+    const timer = setTimeout(() => {
+      lastPushed.current = query;
+      router.replace(buildUrl({ q: query.trim() || null }), { scroll: false });
+    }, 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
+  const applyFilter = (overrides: Partial<Record<string, string | null>>) => {
+    setShowSuggestions(false);
+    router.push(buildUrl(overrides));
+  };
+
+  const hasFilters = !!(params.type || params.tag || params.from || params.to || params.sort === 'newest');
+  const showResults = !!params.q;
+
+  const rangeText = useMemo(() => {
+    if (data.total === 0) return '';
+    const from = (data.page - 1) * data.pageSize + 1;
+    const to = Math.min(data.page * data.pageSize, data.total);
+    return t.showingRange(from, to, data.total);
+  }, [data, t]);
 
   return (
     <>
@@ -65,21 +141,36 @@ export default function SearchPageClient({ locale, initialQuery, initialHits }: 
               <p className="text-neutral-dark dark:text-dark-neutral-dark">{t.pageSubtitle}</p>
             </div>
 
-            {/* 表单：method=get 提供无 JS 兜底；JS 可用时拦截避免整页刷新。 */}
+            {/* 表单：method=get 提供无 JS 兜底；JS 可用时拦截避免整页刷新。
+                隐藏域把当前筛选维度一并带回服务端，保证无 JS 下结果依然正确。 */}
             <form
               method="get"
               action={basePath}
-              onSubmit={(e) => e.preventDefault()}
-              className="mb-8"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setShowSuggestions(false);
+                router.push(buildUrl({ q: query.trim() || null, from: dateFrom || null, to: dateTo || null }));
+              }}
+              className="mb-6"
             >
+              {params.type && <input type="hidden" name="type" value={params.type} />}
+              {params.tag && <input type="hidden" name="tag" value={params.tag} />}
+              {params.sort !== 'relevance' && <input type="hidden" name="sort" value={params.sort} />}
+
               <div className="relative">
                 <input
                   type="text"
                   name="q"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                   placeholder={t.inputPlaceholder}
                   aria-label={t.trigger}
+                  autoComplete="off"
                   className="w-full px-6 py-4 pr-12 rounded-xl glass-surface border border-white/20 dark:border-white/10 bg-white/50 dark:bg-dark-white/10 text-neutral-darker dark:text-dark-neutral-darker placeholder-neutral-dark/50 dark:placeholder-dark-neutral-dark/50 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <button
@@ -89,8 +180,140 @@ export default function SearchPageClient({ locale, initialQuery, initialHits }: 
                 >
                   <FontAwesomeIcon icon={faSearch} className="w-5 h-5" />
                 </button>
+
+                {/* 建议（能力块 D：来自索引内容） */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <ul
+                    data-testid="search-suggestions"
+                    className="absolute z-20 left-0 right-0 mt-2 py-2 rounded-xl bg-white dark:bg-dark-bg-secondary border border-neutral-light dark:border-dark-neutral-light shadow-lg text-left"
+                  >
+                    {suggestions.map((s: SearchSuggestion) => (
+                      <li key={s.text}>
+                        <button
+                          type="button"
+                          onMouseDown={() => {
+                            setQuery(s.text);
+                            setShowSuggestions(false);
+                            router.push(buildUrl({ q: s.text }));
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-light/60 dark:hover:bg-dark-neutral-light/40"
+                        >
+                          {s.text}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </form>
+
+            {/* 筛选器（能力块 B）：类型 / 标签 / 排序 / 时间范围 */}
+            <div
+              data-testid="search-filters"
+              className="p-4 rounded-xl glass-surface border border-white/20 dark:border-white/10 mb-6"
+            >
+              <div className="flex items-center gap-2 mb-3 text-sm font-medium text-neutral-darker dark:text-dark-neutral-darker">
+                <FontAwesomeIcon icon={faFilter} className="w-3 h-3 text-primary" />
+                {t.filters}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label className="text-xs text-neutral-dark dark:text-dark-neutral-dark">
+                  {t.filterType}
+                  <select
+                    value={params.type || ''}
+                    onChange={(e) => applyFilter({ type: e.target.value || null })}
+                    className="mt-1 w-full px-3 py-2 rounded-lg border border-neutral-light dark:border-dark-neutral-light bg-transparent text-sm"
+                  >
+                    <option value="">{t.typeAll}</option>
+                    <option value="blog">{t.typeBlog}</option>
+                    <option value="project">{t.typeProject}</option>
+                  </select>
+                </label>
+
+                <label className="text-xs text-neutral-dark dark:text-dark-neutral-dark">
+                  {t.filterTag}
+                  <select
+                    value={params.tag || ''}
+                    onChange={(e) => applyFilter({ tag: e.target.value || null })}
+                    className="mt-1 w-full px-3 py-2 rounded-lg border border-neutral-light dark:border-dark-neutral-light bg-transparent text-sm"
+                  >
+                    <option value="">{t.tagAll}</option>
+                    {tags.map((tag) => (
+                      <option key={tag} value={tag}>
+                        {tag}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="text-xs text-neutral-dark dark:text-dark-neutral-dark">
+                  {t.filterSort}
+                  <select
+                    value={params.sort}
+                    // relevance 是默认值，归一化为不写入 URL，保持链接整洁
+                    onChange={(e) => applyFilter({ sort: e.target.value === 'relevance' ? null : e.target.value })}
+                    className="mt-1 w-full px-3 py-2 rounded-lg border border-neutral-light dark:border-dark-neutral-light bg-transparent text-sm"
+                  >
+                    <option value="relevance">{t.sortRelevance}</option>
+                    <option value="newest">{t.sortNewest}</option>
+                  </select>
+                </label>
+
+                <label className="text-xs text-neutral-dark dark:text-dark-neutral-dark">
+                  {t.filterFrom}
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="mt-1 w-full px-3 py-2 rounded-lg border border-neutral-light dark:border-dark-neutral-light bg-transparent text-sm"
+                  />
+                </label>
+
+                <label className="text-xs text-neutral-dark dark:text-dark-neutral-dark">
+                  {t.filterTo}
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="mt-1 w-full px-3 py-2 rounded-lg border border-neutral-light dark:border-dark-neutral-light bg-transparent text-sm"
+                  />
+                </label>
+
+                <div className="flex items-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => applyFilter({ from: dateFrom || null, to: dateTo || null })}
+                    className="px-4 py-2 rounded-lg bg-primary text-white text-sm"
+                  >
+                    {t.applyFilters}
+                  </button>
+                  {hasFilters && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDateFrom('');
+                        setDateTo('');
+                        router.push(buildUrl({ type: null, tag: null, sort: null, from: null, to: null }));
+                      }}
+                      className="px-3 py-2 rounded-lg border border-neutral-light dark:border-dark-neutral-light text-sm inline-flex items-center gap-1"
+                    >
+                      <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
+                      {t.clearFilters}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {paramError && (
+              <p
+                data-testid="param-error"
+                className="mb-4 text-sm text-red-600 dark:text-red-400 text-center"
+              >
+                {paramError}
+              </p>
+            )}
 
             {!showResults && (
               <div className="text-center">
@@ -101,7 +324,11 @@ export default function SearchPageClient({ locale, initialQuery, initialHits }: 
                   {popularSearches[locale].map((term) => (
                     <button
                       key={term}
-                      onClick={() => setQuery(term)}
+                      type="button"
+                      onClick={() => {
+                        setQuery(term);
+                        router.push(buildUrl({ q: term }));
+                      }}
                       className="px-3 py-1 text-sm rounded-full glass-surface border border-white/20 dark:border-white/10 hover:scale-105 transition-transform"
                     >
                       {term}
@@ -116,26 +343,23 @@ export default function SearchPageClient({ locale, initialQuery, initialHits }: 
 
       <Section className="py-16">
         <Container>
-          {isSearching && hits.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <p className="mt-4 text-neutral-dark dark:text-dark-neutral-dark">{t.searching}</p>
-            </div>
-          ) : showResults && hits.length > 0 ? (
-            <div>
+          {showResults && data.items.length > 0 ? (
+            <div data-testid="search-results">
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-neutral-darker dark:text-dark-neutral-darker mb-2">
-                  {t.pageTitle}
+                  {t.totalResults(data.total)}
                 </h2>
                 <p className="text-neutral-dark dark:text-dark-neutral-dark">
-                  {t.resultsFor(hits.length, query.trim())}
+                  {t.resultsFor(data.total, params.q)}
+                  {rangeText ? ` · ${rangeText}` : ''}
                 </p>
               </div>
 
               <div className="space-y-6">
-                {hits.map((result) => (
+                {data.items.map((result) => (
                   <div
-                    key={`${result.type}-${result.refId}`}
+                    key={result.id}
+                    data-result-id={result.id}
                     className="p-6 rounded-xl glass-surface border border-white/20 dark:border-white/10 hover:scale-[1.01] transition-transform"
                   >
                     <div className="flex items-start gap-4">
@@ -150,7 +374,7 @@ export default function SearchPageClient({ locale, initialQuery, initialHits }: 
                           <Link
                             href={`${linkPrefix}/${result.type === 'blog' ? 'blog' : 'projects'}/${result.slug}`}
                             className="text-xl font-semibold text-neutral-darker dark:text-dark-neutral-darker hover:text-primary dark:hover:text-dark-primary transition-colors [&_mark]:bg-primary-light/50 [&_mark]:dark:bg-dark-primary/40 [&_mark]:text-inherit [&_mark]:rounded-sm"
-                            dangerouslySetInnerHTML={{ __html: highlight(result.title, query) }}
+                            dangerouslySetInnerHTML={{ __html: highlight(result.title, params.q) }}
                           />
                           <span className="px-2 py-1 text-xs rounded-full bg-primary-light/20 text-primary dark:bg-dark-primary-light/20 dark:text-dark-primary whitespace-nowrap">
                             {result.type === 'blog' ? t.groupBlog : t.groupProject}
@@ -160,7 +384,7 @@ export default function SearchPageClient({ locale, initialQuery, initialHits }: 
                         {result.excerpt && (
                           <p
                             className="text-neutral-dark dark:text-dark-neutral-dark mb-4 line-clamp-2 [&_mark]:bg-primary-light/40 [&_mark]:dark:bg-dark-primary/30 [&_mark]:text-inherit [&_mark]:rounded-sm"
-                            dangerouslySetInnerHTML={{ __html: highlight(result.excerpt, query) }}
+                            dangerouslySetInnerHTML={{ __html: highlight(result.excerpt, params.q) }}
                           />
                         )}
 
@@ -175,10 +399,12 @@ export default function SearchPageClient({ locale, initialQuery, initialHits }: 
                               </span>
                             </div>
                           )}
-                          {result.keywords && result.keywords.length > 0 && (
+                          {((result.tags || result.technologies) ?? []).length > 0 && (
                             <div className="flex items-center gap-1 flex-wrap">
                               <FontAwesomeIcon icon={faTags} className="w-3 h-3" />
-                              <span>{result.keywords.slice(0, 3).join(', ')}</span>
+                              <span>
+                                {((result.tags || result.technologies) ?? []).slice(0, 3).join(', ')}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -187,9 +413,39 @@ export default function SearchPageClient({ locale, initialQuery, initialHits }: 
                   </div>
                 ))}
               </div>
+
+              {/* 分页（能力块 B）：写历史，可分享/可回退 */}
+              {data.totalPages > 1 && (
+                <nav
+                  data-testid="search-pagination"
+                  className="mt-10 flex items-center justify-center gap-4"
+                >
+                  {data.page > 1 && (
+                    <Link
+                      href={buildUrl({ page: String(data.page - 1) }, false)}
+                      className="px-4 py-2 rounded-lg glass-surface border border-white/20 dark:border-white/10"
+                      rel="prev"
+                    >
+                      {t.prevPage}
+                    </Link>
+                  )}
+                  <span className="text-sm text-neutral-dark dark:text-dark-neutral-dark">
+                    {t.pageOf(data.page, data.totalPages)}
+                  </span>
+                  {data.page < data.totalPages && (
+                    <Link
+                      href={buildUrl({ page: String(data.page + 1) }, false)}
+                      className="px-4 py-2 rounded-lg glass-surface border border-white/20 dark:border-white/10"
+                      rel="next"
+                    >
+                      {t.nextPage}
+                    </Link>
+                  )}
+                </nav>
+              )}
             </div>
-          ) : showResults && !isSearching ? (
-            <div className="text-center py-16">
+          ) : showResults ? (
+            <div className="text-center py-16" data-testid="search-empty">
               <FontAwesomeIcon
                 icon={faSearch}
                 className="w-16 h-16 text-neutral-dark/30 dark:text-dark-neutral-dark/30 mb-4 mx-auto"

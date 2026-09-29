@@ -122,12 +122,15 @@
     transition: box-shadow .3s cubic-bezier(0.4, 0, 0.2, 1),
                 transform .3s cubic-bezier(0.4, 0, 0.2, 1);
   }
+  /* 修复（fix-hover-flicker）：移除 hover 时的 translateY(-3px)。
+     任何「悬停时让元素自身位移」的效果，都会在元素下边缘产生
+     「位移→指针脱离→复位→再位移」的自激振荡（高频抖动）。
+     此处保留霓虹辉光作为悬停反馈；需要位移时请让**静止的外层**承担命中判定。 */
   .neon-hover:hover {
     box-shadow:
       0 0 0 1px rgba(56,189,248,0.4),
       0 4px 20px rgba(168,85,247,0.3),
       0 0 40px rgba(56,189,248,0.15);
-    transform: translateY(-3px);
   }
 
   /* Enhanced card hover with improved easing */

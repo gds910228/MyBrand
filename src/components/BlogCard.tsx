@@ -53,14 +53,19 @@ const BlogCard: React.FC<BlogCardProps> = ({
       : undefined;
 
   return (
+    // 外层 = 悬停命中区，**自身不做位移动画**。
+    // 修复（fix-hover-flicker）：原实现把 whileHover={{ y: -8 }} 加在卡片自身，
+    // 卡片上移后鼠标若停在其下边缘就会落到卡片之外 → 取消悬停 → 卡片复位 → 再次悬停，
+    // 形成自激振荡，表现为鼠标一碰卡片下边缘卡片就疯狂上下跳、整块区域闪烁。
+    // 现在位移交给内层，命中区固定不动（视觉位移量保持不变）。
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: transitions.smooth.duration / 1000, ease: easing.easeOut }}
-      whileHover={{ y: -8, scale: 1.01 }}
-      className="group tech-card rounded-xl overflow-hidden h-full flex flex-col"
+      className="group h-full"
     >
+      <div className="tech-card rounded-xl overflow-hidden h-full flex flex-col transition-transform duration-300 ease-out group-hover:-translate-y-2 group-hover:scale-[1.01]">
       <div className="relative h-48 w-full overflow-hidden">
         <FallbackImage
           src={imgSrc}
@@ -139,6 +144,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </Link>
+        </div>
         </div>
       </div>
     </motion.div>

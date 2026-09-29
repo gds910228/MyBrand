@@ -1,0 +1,63 @@
+[PASS] en-1 (en) q="nextjs" locale=en
+       HTTP=200  hits=4  ids=[blog:post-10, blog:post-1, project:proj-1, blog:post-test-image-video]
+       expectAnyOf=[blog:post-1, blog:post-10] -> 满足
+       expectNoneOf=[blog:post-4] -> 未出现(OK)
+
+[PASS] en-2 (en) q="tailwind css" locale=en
+       HTTP=200  hits=3  ids=[blog:post-2, project:proj-6, project:proj-1]
+       expectAnyOf=[blog:post-2] -> 满足
+       expectNoneOf=[blog:post-6] -> 未出现(OK)
+
+[PASS] en-3 (en) q="typescript generics" locale=en
+       HTTP=200  hits=1  ids=[blog:post-11]
+       expectAnyOf=[blog:post-11] -> 满足
+       expectNoneOf=[blog:post-3] -> 未出现(OK)
+
+[PASS] en-4 (en) q="docker" locale=en
+       HTTP=200  hits=2  ids=[project:proj-3, project:proj-4]
+       expectAnyOf=[project:proj-3, project:proj-4] -> 满足
+       expectNoneOf=[blog:post-4] -> 未出现(OK)
+
+[PASS] zh-1 (zh) q="入门" locale=zh
+       HTTP=200  hits=1  ids=[blog:post-1]
+       expectAnyOf=[blog:post-1] -> 满足
+       expectNoneOf=[blog:post-4] -> 未出现(OK)
+
+[PASS] zh-2 (zh) q="指南" locale=zh
+       HTTP=200  hits=3  ids=[blog:post-11, blog:post-1, blog:post-7]
+       expectAnyOf=[blog:post-1, blog:post-11] -> 满足
+       expectNoneOf=[blog:post-4] -> 未出现(OK)
+
+[PASS] zh-3 (zh) q="渲染" locale=zh
+       HTTP=200  hits=3  ids=[blog:post-10, project:proj-2, blog:post-12]
+       expectAnyOf=[blog:post-10] -> 满足
+       expectNoneOf=[blog:post-2] -> 未出现(OK)
+
+[PASS] zh-4 (zh) q="性能优化" locale=zh
+       HTTP=200  hits=1  ids=[blog:post-12]
+       expectAnyOf=[blog:post-12] -> 满足
+       expectNoneOf=[blog:post-6] -> 未出现(OK)
+
+[PASS] mix-1 (mixed) q="Next.js 入门" locale=zh
+       HTTP=200  hits=1  ids=[blog:post-1]
+       expectAnyOf=[blog:post-1] -> 满足
+       expectNoneOf=[blog:post-4] -> 未出现(OK)
+
+[PASS] mix-2 (mixed) q="React 性能优化" locale=zh
+       HTTP=200  hits=1  ids=[blog:post-12]
+       expectAnyOf=[blog:post-12] -> 满足
+       expectNoneOf=[blog:post-3] -> 未出现(OK)
+
+[PASS] mix-3 (mixed) q="TypeScript 泛型" locale=zh
+       HTTP=200  hits=1  ids=[blog:post-11]
+       expectAnyOf=[blog:post-11] -> 满足
+       expectNoneOf=[blog:post-5] -> 未出现(OK)
+
+[PASS] mix-4 (mixed) q="Tailwind 响应式" locale=zh
+       HTTP=200  hits=1  ids=[blog:post-2]
+       expectAnyOf=[blog:post-2] -> 满足
+       expectNoneOf=[blog:post-6] -> 未出现(OK)
+
+
+===== SUMMARY: 12/12 queries satisfied =====
+categories: {"en":4,"zh":4,"mixed":4}

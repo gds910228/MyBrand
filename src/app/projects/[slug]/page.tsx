@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { getProjectBySlug, getProjectById, renderNotionBlocks } from '@/services/notion';
+import SmartRecommendations from '@/components/SmartRecommendations';
 
 type PageProps = {
   params: { slug: string | string[] };
@@ -38,7 +39,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   if (!project) {
     const normalizedId = normalizeNotionId(slugParam);
     if (normalizedId) {
-      project = await getProjectById(normalizedId);
+      project = await getProjectById(normalizedId, { language: 'English' });
     }
   }
   if (!project) {
@@ -159,6 +160,19 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               </Link>
             </div>
           </div>
+        </div>
+      </Section>
+
+      {/* 相关内容推荐（feat-search-discovery-20260928，能力块 F）：服务端 SSR，同类型优先 + 标签相似度 */}
+      <Section id="related-content">
+        <div className="container mx-auto">
+          <SmartRecommendations
+            type="project"
+            id={project.id}
+            keywords={(project as any).technologies || []}
+            locale="en"
+            maxItems={4}
+          />
         </div>
       </Section>
 

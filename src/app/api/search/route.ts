@@ -1,63 +1,102 @@
-import { NextResponse } from 'next/server';
-import { getSearchDocuments } from '@/services/searchData';
-import { createSearchIndex, runSearch } from '@/lib/searchIndex';
-import { locales, type Locale } from '@/i18n/locales';
+import { NextRequest, NextResponse } from 'next/server';
+import { safeJson } from '@/lib/safeJson';
+import { parseSearchQuery } from '@/lib/searchQuery';
+import { SEARCH_RATE_LIMIT, getClientIp, rateLimited } from '@/lib/rateLimit';
+import { searchContent } from '@/services/searchService';
+import { createSearchEvent } from '@/lib/searchAnalytics';
+import { recordEvent } from '@/lib/searchEventStore';
+import type { SearchResponse } from '@/types/search';
 
 /**
- * 服务端兜底搜索。
+ * 服务端搜索 API（feat-search-discovery-20260928，能力块 B/C/E）。
  *
- * GET /api/search?q=...&locale=en|zh   （兼容旧参数 ?language=English|Chinese）
+ * GET /api/search
+ *   ?q=<freetext>            自由文本
+ *   &type=blog|project       内容类型过滤（非法值 → 400）
+ *   &tag=<tag>               标签过滤（大小写不敏感精确匹配）
+ *   &from=YYYY-MM-DD         起始日期（含边界；非法 → 400）
+ *   &to=YYYY-MM-DD           结束日期（含边界；非法 → 400）
+ *   &locale=en|zh            索引语言（兼容旧参数 ?language=English|Chinese）
+ *   &sort=relevance|newest   排序（非法值 → 400）
+ *   &page=<int≥1>            页码（畸形/越界 → clamp 或空集，不报错）
+ *   &pageSize=<int 1..50>    每页条数（超范围 → clamp，不报错）
  *
- * 作用：
- * - 供 /search 页在禁用 JS / 首屏 SSR 时返回结果（命令面板走客户端 /api/search/index）。
- * - 与客户端共用 src/lib/searchIndex 的同一套 MiniSearch 配置，口径一致。
+ * 容错约定（spec §2B）：结构性参数非法 → 400；数值/分页越界 → 空集或 clamp。
+ * **任何情况下都不返回 500**，除非服务层真的抛异常（此时按规范 500 + console.error）。
  *
- * 相比旧实现，移除了「对前 10 篇博客逐篇 getBlogPostById 拉全文」的 N+1 逻辑，
- * 改为对列表元数据建一次内存索引后检索，请求数显著下降、有相关性排序与拼写容错。
+ * 与客户端命令面板口径一致：两者共用 `src/lib/searchIndex.ts` 的同一套分词与
+ * `src/lib/searchRanking.ts` 的同一套排序（验收项 S18）。
  */
-export const revalidate = 600;
+export const dynamic = 'force-dynamic';
 
-function resolveLocale(searchParams: URLSearchParams): Locale {
-  const localeParam = searchParams.get('locale') as Locale | null;
-  if (localeParam && locales.includes(localeParam)) return localeParam;
-  // 兼容旧的 language=English|Chinese
-  const language = searchParams.get('language');
-  if (language === 'Chinese') return 'zh';
-  return 'en';
-}
-
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const query = searchParams.get('q');
-  const locale = resolveLocale(searchParams);
-
-  if (!query?.trim()) {
-    return NextResponse.json({ results: [], count: 0, query: '' });
-  }
-
+export async function GET(request: NextRequest) {
   try {
-    const documents = await getSearchDocuments(locale);
-    const index = createSearchIndex(documents);
-    const hits = runSearch(index, query, 20);
+    // --- 限流（独立命名桶，与评论/订阅互不干扰）---
+    const ip = getClientIp(request);
+    if (
+      rateLimited(ip, {
+        bucket: SEARCH_RATE_LIMIT.bucket,
+        max: SEARCH_RATE_LIMIT.max,
+        windowMs: SEARCH_RATE_LIMIT.windowMs,
+      })
+    ) {
+      return safeJson({ error: 'Too many requests' }, { status: 429 });
+    }
 
-    // 兼容旧响应形状：保留 results/count/query，字段补齐前端已用的键。
-    const results = hits.map((h) => ({
-      id: h.refId,
-      slug: h.slug,
-      title: h.title,
-      excerpt: h.excerpt,
-      type: h.type,
-      date: h.date,
-      score: h.score,
-      ...(h.type === 'blog'
-        ? { tags: h.keywords, readTime: h.readTime }
-        : { technologies: h.keywords }),
-    }));
+    const { searchParams } = new URL(request.url);
 
-    return NextResponse.json({ results, count: results.length, query });
+    // --- 参数解析：结构性错误一律 400，绝不 500 ---
+    const parsed = parseSearchQuery(searchParams);
+    if (!parsed.ok || !parsed.params) {
+      return safeJson({ error: parsed.error || 'Invalid query' }, { status: 400 });
+    }
+    const params = parsed.params;
+
+    const outcome = await searchContent(params);
+
+    // --- 搜索行为分析：fire-and-forget，绝不阻塞、绝不影响主查询 ---
+    // 仅在非空查询时记录，避免空查询污染热门词统计。
+    if (params.q) {
+      try {
+        recordEvent(
+          createSearchEvent({
+            query: params.q,
+            locale: params.locale,
+            resultCount: outcome.total,
+            type: params.type,
+            tag: params.tag,
+            sort: params.sort,
+          }),
+        );
+      } catch (analyticsError) {
+        // 分析是旁路能力，失败只告警，不影响响应。
+        console.warn('[API] search analytics record failed:', analyticsError);
+      }
+    }
+
+    const body: SearchResponse = {
+      results: outcome.items,
+      // 兼容旧字段：count 为「本页条数」，语义与改造前一致（改造前无分页，count == 结果数）。
+      count: outcome.items.length,
+      query: params.q,
+      total: outcome.total,
+      page: outcome.page,
+      pageSize: outcome.pageSize,
+      totalPages: outcome.totalPages,
+      sort: params.sort,
+      filters: {
+        type: params.type,
+        tag: params.tag,
+        from: params.from,
+        to: params.to,
+      },
+      tookMs: outcome.tookMs,
+    };
+
+    return safeJson(body);
   } catch (error) {
+    // 内部细节只进服务端日志，不回给客户端（评审 P2-7：避免内部信息泄露）。
     console.error('[API] Search error:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ error: 'Search failed', message }, { status: 500 });
+    return safeJson({ error: 'Search failed' }, { status: 500 });
   }
 }

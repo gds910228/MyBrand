@@ -245,21 +245,19 @@ const Hero: React.FC<HeroProps> = ({
           </motion.div>
 
           {/* Image with industrial styling */}
+          {/* 修复（fix-hover-flicker）：外层是静止的悬停命中区，内层承担上移。
+              原来 whileHover={{ y: -12 }} 加在卡片自身，鼠标停在卡片下边缘时会
+              「上移→指针脱离→复位→再上移」自激振荡，表现为卡片疯狂上下跳。 */}
           <motion.div
-            className="order-1 lg:order-2 relative h-64 sm:h-80 md:h-96 lg:h-[28rem] tech-card mb-8 lg:mb-0 group"
+            className="order-1 lg:order-2 relative h-64 sm:h-80 md:h-96 lg:h-[28rem] mb-8 lg:mb-0 group"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{
               duration: transitions.smooth.duration / 1000,
               ease: easing.easeOut,
             }}
-            whileHover={{
-              y: -12,
-              transition: {
-                duration: transitions.fast.duration / 1000,
-              },
-            }}
           >
+            <div className="absolute inset-0 tech-card transition-transform duration-150 ease-out group-hover:-translate-y-3">
             {/* Industrial corner accents */}
             <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-neon-orange/50"></div>
             <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-electric-blue/50"></div>
@@ -295,6 +293,7 @@ const Hero: React.FC<HeroProps> = ({
                 <span className="text-neon-orange">●</span> LIVE
               </span>
             </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>

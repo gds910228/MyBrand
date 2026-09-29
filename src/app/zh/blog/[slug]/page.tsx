@@ -18,7 +18,7 @@ import ProsCons from '@/components/ProsCons';
 import ToolInfoBox from '@/components/ToolInfoBox';
 import ComparisonTable from '@/components/ComparisonTable';
 import ReadingProgress from '@/components/ReadingProgress';
-import RelatedPosts from '@/components/RelatedPosts';
+import SmartRecommendations from '@/components/SmartRecommendations';
 import ShareButtons from '@/components/ShareButtons';
 import TableOfContents from '@/components/TableOfContents';
 import { extractHeadingsFromNotion } from '@/utils/extractHeadings';
@@ -70,7 +70,8 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
     }
 
     // 获取完整的博客文章内容
-    const fullPost = await getBlogPostById(post.id);
+    // 传入语言：本地 fallback 路径按语言展平 { en, zh } 字段（feat-search-discovery-20260928）
+    const fullPost = await getBlogPostById(post.id, { language: 'Chinese' });
 
     if (!fullPost) {
       notFound();
@@ -254,13 +255,18 @@ export default async function BlogPostDetailPageZh({ params }: { params: { slug:
           </Container>
         </Section>
 
-        {/* Related Posts */}
-        <RelatedPosts
-          currentPost={fullPost}
-          allPosts={posts}
-          maxPosts={3}
-          locale="zh"
-        />
+        {/* 相关内容推荐（能力块 F；决策 D-03 同 EN） */}
+        <Section>
+          <Container>
+            <SmartRecommendations
+              type="blog"
+              id={post.id}
+              keywords={(fullPost as any).tags || []}
+              locale="zh"
+              maxItems={4}
+            />
+          </Container>
+        </Section>
 
         {/* Comments Section */}
         <Section id="comments-section">

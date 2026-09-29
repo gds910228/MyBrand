@@ -8,6 +8,13 @@ import {
   getAllLocalCommentsForAdmin,
 } from '@/data/comments';
 import { filterApprovedTree } from '@/lib/commentTree';
+import {
+  getLocalBlogPostById,
+  getLocalBlogPosts,
+  getLocalProjectById,
+  getLocalProjectBySlug,
+  getLocalProjects,
+} from '@/data/localContent';
 import { mapNotionCommentProps, NOTION_STATUS_OPTION } from '@/lib/notionCommentMapper';
 import type { CommentStatus, CommentType, NewCommentInput, AdminCommentList } from '@/types/comment';
 
@@ -152,6 +159,11 @@ async function ensureCommentsDbProps(): Promise<CommentsDbPropsShape> {
  * 获取所有项目
  */
 export async function getAllProjects(options?: { language?: string; limit?: number }) {
+  // 降级路径（feat-search-discovery-20260928，决策 D-10）：Notion 未配置时直接回落本地种子。
+  // 仅在「原本必然失败/返回空」的路径生效，不改变 Notion 正常可用时的任何行为。
+  if (!process.env.NOTION_API_KEY || !PROJECTS_DATABASE_ID) {
+    return getLocalProjects(options?.language, options?.limit);
+  }
   try {
     // 探测 Projects 数据库是否存在 Language 字段
     if (projectsDbHasLanguageProp === null) {
@@ -284,14 +296,22 @@ export async function getAllProjects(options?: { language?: string; limit?: numb
     });
   } catch (error) {
     console.error('Error fetching projects from Notion:', error);
-    return [];
+    // Notion 故障时回落本地种子，保证列表页/搜索索引不至于整块消失（D-10）。
+    return getLocalProjects(options?.language, options?.limit);
   }
 }
 
 /**
  * 获取项目详情
  */
-export async function getProjectById(id: string) {
+export async function getProjectById(id: string, options?: { language?: string }) {
+  // 降级路径（D-10）：Notion 未配置时回落本地种子详情。
+  // 注意：本函数按 **page_id** 直取，不依赖 PROJECTS_DATABASE_ID——
+  // 因此这里**只**以 NOTION_API_KEY 为判据。若把 DB id 也纳入判据，
+  // 会在「有 Key 但未配 DB id」的部署下把可用的 Notion 路径错误地短路掉（评审 P1）。
+  if (!process.env.NOTION_API_KEY) {
+    return getLocalProjectById(id, options?.language);
+  }
   try {
     const page = await notion.pages.retrieve({ page_id: id });
     // 内容块（简单列表，若需完整分页可按 Blog 的实现递归拉取）
@@ -387,7 +407,7 @@ export async function getProjectById(id: string) {
     };
   } catch (error) {
     console.error('Error fetching project from Notion:', error);
-    return null;
+    return getLocalProjectById(id, options?.language);
   }
 }
 
@@ -395,6 +415,10 @@ export async function getProjectById(id: string) {
  * 通过 slug 获取项目详情（支持可选语言过滤）
  */
 export async function getProjectBySlug(slug: string, options?: { language?: string }) {
+  // 降级路径（D-10）：Notion 未配置时回落本地种子。
+  if (!process.env.NOTION_API_KEY || !PROJECTS_DATABASE_ID) {
+    return getLocalProjectBySlug(slug, options?.language);
+  }
   try {
     // 探测 Projects 数据库是否存在 Language 字段
     if (projectsDbHasLanguageProp === null) {
@@ -552,7 +576,7 @@ export async function getProjectBySlug(slug: string, options?: { language?: stri
     };
   } catch (error) {
     console.error('Error fetching project by slug from Notion:', error);
-    return null;
+    return getLocalProjectBySlug(slug, options?.language);
   }
 }
 
@@ -562,6 +586,11 @@ export async function getProjectBySlug(slug: string, options?: { language?: stri
  * 可选参数：language 用于过滤 'Chinese' | 'English'
  */
 export async function getAllBlogPosts(options?: { language?: string; limit?: number }) {
+  // 降级路径（D-10）：Notion 未配置时回落本地种子（src/data/blog.ts，en/zh 双语）。
+  // 历史事实：此前 blog 域**没有**本地兜底，空 Key 下直接返回 []，导致列表页与搜索索引整块为空。
+  if (!process.env.NOTION_API_KEY) {
+    return getLocalBlogPosts(options?.language, options?.limit);
+  }
   try {
     // 如果配置了数据库ID，则从数据库读取
     if (BLOG_DATABASE_ID) {
@@ -877,14 +906,21 @@ export async function getAllBlogPosts(options?: { language?: string; limit?: num
       );
   } catch (error) {
     console.error('Error fetching blog posts from Notion:', error);
-    return [];
+    return getLocalBlogPosts(options?.language, options?.limit);
   }
 }
 
 /**
  * 获取博客文章详情（完整内容块）
  */
-export async function getBlogPostById(id: string) {
+export async function getBlogPostById(id: string, options?: { language?: string }) {
+  // 降级路径（D-10）：Notion 未配置时回落本地种子详情（含 HTML→Notion blocks 转换）。
+  // 注意：本函数按 **page_id** 直取，不依赖 BLOG_DATABASE_ID——
+  // 父页面模式下 BLOG_DATABASE_ID 本就为空但 Notion 仍完全可用，
+  // 故这里**只**以 NOTION_API_KEY 为判据（评审 P1）。
+  if (!process.env.NOTION_API_KEY) {
+    return getLocalBlogPostById(id, options?.language);
+  }
   try {
     const page = await notion.pages.retrieve({ page_id: id });
     const pageAny = page as any;
@@ -1041,7 +1077,7 @@ export async function getBlogPostById(id: string) {
     };
   } catch (error) {
     console.error('Error fetching blog post from Notion:', error);
-    return null;
+    return getLocalBlogPostById(id, options?.language);
   }
 }
 

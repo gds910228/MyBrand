@@ -288,6 +288,32 @@
       "langZh": "中",
       "hasEn": "EN",
       "hasZh": "ZH"
+    },
+    "searchAnalytics": {
+      "title": "Search Analytics",
+      "subtitle": "What visitors search for, and what they fail to find",
+      "loginTitle": "Admin sign-in",
+      "passwordPlaceholder": "Admin token",
+      "login": "Sign in",
+      "logout": "Sign out",
+      "refresh": "Refresh",
+      "langEn": "EN",
+      "langZh": "中文",
+      "summaryTitle": "Overview",
+      "totalSearches": "Total searches",
+      "uniqueQueries": "Unique queries",
+      "zeroResultQueries": "Zero-result queries",
+      "topQueriesTitle": "Top queries",
+      "zeroResultTitle": "Zero-result queries",
+      "colQuery": "Query",
+      "colCount": "Searches",
+      "colZeroCount": "Zero results",
+      "loading": "Loading…",
+      "empty": "No search events recorded yet",
+      "emptyZero": "No zero-result queries — every search found something",
+      "loadFailed": "Failed to load search analytics",
+      "storageNote": "Events are kept in memory on this instance (no Notion key configured, or single-instance dev). Counts reset on restart.",
+      "privacyNote": "Only the query text, locale, filters and result counts are stored — no IP address, user agent or visitor identifier."
     }
   }
 }
