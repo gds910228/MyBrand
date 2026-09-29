@@ -50,3 +50,7 @@ docs/blog-import-guide.md
 
 # Assets not needed in repo
 Notion\ Integrations.png
+
+# Secrets / env backups (never commit)
+.env*.bak
+.harness/.env*
