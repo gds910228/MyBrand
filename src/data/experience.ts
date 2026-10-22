@@ -53,8 +53,8 @@ export const experienceData: Experience[] = [
         metric: "30+ 子公司"
       },
       {
-        text: "AI document pipeline: local Ollama/LLM API testing, PDF parsing comparison (text extraction / OCR / vision input), structured field output with human review",
-        textZh: "AI 文档处理链路：本地 Ollama/LLM 接口测试与 PDF 解析三路方案对比（文本提取/OCR/视觉输入），设计结构化字段输出与人工复核流程",
+        text: "AI document pipeline: local LLM , PDF parsing comparison (text extraction / OCR / vision input), structured field output with human review",
+        textZh: "AI 文档处理链路：本地 LLM 与 PDF 解析三路方案对比（文本提取/OCR/视觉输入），设计结构化字段输出与人工复核流程",
         metric: "LLM 落地"
       },
       {
@@ -69,7 +69,7 @@ export const experienceData: Experience[] = [
       },
       {
         text: "Runner-up of the Lanyun MCP Competition",
-        textZh: "蓝耘 MCP 大赛亚军",
+        textZh: "MCP 大赛亚军",
         metric: "全国亚军"
       }
     ],
@@ -92,8 +92,8 @@ export const experienceData: Experience[] = [
     yearZh: "2022 - 2025",
     title: "Full-Stack Developer (AI)",
     titleZh: "全栈开发工程师（AI 方向）",
-    company: "Techsun (Shanghai Tianzheng Juhe Network Tech)",
-    companyZh: "上海天徵聚合网络科技有限公司（Techsun）",
+    company: "Tianzheng Juhe Tech)",
+    companyZh: "天徵聚合科技",
     description: "Developed Techsun CRM 1.0/2.0 and the standard-product admin console; led AI feature development (AI·Guide / SocialHub·AI) and delivered enterprise client projects.",
     descriptionZh: "参与 Techsun CRM 1.0/2.0 及标品后台的设计、开发与性能优化；主导 AI·Guide / SocialHub·AI 等 AI 功能研发；参与 Adidas CRM、通用中国 GMC 商城等企业客户项目交付。",
     achievements: [

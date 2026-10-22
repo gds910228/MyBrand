@@ -135,7 +135,7 @@ export default function AboutPageZh() {
             2025 年起，我创立并运营 OPC（一人公司），专注 AI 应用开发与技术服务。约 3 年的 AI 工程化实践让我沉淀出一套务实的方法论：将业务规则、企业数据与大模型能力有机结合，通过 n8n、Dify 等工具编排工作流，以系统集成与人工复核机制保障结果可靠——让 AI 真正走进业务流程，而不是停留在演示环节。
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            我是蓝耘 MCP 大赛亚军，并持续通过 MisoTech 与自媒体，分享 AI 工程化、自动化工作流与架构实践。我的核心理念很简单：<strong>拒谈概念，只讲落地</strong>。
+            我是 MCP 大赛亚军，并持续通过 MisoTech 与自媒体，分享 AI 工程化、自动化工作流与架构实践。我的核心理念很简单：<strong>拒谈概念，只讲落地</strong>。
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
             在 MisoTech，我分享的内容遵循三个原则：
