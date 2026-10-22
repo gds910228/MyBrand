@@ -107,7 +107,7 @@ export default function AboutPage() {
               About Me
             </h1>
             <p className="text-lg text-neutral-dark dark:text-dark-neutral-dark">
-              Get to know more about my journey, skills, and what drives me as a developer and creator.
+              Full-Stack Engineer · AI Engineering Lead · FDE (Forward Deployed Engineer) — 10 years of software development across enterprise architecture and system delivery, AI application engineering, and business process automation.
             </p>
           </div>
           <div className="relative h-64 md:h-80 rounded-lg overflow-hidden shadow-lg">
@@ -129,21 +129,24 @@ export default function AboutPage() {
         />
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            Hello! I'm a developer focused on building AI products that truly "understand human language." In this era of rapid technological advancement, I've found that many AI tools are powerful but come with high learning barriers and complex interfaces, making them inaccessible to ordinary users. That's why I'm dedicated to creating AI solutions that genuinely understand users, are easy to use, and deliver practical value.
+            Hello — I'm a full-stack engineer with 10 years of software development experience. From CRM and MES to unified enterprise operations platforms, I've spent my career architecting and delivering enterprise-grade systems across scenarios like AI-assisted shopping guides, bidding-review support and enterprise knowledge bases — owning the full chain from requirement analysis and solution design through development, deployment preparation and client-side technical coordination.
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            My core philosophy is simple: <strong>No buzzwords, just practical solutions</strong>. In a market flooded with AI concepts and terminology, I insist on using the most straightforward language. Through in-depth testing and hardcore reviews, I help users find tools that actually solve real problems. Every review and product recommendation is based on genuine hands-on experience and real-world scenario testing.
+            Since 2025 I've been running my own one-person company (OPC), focused on AI application development and technical services. Three years of hands-on AI engineering have shaped a pragmatic methodology: combine business rules, enterprise data and LLM capabilities; orchestrate workflows with n8n and Dify; and guard reliability through system integration and human-in-the-loop review — so AI actually enters business processes instead of stopping at the demo stage.
+          </p>
+          <p className="text-neutral-dark dark:text-dark-neutral-dark">
+            I'm the runner-up of the Lanyun MCP Competition, and I share AI engineering, automation workflow and architecture practices through MisoTech and my own media channels. My core philosophy is simple: <strong>no buzzwords, just delivery</strong>.
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
             At MisoTech, the content I share follows three principles:
           </p>
           <ul className="text-neutral-dark dark:text-dark-neutral-dark">
-            <li><strong>Hardcore Reviews:</strong> No superficial coverage. I dive deep into core features and test performance in real scenarios. Whether it's AI coding tools, image generation, or knowledge management, I personally test every aspect comprehensively.</li>
-            <li><strong>No Empty Talk:</strong> No big theories, no concept stacking. I tell you directly what this tool can and cannot do, who it's for, and how to use it most effectively.</li>
-            <li><strong>User Perspective:</strong> I think from the ordinary user's standpoint. No matter how powerful the technology, if it's not easy to use or learn, it has no value. I focus on real user experience and actual productivity improvements.</li>
+            <li><strong>Hardcore Reviews:</strong> No superficial coverage. From AI coding tools to image processing and knowledge bases, I test core features hands-on and verify them in real scenarios.</li>
+            <li><strong>No Empty Talk:</strong> No concept stacking. I tell you directly what a technology can and cannot do, who it's for, and how to get the most out of it — engineering questions deserve engineering answers.</li>
+            <li><strong>Delivery Perspective:</strong> I think from the user's and the client's side. However advanced, technology that can't be delivered reliably and woven into real workflows has no value.</li>
           </ul>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            When I'm not coding or testing new tools, you'll find me researching the latest developments in AI, exchanging practical insights with the community, or searching for the next AI tool that can truly transform daily work. I believe the best technology should be invisible—working silently in the background to make your life simpler and more efficient.
+            Beyond code, I'm tracking the latest advances in large models, refining automation workflows, or scoping the next delivery. I believe the best technology is reliable and deliverable — quietly running inside business processes, turning complexity into simplicity.
           </p>
         </div>
       </Section>

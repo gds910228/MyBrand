@@ -136,7 +136,7 @@ export default async function BlogPostDetailPage({ params }: { params: { slug: s
                 {fullPost.tags.map((tag: string) => (
                   <span
                     key={tag}
-                    className="inline-block py-1 px-3 rounded-full text-xs font-medium bg-primary-light dark:bg-dark-primary-light text-primary dark:text-dark-primary"
+                    className="inline-block py-1 px-3 rounded-full text-xs font-medium bg-primary-light/10 dark:bg-dark-primary-light/10 text-primary dark:text-dark-primary border border-primary-light/30 dark:border-dark-primary-light/30 hover:bg-primary-light/20 dark:hover:bg-dark-primary-light/20 transition-colors"
                   >
                     {tag}
                   </span>

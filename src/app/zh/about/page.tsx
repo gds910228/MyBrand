@@ -107,7 +107,7 @@ export default function AboutPageZh() {
               关于我
             </h1>
             <p className="text-lg text-neutral-dark dark:text-dark-neutral-dark">
-              了解更多关于我的旅程、技能，以及作为开发者和创作者的驱动力。
+              全栈开发工程师 · AI 应用技术负责人 · FDE（前沿部署工程师）——10 年软件开发经验，专注企业级架构与系统交付、AI 应用工程化与业务流程自动化。
             </p>
           </div>
           <div className="relative h-64 md:h-80 rounded-lg overflow-hidden shadow-lg">
@@ -129,21 +129,24 @@ export default function AboutPageZh() {
         />
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            你好！我是一名专注于构建"听懂人话"的 AI 产品的开发者。在科技快速发展的时代，我发现很多AI工具虽然功能强大，但学习门槛高、使用复杂，普通人难以真正受益。因此，我致力于打造真正懂用户、易用且实用的AI解决方案。
+            你好，我是一名拥有 10 年软件开发经验的全栈工程师。从 CRM、MES 到企业统一运营管理平台，我长期深耕企业级系统的架构设计与交付落地，业务覆盖智能导购、招投评审辅助、企业知识库等场景，能够独立完成从需求分析、技术方案设计到系统开发、部署准备与客户侧技术协调的完整链路。
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            我的核心理念很简单：<strong>拒谈概念，只讲落地</strong>。在充斥着各种AI概念和术语的市场中，我坚持用最朴实的语言，通过深度实测和硬核评测，帮助用户找到真正能解决问题的工具。每一篇评测、每一个产品推荐，都基于真实使用体验和具体场景测试。
+            2025 年起，我创立并运营 OPC（一人公司），专注 AI 应用开发与技术服务。约 3 年的 AI 工程化实践让我沉淀出一套务实的方法论：将业务规则、企业数据与大模型能力有机结合，通过 n8n、Dify 等工具编排工作流，以系统集成与人工复核机制保障结果可靠——让 AI 真正走进业务流程，而不是停留在演示环节。
+          </p>
+          <p className="text-neutral-dark dark:text-dark-neutral-dark">
+            我是蓝耘 MCP 大赛亚军，并持续通过 MisoTech 与自媒体，分享 AI 工程化、自动化工作流与架构实践。我的核心理念很简单：<strong>拒谈概念，只讲落地</strong>。
           </p>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
             在 MisoTech，我分享的内容遵循三个原则：
           </p>
           <ul className="text-neutral-dark dark:text-dark-neutral-dark">
-            <li><strong>硬核评测：</strong> 不做表面功夫，深入产品核心功能，测试真实场景下的表现。无论是AI编程工具、图像生成，还是知识库管理，我都亲自上手、全面测试。</li>
-            <li><strong>拒绝空谈：</strong> 不讲大道理，不堆砌概念。直接告诉你这个工具能做什么、不能做什么、适合谁用、怎么用效果最好。</li>
-            <li><strong>用户视角：</strong> 站在普通用户角度思考问题。技术再强大，如果不好用、学不会，就没有价值。我关注的是真实的使用体验和实际生产力提升。</li>
+            <li><strong>硬核评测：</strong> 不做表面功夫。无论 AI 编程工具、图像处理还是知识库系统，我都亲自上手、深入核心功能，在真实场景中验证成色。</li>
+            <li><strong>拒绝空谈：</strong> 不堆砌概念。直接告诉你一项技术能做什么、不能做什么、适合谁用、怎么用最好——工程问题，用工程答案回应。</li>
+            <li><strong>交付视角：</strong> 站在最终使用者与客户一侧思考。技术再先进，不能稳定交付、不能融入流程，就没有价值。</li>
           </ul>
           <p className="text-neutral-dark dark:text-dark-neutral-dark">
-            当我不在写代码或测试新工具时，你会发现我在研究AI领域的最新进展，与社区交流实践经验，或在寻找下一个能够真正改变日常工作的AI工具。我相信，最好的技术应该是透明的——它默默地在背后工作，让你的生活更简单、更高效。
+            写代码之外，我在研究大模型领域的最新进展、打磨自动化工作流，或为下一个交付项目梳理方案。我相信最好的技术是可靠且可交付的——它在业务流程中安静运转，让复杂的事情变简单。
           </p>
         </div>
       </Section>

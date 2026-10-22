@@ -25,51 +25,51 @@ export const skillsData: SkillCategory[] = [
     color: "primary",
     skills: [
       {
+        name: "Vue.js (Vue3)",
+        level: 88,
+        icon: "💚",
+        category: "core",
+        description: "Composition API, enterprise admin consoles and large-scale business frontends",
+        yearsOfExperience: 6
+      },
+      {
         name: "React.js",
-        level: 90,
+        level: 85,
         icon: "⚛️",
         category: "core",
-        description: "Building complex SPAs with hooks, context, and performance optimization",
-        yearsOfExperience: 5
+        description: "Component architecture, hooks and SPA performance optimization",
+        yearsOfExperience: 4
       },
       {
         name: "Next.js",
-        level: 85,
+        level: 84,
         icon: "▲",
         category: "core",
-        description: "SSR, SSG, API routes, and app router architecture",
-        yearsOfExperience: 4
+        description: "App Router, SSR/ISR and API routes — this very site runs on it",
+        yearsOfExperience: 3
       },
       {
         name: "TypeScript",
-        level: 80,
+        level: 85,
         icon: "📘",
         category: "core",
-        description: "Type-safe development with advanced typing patterns",
-        yearsOfExperience: 4
-      },
-      {
-        name: "HTML/CSS",
-        level: 95,
-        icon: "🎨",
-        category: "core",
-        description: "Semantic HTML, modern CSS, animations, and responsive design",
-        yearsOfExperience: 6
+        description: "Type-safe development across frontend and backend",
+        yearsOfExperience: 5
       },
       {
         name: "Tailwind CSS",
         level: 90,
         icon: "🌊",
         category: "core",
-        description: "Utility-first CSS, custom components, and design systems",
-        yearsOfExperience: 3
+        description: "Utility-first CSS with custom design token systems",
+        yearsOfExperience: 4
       },
       {
-        name: "Redux",
-        level: 75,
-        icon: "🔄",
+        name: "WeChat Mini Program",
+        level: 85,
+        icon: "📱",
         category: "advanced",
-        description: "State management with Redux Toolkit and middleware",
+        description: "Native mini-program development with cloud base, subpackages and Canvas 2D imaging",
         yearsOfExperience: 3
       }
     ]
@@ -81,108 +81,164 @@ export const skillsData: SkillCategory[] = [
     color: "secondary",
     skills: [
       {
-        name: "Node.js",
-        level: 85,
-        icon: "🟢",
+        name: "Java",
+        level: 90,
+        icon: "☕",
         category: "core",
-        description: "RESTful APIs, microservices, and server-side applications",
-        yearsOfExperience: 4
+        description: "Enterprise-grade services, business modeling and system architecture",
+        yearsOfExperience: 10
       },
       {
-        name: "Express",
-        level: 80,
-        icon: "🚂",
-        category: "advanced",
-        description: "Building robust web servers and REST APIs",
-        yearsOfExperience: 4
-      },
-      {
-        name: "MongoDB",
-        level: 75,
+        name: "Spring Cloud",
+        level: 86,
         icon: "🍃",
-        category: "advanced",
-        description: "NoSQL database design, aggregation pipelines, and indexing",
-        yearsOfExperience: 3
-      },
-      {
-        name: "PostgreSQL",
-        level: 70,
-        icon: "🐘",
-        category: "advanced",
-        description: "Relational databases, complex queries, and optimization",
-        yearsOfExperience: 2
-      },
-      {
-        name: "GraphQL",
-        level: 65,
-        icon: "◈",
-        category: "intermediate",
-        description: "API design, resolvers, and Apollo Client",
-        yearsOfExperience: 2
-      },
-      {
-        name: "REST API Design",
-        level: 85,
-        icon: "🔗",
         category: "core",
-        description: "API architecture, documentation, and best practices",
-        yearsOfExperience: 4
+        description: "Microservices, service governance and distributed business systems",
+        yearsOfExperience: 6
+      },
+      {
+        name: "Python",
+        level: 85,
+        icon: "🐍",
+        category: "advanced",
+        description: "Automation scripts, data pipelines and AI service integration",
+        yearsOfExperience: 6
+      },
+      {
+        name: "MySQL",
+        level: 90,
+        icon: "🐬",
+        category: "core",
+        description: "Schema design, query optimization and migration",
+        yearsOfExperience: 10
+      },
+      {
+        name: "Redis",
+        level: 84,
+        icon: "⚡",
+        category: "advanced",
+        description: "Caching strategies and hot-data management",
+        yearsOfExperience: 5
+      },
+      {
+        name: "Node.js",
+        level: 82,
+        icon: "🟢",
+        category: "advanced",
+        description: "REST APIs, tooling and server-side rendering",
+        yearsOfExperience: 5
       }
     ]
   },
   {
-    name: "Tools & Platforms",
-    nameZh: "工具与平台",
-    icon: "🛠️",
+    name: "AI Engineering & Automation",
+    nameZh: "AI 应用与自动化",
+    icon: "🤖",
     color: "accent",
     skills: [
+      {
+        name: "LLM Integration",
+        level: 88,
+        icon: "🧠",
+        category: "core",
+        description: "LLM integration with structured output, rule validation and human-in-the-loop review",
+        yearsOfExperience: 3
+      },
+      {
+        name: "RAG & Knowledge Bases",
+        level: 85,
+        icon: "📚",
+        category: "core",
+        description: "Enterprise knowledge bases with retrieval-augmented generation",
+        yearsOfExperience: 3
+      },
+      {
+        name: "OCR & Document Extraction",
+        level: 82,
+        icon: "📄",
+        category: "advanced",
+        description: "PDF field extraction, OCR and vision-input pipeline design",
+        yearsOfExperience: 3
+      },
+      {
+        name: "MCP Integration",
+        level: 80,
+        icon: "🔌",
+        category: "advanced",
+        description: "MCP tool integration and AI-assisted development workflows",
+        yearsOfExperience: 1
+      },
+      {
+        name: "n8n",
+        level: 88,
+        icon: "🔗",
+        category: "core",
+        description: "Data ingestion, model calls and result distribution workflows",
+        yearsOfExperience: 2
+      },
+      {
+        name: "Dify",
+        level: 84,
+        icon: "🎯",
+        category: "advanced",
+        description: "LLM app orchestration and agent workflow building",
+        yearsOfExperience: 2
+      }
+    ]
+  },
+  {
+    name: "Cloud & DevOps",
+    nameZh: "云原生与部署",
+    icon: "☁️",
+    color: "secondary",
+    skills: [
+      {
+        name: "Linux",
+        level: 88,
+        icon: "🐧",
+        category: "core",
+        description: "Server operations, ARM environments and deployment preparation",
+        yearsOfExperience: 10
+      },
       {
         name: "Git & GitHub",
         level: 90,
         icon: "📦",
         category: "core",
-        description: "Version control, branching strategies, and collaboration workflows",
-        yearsOfExperience: 6
-      },
-      {
-        name: "Docker",
-        level: 70,
-        icon: "🐳",
-        category: "advanced",
-        description: "Containerization, Docker Compose, and orchestration",
-        yearsOfExperience: 2
-      },
-      {
-        name: "AWS",
-        level: 65,
-        icon: "☁️",
-        category: "intermediate",
-        description: "EC2, S3, Lambda, and cloud infrastructure",
-        yearsOfExperience: 2
+        description: "Version control, branching strategies and CI/CD workflows",
+        yearsOfExperience: 10
       },
       {
         name: "Vercel",
         level: 85,
         icon: "▲",
         category: "core",
-        description: "Deployment, CI/CD, and edge functions",
+        description: "Deployment, edge caching and image optimization governance",
         yearsOfExperience: 3
       },
       {
-        name: "Figma",
+        name: "Docker",
         level: 75,
-        icon: "🎯",
+        icon: "🐳",
         category: "advanced",
-        description: "UI design, prototyping, and design systems",
+        description: "Containerization and deployment environment preparation",
         yearsOfExperience: 3
       },
       {
-        name: "Jest",
-        level: 80,
-        icon: "🃏",
-        category: "advanced",
-        description: "Unit testing, integration testing, and test-driven development",
-        yearsOfExperience: 3
+        name: "Kubernetes",
+        level: 72,
+        icon: "⚓",
+        category: "intermediate",
+        description: "Container orchestration and cloud-native deployment coordination",
+        yearsOfExperience: 2
+      },
+      {
+        name: "SkyWalking",
+        level: 76,
+        icon: "🔭",
+        category: "intermediate",
+        description: "Distributed tracing and observability",
+        yearsOfExperience: 2
       }
     ]
   },
