@@ -48,7 +48,9 @@ function validateImageUrl(url: string): string {
   trimmedUrl.includes('amazonaws.com') || // Notion/AWS S3图片
   trimmedUrl.includes('unsplash.com') ||   // Unsplash图片
   trimmedUrl.includes('ytimg.com') ||      // YouTube图片
-  trimmedUrl.includes('images.unsplash.com'); // Unsplash代理图片
+  trimmedUrl.includes('images.unsplash.com') || // Unsplash代理图片
+  trimmedUrl.includes('cdn.jsdelivr.net') ||    // 发布管线图床(feat-publish-pipeline)
+  trimmedUrl.includes('raw.githubusercontent.com'); // 图床备用直连源
 
   return isImageUrl ? trimmedUrl : '';
 }
@@ -937,6 +939,29 @@ export async function getBlogPostById(id: string, options?: { language?: string 
       blocks.push(...res.results);
       cursor = (res as any).next_cursor || undefined;
     } while (cursor);
+
+    // 表格块水合:Notion API 的 table 块不内联行数据(has_children),需按块再拉一层子块,
+    // 挂到 block.table.children 供 NotionRenderer 渲染(行下无更深层,单次拉取即可)。
+    for (const block of blocks) {
+      if (block.type === 'table' && (block as any).has_children) {
+        try {
+          const rows: any[] = [];
+          let rowCursor: string | undefined = undefined;
+          do {
+            const rowRes = await notion.blocks.children.list({
+              block_id: block.id,
+              start_cursor: rowCursor,
+              page_size: 100,
+            });
+            rows.push(...rowRes.results);
+            rowCursor = (rowRes as any).next_cursor || undefined;
+          } while (rowCursor);
+          block.table.children = rows;
+        } catch (err) {
+          console.warn(`[notion] 拉取表格子块失败(${block.id}):`, err);
+        }
+      }
+    }
 
     // 标题
     const title =

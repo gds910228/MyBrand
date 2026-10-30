@@ -14,7 +14,10 @@ const nextConfig = {
       { protocol: 'https', hostname: 'prod-files-secure.s3.us-west-2.amazonaws.com' },
       { protocol: 'https', hostname: 'prod-files-secure.s3.amazonaws.com' },
       { protocol: 'https', hostname: 'i.ytimg.com' },
-      { protocol: 'https', hostname: 'static.moblin.net' }
+      { protocol: 'https', hostname: 'static.moblin.net' },
+      // 发布管线图床(feat-publish-pipeline):GitHub 仓库 + jsDelivr 外链
+      { protocol: 'https', hostname: 'cdn.jsdelivr.net' },
+      { protocol: 'https', hostname: 'raw.githubusercontent.com' }
     ],
     // 仅 WebP：AVIF 会使每张图的优化变体数 ×2，免费额度（5K 转换/月）吃不消
     formats: ['image/webp'],

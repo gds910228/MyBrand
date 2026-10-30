@@ -224,7 +224,7 @@ const BlockRenderer: React.FC<{ block: any }> = ({ block }) => {
     case 'divider':
       return <hr className="my-8 border-neutral-light dark:border-dark-neutral-light" />;
 
-    case 'callout':
+    case 'callout': {
       const calloutIcon = block.callout.icon?.emoji || '💡';
       return (
         <div className="my-6 p-4 bg-primary/10 border-l-4 border-primary rounded-r-lg">
@@ -234,6 +234,37 @@ const BlockRenderer: React.FC<{ block: any }> = ({ block }) => {
           </div>
         </div>
       );
+    }
+
+    case 'table': {
+      // 行数据由 getBlogPostById 水合(block.table.children),发布管线生成的表格均带表头
+      const rows: any[] = block.table?.children || [];
+      if (rows.length === 0) return null;
+      const hasHeader = !!block.table?.has_column_header;
+      return (
+        <div className="my-6 overflow-x-auto rounded-lg border border-neutral-light dark:border-dark-neutral-light">
+          <table className="w-full text-sm border-collapse">
+            <tbody>
+              {rows.map((row: any, i: number) => (
+                <tr
+                  key={row.id || i}
+                  className={i === 0 && hasHeader ? 'bg-neutral-100 dark:bg-dark-neutral-light font-semibold' : ''}
+                >
+                  {row.table_row?.cells?.map((cell: any[], j: number) => (
+                    <td
+                      key={j}
+                      className="px-3 py-2 border-b border-neutral-light dark:border-dark-neutral-light text-neutral-dark dark:text-dark-neutral-dark"
+                    >
+                      {renderRichText(cell)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
 
     default:
       return null;
