@@ -20,7 +20,7 @@ import {
   type NormalizedFrontmatter,
 } from './parseMarkdown';
 import { markdownToNotionBlocks, chunkBlocks } from './markdownToNotion';
-import { uploadImages, resolveImageHostConfig, type ImageHostConfig } from './imageHost';
+import { uploadImages, verifyImagePublic, resolveImageHostConfig, type ImageHostConfig } from './imageHost';
 import { generateAiTrio, type AiTrioResult, type AiBlogFields } from './aiFields';
 import { generatePreviewUrl } from '../previewToken';
 import { toNotionStatusName } from '../contentStatus';
@@ -142,8 +142,12 @@ export function buildPostProperties(input: {
   coverUrl: string | null;
   readingTime: number;
   schema: Record<string, { type: string }>;
+  /** 站长署名,默认 Archer(frontmatter.author > env.AUTHOR_NAME > 默认) */
+  authorName?: string;
+  /** ButtonAllUpdate 属性填充的 revalidate URL */
+  buttonUrl?: string | null;
 }): Record<string, any> {
-  const { fm, ai, coverUrl, readingTime, schema } = input;
+  const { fm, ai, coverUrl, readingTime, schema, authorName, buttonUrl } = input;
   const has = (name: string) => Object.prototype.hasOwnProperty.call(schema, name);
   const rt = (text: string) => [{ type: 'text', text: { content: text } }];
   const props: Record<string, any> = {};
@@ -196,9 +200,13 @@ export function buildPostProperties(input: {
   rating('Rating_EaseOfUse', fm.ratingEaseOfUse ?? ai?.Rating_EaseOfUse);
   rating('Rating_Features', fm.ratingFeatures ?? ai?.Rating_Features);
 
-  const joinLines = (v?: string[]) => (v && v.length ? v.join('\n') : undefined);
-  const pros = joinLines(fm.pros) ?? joinLines(ai?.Pros);
-  const cons = joinLines(fm.cons) ?? joinLines(ai?.Cons);
+  // Pros/Cons:与库中既有数据风格一致,输出 "1. xxx" 编号行(输入侧已剥编号,此处统一补号)
+  const numberedLines = (v?: string[]) =>
+    v && v.length
+      ? v.map((s, i) => `${i + 1}. ${String(s).replace(/^\s*\d+[.、)]\s*/, '')}`).join('\n')
+      : undefined;
+  const pros = numberedLines(fm.pros) ?? numberedLines(ai?.Pros);
+  const cons = numberedLines(fm.cons) ?? numberedLines(ai?.Cons);
   if (pros && has('Pros')) props.Pros = { rich_text: rt(pros) };
   if (cons && has('Cons')) props.Cons = { rich_text: rt(cons) };
 
@@ -207,16 +215,24 @@ export function buildPostProperties(input: {
   if (pricing && has('Tool_Pricing')) props.Tool_Pricing = { rich_text: rt(pricing) };
 
   // 对比表:JSON 字符串写入 rich_text(读取侧 notion.ts 会 JSON.parse;字段名兼容两种拼写)
+  // 来源优先级:frontmatter/表单覆盖 > AI
+  const cols = fm.comparisonColumns?.length ? fm.comparisonColumns : ai?.ComparisonColumns;
+  const data = fm.comparisonData?.length ? fm.comparisonData : ai?.ComparisonData;
   const colsProp = has('ComparisonColumns') ? 'ComparisonColumns' : has('Comparison_Columns') ? 'Comparison_Columns' : null;
   const dataProp = has('ComparisonData') ? 'ComparisonData' : has('Comparison_Data') ? 'Comparison_Data' : null;
-  if (ai?.ComparisonColumns?.length && colsProp) {
-    props[colsProp] = { rich_text: rt(JSON.stringify(ai.ComparisonColumns)) };
+  if (cols?.length && colsProp) {
+    props[colsProp] = { rich_text: rt(JSON.stringify(cols)) };
   }
-  if (ai?.ComparisonData?.length && dataProp) {
-    props[dataProp] = { rich_text: rt(JSON.stringify(ai.ComparisonData)) };
+  if (data?.length && dataProp) {
+    props[dataProp] = { rich_text: rt(JSON.stringify(data)) };
   }
 
   if (has('ReadingTime')) props.ReadingTime = { number: readingTime };
+
+  // 站长署名:库里 AuthorText(rich_text) 历史上手工填 Archer,管线补默认,frontmatter author 可覆盖
+  if (has('AuthorText')) props.AuthorText = { rich_text: rt(authorName || 'Archer') };
+  // ButtonAllUpdate(url):库里存"刷新站点缓存"的 revalidate 链接,发布时统一回填
+  if (buttonUrl && has('ButtonAllUpdate')) props.ButtonAllUpdate = { url: buttonUrl };
 
   return props;
 }
@@ -274,6 +290,13 @@ export async function publishPost(
       urlByRef = batch.urlByRef;
       uploaded = batch.uploaded;
       skippedUploads = batch.skipped;
+      // 抽检外链:仓库非 Public 或 jsDelivr 缓存延迟时 Notion/站点都会挂图,提前暴露
+      const unreachable = await verifyImagePublic(Array.from(urlByRef.values()));
+      if (unreachable.length) {
+        warnings.push(
+          `图床外链暂时不可访问(检查图床仓库是否为 Public;jsDelivr 新文件缓存有秒级延迟): ${unreachable.join(', ')}`,
+        );
+      }
     }
   }
 
@@ -337,6 +360,12 @@ export async function publishPost(
     coverUrl,
     readingTime,
     schema,
+    authorName: finalFm.author || process.env.AUTHOR_NAME || 'Archer',
+    buttonUrl:
+      process.env.BUTTON_ALL_UPDATE_URL ||
+      (siteUrl && process.env.REVALIDATE_SECRET
+        ? `${siteUrl}/api/revalidate?secret=${process.env.REVALIDATE_SECRET}`
+        : null),
   });
   const cover = coverUrl ? { type: 'external' as const, external: { url: coverUrl } } : undefined;
 

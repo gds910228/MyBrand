@@ -73,7 +73,9 @@ function toStrArray(v: unknown): string[] | undefined {
 
 function toNum(v: unknown): number | undefined {
   const n = Number(v);
-  return Number.isFinite(n) ? n : undefined;
+  // 0 分 = 模型对"不适用"的占位输出,与缺省同义(评分只在真实评测时给,0 分不入库也不进表单)
+  if (!Number.isFinite(n) || n === 0) return undefined;
+  return n;
 }
 
 /** 校验并规范化 AI 输出。宽松策略:缺字段不报错(publish 侧有 frontmatter 兜底),类型不对的丢弃。 */

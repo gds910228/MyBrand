@@ -44,6 +44,15 @@ describe('parseMarkdown', () => {
     expect(doc.coverRef).toBe('assets/cover.png');
   });
 
+  it('【配图N：描述】占位行转为图片引用,正文中间提及"配图"不受影响', () => {
+    const doc = parseMarkdown(
+      '正文前\n\n【配图1：三漏示意图（会话内/会话间/从未落纸）】\n\n正文后提到配图二字不影响\n\n【配图2：另一张图】',
+    );
+    expect(doc.images).toHaveLength(2);
+    expect(doc.images[0]).toMatchObject({ ref: '配图1', alt: '三漏示意图（会话内/会话间/从未落纸）' });
+    expect(doc.images[1]).toMatchObject({ ref: '配图2', alt: '另一张图' });
+  });
+
   it('原始 HTML 产生警告', () => {
     const doc = parseMarkdown('<div style="color:red">x</div>');
     expect(doc.warnings.some((w) => w.includes('HTML'))).toBe(true);
@@ -146,6 +155,14 @@ describe('markdownToNotionBlocks', () => {
     expect(blocks[0].type).toBe('image');
     expect(blocks[0].image.external.url).toContain('x.png');
     expect(blocks[0].image.caption[0].text.content).toBe('封面说明');
+  });
+
+  it('配图占位行转换后生成 image 块,描述成为 caption', () => {
+    const doc = parseMarkdown('【配图1：三漏示意图】');
+    const { blocks } = markdownToNotionBlocks(doc.ast);
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].type).toBe('image');
+    expect(blocks[0].image.caption[0].text.content).toBe('三漏示意图');
   });
 
   it('行内图片从段落中拆出,保持文档顺序', () => {

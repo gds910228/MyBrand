@@ -363,7 +363,23 @@
       "resultUpdated": "更新",
       "nextStepDraft": "打开预览链接确认效果,然后到 /admin/content 切换为 Published。",
       "nextStepScheduled": "到点后 Vercel Cron 会自动发布。",
-      "nextStepPublished": "站点缓存已刷新,帖子已上线。"
+      "nextStepPublished": "站点缓存已刷新,帖子已上线。",
+      "fileMatched": "已匹配正文引用",
+      "fileUnmatched": "未匹配到正文引用(文件名需与 md 中 ![](...) 或 ![[...]] 引用一致)——发布时将被跳过",
+      "parseFirstHint": "先点「解析」查看哪些图片会被插入正文。",
+      "imagesStat": "图片: 上传 {uploaded},复用 {skipped},省略 {missing}",
+      "resultWarnings": "发布警告",
+      "reviewFieldsTitle": "评测扩展字段(评分仅工具评测填;优点/缺点/推荐链接/对比表每篇都建议填)",
+      "ratingOverallField": "综合评分(0-5)",
+      "ratingEaseField": "易用性(0-5)",
+      "ratingFeaturesField": "功能(0-5)",
+      "prosField": "优点(每行一条)",
+      "consField": "缺点(每行一条)",
+      "toolWebsiteField": "工具官网",
+      "toolPricingField": "定价",
+      "comparisonField": "横向对比表 JSON(可选,留空不写;对应库属性 ComparisonColumns / ComparisonData)",
+      "comparisonJsonError": "对比表 JSON 解析失败,请修正格式后再发布",
+      "placeholderHint": "正文里的【配图1：描述】占位行会转为图片位——上传名为 配图1.png 的文件即可自动插入,描述成为图片说明。"
     }
   }
 }

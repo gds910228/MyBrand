@@ -42,11 +42,11 @@ const FIELDS_SPEC = `按以下 Notion Blog 数据库 Schema 输出真实数据(�
 - **Summary**: 60-100 字中文摘要(英文文章则输出英文摘要),概括核心价值
 - **Tags**: 3-6 个标签,如 "AI图像生成", "Midjourney", "工具评测"
 - **Slug**: 小写英文短横线 slug(如 midjourney-v6-review),从标题翻译,不含中文
-- **Rating_Overall / Rating_EaseOfUse / Rating_Features**: 0-5 数字,仅工具评测类文章输出
-- **Pros / Cons**: 字符串数组,仅工具评测类文章输出,每条一句话
-- **Tool_Website**: 工具官网 URL(仅评测类)
-- **Tool_Pricing**: 定价简述(仅评测类)
-- **ComparisonColumns / ComparisonData**: 横向对比表,仅当文章含多工具对比时输出,规则见下`;
+- **Rating_Overall / Rating_EaseOfUse / Rating_Features**: 0-5 数字。**仅当文章评测某个具体产品/工具/平台/硬件时给出**;方法论/经验/教程文一律省略这三个字段(绝不要输出 0 占位)
+- **Pros / Cons**: **每篇文章都必须填**(字符串数组,Pros 3-4 条、Cons 2-3 条,每条一句话)。评测文 = 该工具的优缺点;方法论/经验文 = 文章所讲方法/做法的优点与局限(内容向评价,如 "验收标准客观硬核:用能否复述作为理解验收的试金石")
+- **Tool_Website**: 评测文 = 产品官网 URL;方法论/经验文 = 文中重点推荐或使用的工具/资源链接(若确有);都没有才省略
+- **Tool_Pricing**: 评测文 = 定价简述(免费/按任务结算类如实描述);非评测文通常省略
+- **ComparisonColumns / ComparisonData**: 只要文章包含任何形式的对照(多工具横向对比、两种模式/做法/路线的对比)就生成,规则见下;纯叙事无对比才省略`;
 
 const COMPARISON_SPEC = `横向对比表 JSON 规则:
 - 列 JSON(ComparisonColumns)中的 key 必须与数据行(ComparisonData)中的同名字段对应

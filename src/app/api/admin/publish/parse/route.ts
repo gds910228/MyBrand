@@ -55,6 +55,24 @@ export async function POST(request: NextRequest) {
       summary: fm.summary || ai?.fields.Summary || '',
       tags: (fm.tags.length ? fm.tags : ai?.fields.Tags || []).join(', '),
       cover: fm.cover || doc.coverRef || '',
+      // 评测扩展(方法论文可为空,评测文由 AI 生成、表单可改)
+      ratingOverall: String(fm.ratingOverall ?? ai?.fields.Rating_Overall ?? ''),
+      ratingEaseOfUse: String(fm.ratingEaseOfUse ?? ai?.fields.Rating_EaseOfUse ?? ''),
+      ratingFeatures: String(fm.ratingFeatures ?? ai?.fields.Rating_Features ?? ''),
+      pros: (fm.pros?.length ? fm.pros : ai?.fields.Pros || []).join('\n'),
+      cons: (fm.cons?.length ? fm.cons : ai?.fields.Cons || []).join('\n'),
+      toolWebsite: fm.toolWebsite || ai?.fields.Tool_Website || '',
+      toolPricing: fm.toolPricing || ai?.fields.Tool_Pricing || '',
+      comparisonColumns: fm.comparisonColumns?.length
+        ? JSON.stringify(fm.comparisonColumns, null, 2)
+        : ai?.fields.ComparisonColumns?.length
+          ? JSON.stringify(ai.fields.ComparisonColumns, null, 2)
+          : '',
+      comparisonData: fm.comparisonData?.length
+        ? JSON.stringify(fm.comparisonData, null, 2)
+        : ai?.fields.ComparisonData?.length
+          ? JSON.stringify(ai.fields.ComparisonData, null, 2)
+          : '',
     };
 
     return NextResponse.json({

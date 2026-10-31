@@ -51,7 +51,8 @@ publishDate: 2026-10-26
 tags: AI图像生成, Midjourney, 工具评测   # 逗号分隔
 cover: images/cover.png     # 本地引用(随帖上传)或完整 URL
 summary: 摘要
-# 工具评测帖扩展(可选)
+author: Archer              # 可选;缺省用 env AUTHOR_NAME(Archer)
+# 工具评测帖扩展(可选,不填则由 AI 对产品/平台/工具类文章强制生成)
 ratingOverall: 4.8
 ratingEaseOfUse: 4.2
 ratingFeatures: 5.0
@@ -104,11 +105,42 @@ CLI 会读取 md 所在目录 + `--vault` 目录下的图片文件（含子目�
 
 注意：网页端走 Vercel 函数，**图片总量超过 4.5MB 会被拒**，大图先压缩；CLI 无此限制。
 
+## 图片是怎么插进帖子的(重要)
+
+三种方式,任选其一:
+
+1. **标准图片语法**: `![说明](文件名.png)` 或 `![[文件名.png]]` — 文件名(或不含扩展名)与上传文件一致 → 自动上传图床并插入;
+2. **配图占位约定**(公众号写作习惯): 正文整行写 `【配图1：三漏示意图】` → 自动转为图片位,上传名为 **配图1.png/jpg** 的文件即可插入,占位描述成为图片说明;未上传对应文件会告警且该行不显示;
+3. 上传文件与正文引用**实时匹配标注**: 管理平台文件列表 ✅ 已匹配 / ⚠️ 未匹配,发布结果警告区列出每张被省略的图及原因。
+
+不会插图的情况:引用是 `mmbiz.qpic.cn`(公众号防盗链,自动剔除并告警)。
+
+图床外链上传后会做可访问性抽检——若提示不可访问,检查图床仓库是否为 **Public**(私有仓库 jsDelivr 无法服务,Notion/站点都会挂图)。
+
+## 评测字段怎么填(以库中既有数据约定为准)
+
+实测你库里的填法约定,管线与 AI 提示词已对齐:
+
+| 字段 | 工具/产品评测文 | 方法论/经验文 |
+| --- | --- | --- |
+| Rating_*(三项评分) | AI 生成 0-5 分 | **留空**(AI 输出 0 分会被自动丢弃,表单不显示 0) |
+| Pros / Cons | 工具优缺点 | **文章方法/做法的优缺点**(内容向评价,写入时自动补 "1. 2." 编号行) |
+| Tool_Website | 官网 | 文中重点推荐/使用的工具或资源链接(有才填) |
+| Tool_Pricing | 定价简述 | 通常留空 |
+| ComparisonColumns / ComparisonData | 工具横向对比 | **模式/做法对照也可生成**(如"审批按钮模式 vs 三道防线") |
+
+管理页"评测扩展字段"区全部可手工核对修改;对比表 JSON 留空 = 不写;优先级: 表单 > frontmatter > AI。
+
+## 已自动填充的库属性
+
+除正文外,管线按 Blog 库 schema 写入:Title/Slug/Language/Status/PublishDate/Summary/Tags/ReadingTime/**AuthorText(默认 Archer,env `AUTHOR_NAME` 或 frontmatter `author` 覆盖)**/**ButtonAllUpdate(默认 `${站点}/api/revalidate?secret=<REVALIDATE_SECRET>`,可用 env `BUTTON_ALL_UPDATE_URL` 覆盖)**/CoverImage(封面);评测类文章由 AI 生成 Rating_*/Pros/Cons/Tool_Website/Tool_Pricing/Comparison_*。
+
 ## 发布后
 
-- **draft**：预览链接确认 → `/admin/content` 状态机切 Published（站点缓存自动刷新）。
-- **scheduled**：Vercel Cron（每小时）到点自动发布，`/admin/content` 可查看/调整。
-- **published**：直接上线，管线已自动调用 revalidate 刷新首页/列表/详情/sitemap。
+- **draft**:预览链接确认 → `/admin/content` 状态机切 Published(站点缓存自动刷新)。
+  ⚠️ Notion 数据库视图若过滤了 `Status=Draft`,新草稿在视图里不可见——API 层面它**已在库里**,切视图筛选或到 `/admin/content` 看。`app.notion.com/p/...` 形式的链接就是数据库行的新版 URL。
+- **scheduled**:Vercel Cron(每小时)到点自动发布,`/admin/content` 可查看/调整。
+- **published**:直接上线,管线已自动调用 revalidate 刷新首页/列表/详情/sitemap。
 
 ## 双语
 

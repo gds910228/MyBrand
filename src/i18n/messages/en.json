@@ -363,7 +363,23 @@
       "resultUpdated": "Updated",
       "nextStepDraft": "Open the preview link to confirm, then set Published in /admin/content.",
       "nextStepScheduled": "Vercel Cron publishes it automatically at the scheduled time.",
-      "nextStepPublished": "The site cache has been refreshed; the post is live."
+      "nextStepPublished": "The site cache has been refreshed; the post is live.",
+      "fileMatched": "matched in body",
+      "fileUnmatched": "no matching image reference in the Markdown (file name must match the ![](...) / ![[...]] reference) - it will be skipped",
+      "parseFirstHint": "Click Parse first to check which images will be inserted.",
+      "imagesStat": "Images: uploaded {uploaded}, reused {skipped}, skipped {missing}",
+      "resultWarnings": "Publish warnings",
+      "reviewFieldsTitle": "Review fields (ratings for tool reviews only; pros/cons/link/comparison for every post)",
+      "ratingOverallField": "Overall rating (0-5)",
+      "ratingEaseField": "Ease of use (0-5)",
+      "ratingFeaturesField": "Features (0-5)",
+      "prosField": "Pros (one per line)",
+      "consField": "Cons (one per line)",
+      "toolWebsiteField": "Tool website",
+      "toolPricingField": "Pricing",
+      "comparisonField": "Comparison table JSON (optional, leave empty to skip; maps to ComparisonColumns / ComparisonData)",
+      "comparisonJsonError": "Failed to parse comparison JSON - fix the format before publishing",
+      "placeholderHint": "Body lines like 【配图1：desc】 become image slots - upload a file named 配图1.png to insert it there."
     }
   }
 }

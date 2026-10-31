@@ -94,10 +94,32 @@ describe('buildPostProperties', () => {
     expect(props.Rating_Overall).toEqual({ number: 4.9 });
     expect(props.Rating_Features).toEqual({ number: 4.0 });
     expect(props.Rating_EaseOfUse).toBeUndefined();
-    expect(props.Pros.rich_text[0].text.content).toBe('AI 优点');
+    expect(props.Pros.rich_text[0].text.content).toBe('1. AI 优点');
     expect(props.Tool_Website).toEqual({ url: 'https://tool.example.com' });
     expect(JSON.parse(props.ComparisonColumns.rich_text[0].text.content)).toEqual([{ key: 'price' }]);
     expect(JSON.parse(props.ComparisonData.rich_text[0].text.content)).toEqual([{ id: 't1' }]);
+  });
+
+  it('对比表来自 frontmatter/表单覆盖,兼容下划线属性名', () => {
+    const fm = normalizeFrontmatter({
+      title: 't',
+      slug: 's',
+      comparisonColumns: [{ key: 'price' }],
+      comparisonData: [{ id: 't1' }],
+    });
+    const props = buildPostProperties({
+      fm,
+      ai: null,
+      coverUrl: null,
+      readingTime: 1,
+      schema: {
+        Title: { type: 'title' },
+        Comparison_Columns: { type: 'rich_text' },
+        Comparison_Data: { type: 'rich_text' },
+      },
+    });
+    expect(JSON.parse(props.Comparison_Columns.rich_text[0].text.content)).toEqual([{ key: 'price' }]);
+    expect(JSON.parse(props.Comparison_Data.rich_text[0].text.content)).toEqual([{ id: 't1' }]);
   });
 
   it('scheduled 状态写入 scheduledAt;缺 title/slug 抛 PublishError', () => {
@@ -126,6 +148,35 @@ describe('buildPostProperties', () => {
   });
 });
 
+describe('buildPostProperties 站长默认字段', () => {
+  it('AuthorText 默认 Archer;ButtonAllUpdate 按 url 类型写入', () => {
+    const schema = { Title: { type: 'title' }, AuthorText: { type: 'rich_text' }, ButtonAllUpdate: { type: 'url' } };
+    const props = buildPostProperties({
+      fm: BASE_FM,
+      ai: null,
+      coverUrl: null,
+      readingTime: 1,
+      schema,
+      authorName: 'Archer',
+      buttonUrl: 'https://misitebo.win/api/revalidate?secret=x',
+    });
+    expect(props.AuthorText).toEqual({ rich_text: [{ type: 'text', text: { content: 'Archer' } }] });
+    expect(props.ButtonAllUpdate).toEqual({ url: 'https://misitebo.win/api/revalidate?secret=x' });
+  });
+
+  it('库中无对应属性时不写;buttonUrl 缺省不写', () => {
+    const props = buildPostProperties({
+      fm: BASE_FM,
+      ai: null,
+      coverUrl: null,
+      readingTime: 1,
+      schema: { Title: { type: 'title' } },
+    });
+    expect(props.AuthorText).toBeUndefined();
+    expect(props.ButtonAllUpdate).toBeUndefined();
+  });
+});
+
 describe('matchImageBuffer', () => {
   const files = new Map<string, Buffer>([
     ['/vault/assets/pic.png', Buffer.from('a')],
@@ -138,6 +189,11 @@ describe('matchImageBuffer', () => {
     expect(matchImageBuffer('cover.jpg', files)?.toString()).toBe('b');
     expect(matchImageBuffer('pic', files)?.toString()).toBe('a');
     expect(matchImageBuffer('不存在.png', files)).toBeNull();
+  });
+
+  it('配图占位 ref 与上传文件按 stem 匹配', () => {
+    const files2 = new Map([['配图1.png', Buffer.from('c')]]);
+    expect(matchImageBuffer('配图1', files2)?.toString()).toBe('c');
   });
 });
 
@@ -191,10 +247,18 @@ describe('validateAiTrio', () => {
     expect(normalized.coverPrompts).toHaveLength(3);
   });
 
-  it('缺 fields 或 Title/Summary 全缺 → 校验失败', () => {
+  it('缺 fields 或 Title/Summary 全缺 → 校验失败;0 分视为省略', () => {
     expect(validateAiTrio(null).ok).toBe(false);
     expect(validateAiTrio({ tweet: 'x' }).ok).toBe(false);
     expect(validateAiTrio({ fields: { Tags: ['a'] } }).ok).toBe(false);
+    // GLM 对非评测文输出 0 分占位 → 归一化后应为 undefined(表单不显示 0)
+    const { normalized } = validateAiTrio({
+      fields: { Title: 't', Summary: 's', Rating_Overall: 0, Rating_EaseOfUse: '0', Rating_Features: 4.2 },
+      tweet: '',
+    });
+    expect(normalized.fields.Rating_Overall).toBeUndefined();
+    expect(normalized.fields.Rating_EaseOfUse).toBeUndefined();
+    expect(normalized.fields.Rating_Features).toBe(4.2);
   });
 });
 

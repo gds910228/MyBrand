@@ -187,3 +187,27 @@ export async function uploadImages(
   }
   return { urlByRef, uploaded, skipped };
 }
+
+/**
+ * 上传后外链可访问性抽检(HEAD):新文件 jsDelivr 缓存生效有秒级延迟,仓库非 Public 则永远 404。
+ * 只做提醒不发错误——首访偶发 404 后会自愈,但私有仓库必须暴露给用户。
+ * 返回不可访问的 URL 列表(最多抽查前 8 张)。
+ */
+export async function verifyImagePublic(urls: string[], max = 8): Promise<string[]> {
+  const targets = urls.slice(0, max);
+  const bad: string[] = [];
+  for (const url of targets) {
+    let ok = false;
+    for (let attempt = 0; attempt < 2 && !ok; attempt++) {
+      try {
+        const res = await fetch(url, { method: 'HEAD', redirect: 'follow' });
+        if (res.ok) ok = true;
+      } catch {
+        // 网络抖动重试
+      }
+      if (!ok && attempt === 0) await new Promise((r) => setTimeout(r, 2500));
+    }
+    if (!ok) bad.push(url);
+  }
+  return bad;
+}

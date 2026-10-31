@@ -41,6 +41,16 @@ interface Fields {
   summary: string;
   tags: string;
   cover: string;
+  // 评测扩展(字符串表单值;发布时 ratings 空串→跳过,pros/cons 按行拆,对比表 JSON.parse)
+  ratingOverall: string;
+  ratingEaseOfUse: string;
+  ratingFeatures: string;
+  pros: string;
+  cons: string;
+  toolWebsite: string;
+  toolPricing: string;
+  comparisonColumns: string;
+  comparisonData: string;
 }
 
 interface PublishResult {
@@ -67,7 +77,29 @@ const EMPTY_FIELDS: Fields = {
   summary: '',
   tags: '',
   cover: '',
+  ratingOverall: '',
+  ratingEaseOfUse: '',
+  ratingFeatures: '',
+  pros: '',
+  cons: '',
+  toolWebsite: '',
+  toolPricing: '',
+  comparisonColumns: '',
+  comparisonData: '',
 };
+
+/** 与服务端 matchImageBuffer 相同的文件名匹配逻辑(精确/相对/文件名/无扩展名 stem)。 */
+function fileMatchesRefs(fileName: string, refs: string[]): boolean {
+  for (const ref of refs) {
+    if (ref === fileName) return true;
+    const refBase = ref.split('/').pop() || ref;
+    if (refBase === fileName) return true;
+    const stem = fileName.replace(/\.[^.]+$/, '');
+    const refStem = refBase.replace(/\.[^.]+$/, '');
+    if (stem && refStem === stem) return true;
+  }
+  return false;
+}
 
 export default function AdminPublishPage() {
   const [locale, setLocale] = useState<AdminLocale>('en');
@@ -179,6 +211,15 @@ export default function AdminPublishPage() {
         summary: cur.summary || payload.fields.summary,
         tags: cur.tags || payload.fields.tags,
         language: cur.language || payload.fields.language,
+        ratingOverall: cur.ratingOverall || payload.fields.ratingOverall,
+        ratingEaseOfUse: cur.ratingEaseOfUse || payload.fields.ratingEaseOfUse,
+        ratingFeatures: cur.ratingFeatures || payload.fields.ratingFeatures,
+        pros: cur.pros || payload.fields.pros,
+        cons: cur.cons || payload.fields.cons,
+        toolWebsite: cur.toolWebsite || payload.fields.toolWebsite,
+        toolPricing: cur.toolPricing || payload.fields.toolPricing,
+        comparisonColumns: cur.comparisonColumns || payload.fields.comparisonColumns,
+        comparisonData: cur.comparisonData || payload.fields.comparisonData,
       }));
       if (payload.ai) setAi(payload.ai);
     } catch (err: any) {
@@ -206,12 +247,23 @@ export default function AdminPublishPage() {
         setPublishing(false);
         return;
       }
+      // 对比表 JSON 解析(留空 = 不写;格式错直接拦下)
+      let comparisonColumns: unknown;
+      let comparisonData: unknown;
+      try {
+        if (fields.comparisonColumns.trim()) comparisonColumns = JSON.parse(fields.comparisonColumns);
+        if (fields.comparisonData.trim()) comparisonData = JSON.parse(fields.comparisonData);
+      } catch {
+        setError(t.comparisonJsonError);
+        setPublishing(false);
+        return;
+      }
       const res = await fetch('/api/admin/publish', {
         method: 'POST',
         headers: authHeaders(),
         body: JSON.stringify({
           markdown,
-          fields,
+          fields: { ...fields, comparisonColumns, comparisonData },
           files: filesPayload,
           status: fields.status,
           scheduledAt:
@@ -313,6 +365,7 @@ export default function AdminPublishPage() {
             rows={18}
             className={`w-full font-mono text-xs leading-relaxed ${inputCls}`}
           />
+          <p className="text-xs text-neutral-400 mt-1">{t.placeholderHint}</p>
           <div className="mt-3">
             <label className="text-sm font-medium text-neutral-800 dark:text-neutral-200 block mb-1">{t.imagesLabel}</label>
             <input
@@ -324,9 +377,24 @@ export default function AdminPublishPage() {
               onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
             />
             {imageFiles.length > 0 && (
-              <p className="text-xs text-neutral-500 mt-1">
-                {imageFiles.map((f) => f.name).join(', ')}
-              </p>
+              <ul className="text-xs mt-1 space-y-0.5">
+                {imageFiles.map((f) => {
+                  const localRefs = [
+                    ...(parsed?.images.filter((i) => !i.external) || []).map((i) => i.ref),
+                    ...(parsed?.coverRef ? [parsed.coverRef] : []),
+                  ];
+                  const matched = parsed ? fileMatchesRefs(f.name, localRefs) : null;
+                  return (
+                    <li key={f.name} className={matched === false ? 'text-amber-600 dark:text-amber-400' : 'text-neutral-500'}>
+                      {matched === null ? '·' : matched ? '✅' : '⚠️'} {f.name}
+                      {matched === false && ` — ${t.fileUnmatched}`}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {imageFiles.length > 0 && !parsed && (
+              <p className="text-xs text-neutral-400 mt-1">{t.parseFirstHint}</p>
             )}
           </div>
           {parsed && parsed.warnings.length > 0 && (
@@ -428,6 +496,54 @@ export default function AdminPublishPage() {
               <span className="text-xs text-neutral-500">{t.summaryField}</span>
               <textarea value={fields.summary} onChange={(e) => setFields({ ...fields, summary: e.target.value })} rows={3} className={`w-full ${inputCls}`} />
             </label>
+
+            {/* 评测扩展:字段收起,评测文展开填写;方法论文留空即不写库 */}
+            <details className="rounded-lg border border-neutral-200 dark:border-neutral-700 px-3 py-2">
+              <summary className="text-xs font-medium text-neutral-600 dark:text-neutral-300 cursor-pointer select-none">
+                {t.reviewFieldsTitle}
+              </summary>
+              <div className="space-y-3 mt-3">
+                <div className="grid grid-cols-3 gap-3">
+                  <label className="block">
+                    <span className="text-xs text-neutral-500">{t.ratingOverallField}</span>
+                    <input type="number" min={0} max={5} step={0.1} value={fields.ratingOverall} onChange={(e) => setFields({ ...fields, ratingOverall: e.target.value })} className={`w-full ${inputCls}`} />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs text-neutral-500">{t.ratingEaseField}</span>
+                    <input type="number" min={0} max={5} step={0.1} value={fields.ratingEaseOfUse} onChange={(e) => setFields({ ...fields, ratingEaseOfUse: e.target.value })} className={`w-full ${inputCls}`} />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs text-neutral-500">{t.ratingFeaturesField}</span>
+                    <input type="number" min={0} max={5} step={0.1} value={fields.ratingFeatures} onChange={(e) => setFields({ ...fields, ratingFeatures: e.target.value })} className={`w-full ${inputCls}`} />
+                  </label>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className="text-xs text-neutral-500">{t.toolWebsiteField}</span>
+                    <input value={fields.toolWebsite} onChange={(e) => setFields({ ...fields, toolWebsite: e.target.value })} className={`w-full ${inputCls}`} />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs text-neutral-500">{t.toolPricingField}</span>
+                    <input value={fields.toolPricing} onChange={(e) => setFields({ ...fields, toolPricing: e.target.value })} className={`w-full ${inputCls}`} />
+                  </label>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className="text-xs text-neutral-500">{t.prosField}</span>
+                    <textarea value={fields.pros} onChange={(e) => setFields({ ...fields, pros: e.target.value })} rows={4} className={`w-full ${inputCls}`} />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs text-neutral-500">{t.consField}</span>
+                    <textarea value={fields.cons} onChange={(e) => setFields({ ...fields, cons: e.target.value })} rows={4} className={`w-full ${inputCls}`} />
+                  </label>
+                </div>
+                <label className="block">
+                  <span className="text-xs text-neutral-500">{t.comparisonField}</span>
+                  <textarea value={fields.comparisonColumns} onChange={(e) => setFields({ ...fields, comparisonColumns: e.target.value })} rows={3} className={`w-full font-mono text-xs ${inputCls}`} placeholder='[{"key":"price","label":"价格/月(USD)","type":"number"}]' />
+                  <textarea value={fields.comparisonData} onChange={(e) => setFields({ ...fields, comparisonData: e.target.value })} rows={3} className={`w-full font-mono text-xs ${inputCls} mt-2`} placeholder='[{"id":"t1","name":"Tool A","price":19}]' />
+                </label>
+              </div>
+            </details>
           </div>
 
           {error && <p className="text-sm text-red-600 dark:text-red-400 mt-4">{error}</p>}
@@ -501,9 +617,26 @@ export default function AdminPublishPage() {
               </li>
             )}
             <li className="text-xs">
+              {t.imagesStat
+                .replace('{uploaded}', String(result.images.uploaded))
+                .replace('{skipped}', String(result.images.skipped))
+                .replace('{missing}', String(result.images.missing.length))}
+              {' · '}{result.blockCount} blocks
+            </li>
+            <li className="text-xs">
               {result.status === 'draft' ? t.nextStepDraft : result.status === 'scheduled' ? t.nextStepScheduled : t.nextStepPublished}
             </li>
           </ul>
+          {result.warnings.length > 0 && (
+            <div className="mt-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">{t.resultWarnings}</p>
+              <ul className="text-xs text-amber-700 dark:text-amber-400 space-y-1 list-disc list-inside">
+                {result.warnings.map((w, i) => (
+                  <li key={i} className="break-all">{w}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       )}
     </main>

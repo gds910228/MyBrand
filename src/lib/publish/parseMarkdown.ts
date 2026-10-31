@@ -53,8 +53,10 @@ function toParsedImage(ref: string, alt: string): ParsedImage {
   };
 }
 
-/** 预处理 Obsidian wiki 图片嵌入 → 标准图片语法。`![[a.png|alt]]` → `![](a.png)`。
- * 引用含空格时编码为 %20(CommonMark 裸目的地不允许空格),收集阶段再解码还原。 */
+/**
+ * 预处理 Obsidian wiki 图片嵌入 → 标准图片语法。`![[a.png|alt]]` → `![](a.png)`。
+ * 引用含空格时编码为 %20(CommonMark 裸目的地不允许空格),收集阶段再解码还原。
+ */
 export function normalizeWikiEmbeds(markdown: string): string {
   return markdown.replace(/!\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/g, (_m, name: string, alt?: string) => {
     const clean = String(name).trim().replace(/ /g, '%20');
@@ -63,11 +65,27 @@ export function normalizeWikiEmbeds(markdown: string): string {
   });
 }
 
+/**
+ * 预处理中文图文占位习惯:`【配图1：描述】`(整行) → `![描述](配图1)`。
+ * 配合上传文件名 stem 匹配(如 配图1.png)即自动插图,描述成为图片 caption;
+ * 未上传对应文件时走既有"图片缺失"告警路径。整行精确匹配,正文中间提及"配图"不受影响。
+ */
+export function normalizeImagePlaceholders(markdown: string): string {
+  return markdown.replace(
+    /^[ \t]*【?\s*配图\s*(\d*)\s*[:：]\s*([^】\n]+)】?\s*$/gm,
+    (_m, n: string, desc: string) => {
+      const key = `配图${(n || '').trim()}`.trim() || '配图';
+      const alt = String(desc).trim().replace(/[[\]]/g, '');
+      return `![${alt}](${key})`;
+    },
+  );
+}
+
 const processor = unified().use(remarkParse).use(remarkGfm);
 
 export function parseMarkdown(raw: string): ParsedDocument {
   const warnings: string[] = [];
-  const normalized = normalizeWikiEmbeds(raw);
+  const normalized = normalizeWikiEmbeds(normalizeImagePlaceholders(raw));
   const parsed = matter(normalized);
   const ast = processor.parse(parsed.content) as Root;
 
@@ -135,6 +153,7 @@ export interface NormalizedFrontmatter {
   tags: string[];
   summary?: string;
   cover?: string; // 已上传后的 URL,由 publishPost 回填
+  author?: string; // 站长署名,默认 Archer
   // 评测扩展字段(工具评测帖)
   ratingOverall?: number;
   ratingEaseOfUse?: number;
@@ -210,6 +229,7 @@ export function normalizeFrontmatter(fm: Record<string, unknown>): NormalizedFro
     tags: toStringArray(fm.tags),
     summary: typeof fm.summary === 'string' && fm.summary.trim() ? fm.summary.trim() : undefined,
     cover: typeof fm.cover === 'string' && fm.cover.trim() ? fm.cover.trim() : undefined,
+    author: typeof fm.author === 'string' && fm.author.trim() ? fm.author.trim() : undefined,
     ratingOverall: num(fm.ratingOverall ?? fm.rating_overall),
     ratingEaseOfUse: num(fm.ratingEaseOfUse ?? fm.rating_easeOfUse ?? fm.rating_easeofuse),
     ratingFeatures: num(fm.ratingFeatures ?? fm.rating_features),
