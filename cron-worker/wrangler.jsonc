@@ -1,0 +1,13 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  // 定时发布触发器:替代 Vercel Cron(vercel.json.example 的 0 * * * *)。
+  // 每小时整点 GET https://misitebo.win/api/cron/publish,携带 Bearer CRON_SECRET。
+  // secret 部署方式:echo <secret> | npx wrangler secret put CRON_SECRET --config cron-worker/wrangler.jsonc
+  "name": "mybrand-cron",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-01",
+  "triggers": {
+    "crons": ["0 * * * *"]
+  },
+  "observability": { "enabled": true }
+}

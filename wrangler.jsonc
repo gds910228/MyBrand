@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // OpenNext 生成的 Worker 入口与静态资产（build 后产生 .open-next/）
+  "name": "mybrand",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-03-01",
+  // Next.js 服务端代码依赖 node:crypto/buffer 等，必须开启 nodejs_compat
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  // ISR 增量缓存暂用 static-assets 模式（无需绑定）；切 R2 时取消注释：
+  // "r2_buckets": [
+  //   { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "mybrand-next-cache" }
+  // ],
+  "observability": { "enabled": true }
+}

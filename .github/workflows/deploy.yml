@@ -1,0 +1,51 @@
+# 部署到 Cloudflare Workers(OpenNext 适配 Next.js)。
+# 参考 lightgame 仓库 deploy-pages.yml 模板;差异:本站是动态 Next.js 应用,
+# 构建期需要 Notion 凭据做 ISR 预渲染(否则预渲染产物会落到本地 fallback 数据)。
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build & Deploy (OpenNext → Cloudflare Workers)
+        run: npm run deploy:cf
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 11e0c186b2654fcf04fe9e4bbb6c2a32
+          # 构建期变量:ISR 预渲染取 Notion 数据 + 注入站点 URL
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_PROJECTS_DATABASE_ID: ${{ secrets.NOTION_PROJECTS_DATABASE_ID }}
+          NOTION_BLOG_DATABASE_ID: ${{ secrets.NOTION_BLOG_DATABASE_ID }}
+          NOTION_COMMENTS_DATABASE_ID: ${{ secrets.NOTION_COMMENTS_DATABASE_ID }}
+          NEXT_PUBLIC_SITE_URL: https://misitebo.win
+          # NEXT_PUBLIC_* 是构建期内联进客户端 bundle 的公开值(VAPID 公钥/EmailJS 前端凭证)
+          NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
+          NEXT_PUBLIC_EMAILJS_SERVICE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}
+          NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: ${{ secrets.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID }}
+          NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}
+
+      - name: Deploy cron worker (scheduled publish trigger)
+        run: npx wrangler deploy --config cron-worker/wrangler.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 11e0c186b2654fcf04fe9e4bbb6c2a32

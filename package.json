@@ -9,7 +9,10 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
-    "blog:publish": "tsx scripts/publish-post.ts"
+    "blog:publish": "tsx scripts/publish-post.ts",
+    "build:cf": "opennextjs-cloudflare build",
+    "deploy:cf": "opennextjs-cloudflare deploy",
+    "preview:cf": "opennextjs-cloudflare preview"
   },
   "keywords": [],
   "author": "",
@@ -23,12 +26,11 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@heroicons/react": "^2.2.0",
     "@notionhq/client": "^2.2.14",
-    "@vercel/analytics": "^1.5.0",
     "date-fns": "^2.30.0",
     "framer-motion": "^12.18.1",
     "gray-matter": "^4.0.3",
     "minisearch": "^7.2.0",
-    "next": "14.1.0",
+    "next": "14.2.35",
     "next-intl": "^4.1.0",
     "react": "^18",
     "react-dom": "^18",
@@ -40,6 +42,10 @@
     "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "@fontsource/syne": "^5.3.0",
+    "@opennextjs/cloudflare": "1.15.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -52,6 +58,7 @@
     "tailwindcss": "^3.3.0",
     "tsx": "^4.23.15",
     "typescript": "^5",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "wrangler": "^4.166.0"
   }
 }

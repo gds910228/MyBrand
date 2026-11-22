@@ -1,35 +1,48 @@
 "use client";
 
 import '../styles/globals.css';
-import { Syne, Space_Grotesk, IBM_Plex_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import React from 'react';
 import ThemeProvider from '@/components/ThemeProvider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Analytics } from '@vercel/analytics/react';
 
-// Syne - Distinctive, geometric display font for headings
-const syne = Syne({
-  subsets: ['latin'],
+// 自托管字体（替代 next/font/google）：
+// 1) next/font/google 构建期要从 fonts.googleapis.com 下载，本机网络会卡死构建；
+// 2) 国内访客加载 Google Fonts CSS 也被墙，自托管更稳。
+// 文件来自 @fontsource 包（latin 子集，与原 next/font/google 配置同字重）。
+const syne = localFont({
+  src: [
+    { path: '../fonts/syne-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: '../fonts/syne-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../fonts/syne-latin-600-normal.woff2', weight: '600', style: 'normal' },
+    { path: '../fonts/syne-latin-700-normal.woff2', weight: '700', style: 'normal' },
+    { path: '../fonts/syne-latin-800-normal.woff2', weight: '800', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-syne',
-  weight: ['400', '500', '600', '700', '800'],
 });
 
-// Space Grotesk - Technical, geometric sans-serif for body text
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
+const spaceGrotesk = localFont({
+  src: [
+    { path: '../fonts/space-grotesk-latin-300-normal.woff2', weight: '300', style: 'normal' },
+    { path: '../fonts/space-grotesk-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: '../fonts/space-grotesk-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../fonts/space-grotesk-latin-600-normal.woff2', weight: '600', style: 'normal' },
+    { path: '../fonts/space-grotesk-latin-700-normal.woff2', weight: '700', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-space-grotesk',
-  weight: ['300', '400', '500', '600', '700'],
 });
 
-// IBM Plex Mono - Industrial monospace for code and technical details
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ['latin'],
+const ibmPlexMono = localFont({
+  src: [
+    { path: '../fonts/ibm-plex-mono-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: '../fonts/ibm-plex-mono-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../fonts/ibm-plex-mono-latin-600-normal.woff2', weight: '600', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-ibm-plex-mono',
-  weight: ['400', '500', '600'],
 });
 
 export default function RootLayout({
@@ -64,7 +77,6 @@ export default function RootLayout({
           <main className="flex-grow pt-20">{children}</main>
           <Footer />
         </ThemeProvider>
-        <Analytics />
       </body>
     </html>
   );

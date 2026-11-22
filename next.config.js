@@ -8,6 +8,9 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
+    // CF Workers 免费档无图片转换服务(CF Image Resizing 为付费功能),改为直连原图。
+    // 顺带根治 Vercel 时代图片优化额度超限问题(转换5K/缓存写入121K双超)。
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 's3.us-west-2.amazonaws.com' },
